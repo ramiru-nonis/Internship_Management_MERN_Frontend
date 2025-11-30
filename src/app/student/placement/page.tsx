@@ -40,7 +40,31 @@ export default function PlacementFormPage() {
         description: '',
     });
 
-    // ... (useEffect and checkExistingForm remain same)
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            router.push('/login');
+            return;
+        }
+
+        checkExistingForm();
+    }, []);
+
+    const checkExistingForm = async () => {
+        try {
+            const response = await api.get('/placement/my-form');
+            if (response.data) {
+                setExistingForm(response.data);
+            }
+        } catch (error: any) {
+            // If 404, no form exists yet - this is fine
+            if (error.response?.status !== 404) {
+                console.error('Error checking existing form:', error);
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
