@@ -41,8 +41,8 @@ export default function InternshipsPage() {
             setApplications(applicationsRes.data);
 
             // Extract unique categories
-            const uniqueCategories = [...new Set(internshipsRes.data.map((i: any) => i.category))];
-            setCategories(uniqueCategories as string[]);
+            const uniqueCategories: string[] = Array.from(new Set(internshipsRes.data.map((i: any) => i.category)));
+            setCategories(uniqueCategories);
         } catch (error) {
             console.error('Error fetching internships:', error);
         } finally {
