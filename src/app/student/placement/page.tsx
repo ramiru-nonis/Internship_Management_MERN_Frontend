@@ -72,9 +72,9 @@ export default function PlacementFormPage() {
         setError('');
 
         try {
-            await api.post('/placement', formData);
+            const response = await api.post('/placement', formData);
+            setExistingForm(response.data?.placementForm || { ...formData });
             alert('Placement form submitted successfully! Your status has been updated to "Approved".');
-            router.push('/student/dashboard');
         } catch (error: any) {
             setError(error.response?.data?.message || 'Failed to submit placement form');
         } finally {
@@ -289,7 +289,7 @@ export default function PlacementFormPage() {
 
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                             <p className="text-sm text-blue-800">
-                                <strong>Note:</strong> Once submitted, this form cannot be edited. Your student status will automatically be updated to "Hired".
+                                <strong>Note:</strong> Once submitted, this form cannot be edited. Your student status will automatically be updated to "Approved".
                             </p>
                         </div>
 

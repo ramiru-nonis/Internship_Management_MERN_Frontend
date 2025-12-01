@@ -36,12 +36,13 @@ export default function StudentDashboard() {
             ]);
 
             setStudent(profileRes.data);
+            const placementStatuses = ['approved', 'Hired', 'Completed'];
             setStats({
                 totalApplications: applicationsRes.data.length,
                 activeApplications: applicationsRes.data.filter((app: any) =>
                     app.status !== 'Rejected'
                 ).length,
-                placementSubmitted: profileRes.data.status === 'Hired' || profileRes.data.status === 'Completed',
+                placementSubmitted: placementStatuses.includes(profileRes.data.status),
             });
         } catch (error) {
             console.error('Error fetching student data:', error);

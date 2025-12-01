@@ -37,20 +37,21 @@ export default function JobDetailsPage() {
     };
 
     const [showApplyModal, setShowApplyModal] = useState(false);
-    const [applyType, setApplyType] = useState<'profile' | 'custom'>('profile');
+    const [applyType, setApplyType] = useState<'profile' | 'custom_cv'>('profile');
     const [customCv, setCustomCv] = useState<File | null>(null);
+    const [modalError, setModalError] = useState<string | null>(null);
 
-    const handleApply = async (e: React.FormEvent) => {
+    const handleApplySubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setApplying(true);
-        setMessage({ type: '', text: '' });
+        setModalError(null);
 
         try {
             const formData = new FormData();
             formData.append('internshipId', params.id as string);
             formData.append('apply_type', applyType);
 
-            if (applyType === 'custom' && customCv) {
+            if (applyType === 'custom_cv' && customCv) {
                 formData.append('cv', customCv);
             }
 
@@ -60,8 +61,12 @@ export default function JobDetailsPage() {
 
             setMessage({ type: 'success', text: 'Application submitted successfully!' });
             setShowApplyModal(false);
+            setCustomCv(null);
+            setApplyType('profile');
         } catch (error: any) {
-            setMessage({ type: 'error', text: error.response?.data?.message || 'Failed to apply' });
+            const errorMessage = error.response?.data?.message || 'Failed to apply';
+            setModalError(errorMessage);
+            setMessage({ type: 'error', text: errorMessage });
         } finally {
             setApplying(false);
         }
@@ -145,7 +150,10 @@ export default function JobDetailsPage() {
                                 </div>
                             </div>
                             <button
-                                onClick={handleApply}
+                                onClick={() => {
+                                    setModalError(null);
+                                    setShowApplyModal(true);
+                                }}
                                 disabled={applying || message.type === 'success'}
                                 className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[160px]"
                             >
@@ -210,7 +218,13 @@ export default function JobDetailsPage() {
                     <div className="bg-white rounded-xl max-w-md w-full p-6">
                         <h3 className="text-xl font-bold text-gray-900 mb-4">Apply for {job.title}</h3>
 
-                        <form onSubmit={handleApply}>
+                        {modalError && (
+                            <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 text-sm border border-red-200">
+                                {modalError}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleApplySubmit}>
                             <div className="space-y-4 mb-6">
                                 <div>
                                     <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
@@ -234,9 +248,9 @@ export default function JobDetailsPage() {
                                         <input
                                             type="radio"
                                             name="applyType"
-                                            value="custom"
-                                            checked={applyType === 'custom'}
-                                            onChange={() => setApplyType('custom')}
+                                            value="custom_cv"
+                                            checked={applyType === 'custom_cv'}
+                                            onChange={() => setApplyType('custom_cv')}
                                             className="h-4 w-4 text-blue-600"
                                         />
                                         <div>
@@ -246,13 +260,13 @@ export default function JobDetailsPage() {
                                     </label>
                                 </div>
 
-                                {applyType === 'custom' && (
+                                {applyType === 'custom_cv' && (
                                     <div className="mt-3 ml-7">
                                         <input
                                             type="file"
-                                            accept=".pdf,.doc,.docx"
+                                            accept=".pdf"
                                             onChange={(e) => setCustomCv(e.target.files ? e.target.files[0] : null)}
-                                            required={applyType === 'custom'}
+                                            required={applyType === 'custom_cv'}
                                             className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                         />
                                     </div>
@@ -262,7 +276,10 @@ export default function JobDetailsPage() {
                             <div className="flex space-x-3">
                                 <button
                                     type="button"
-                                    onClick={() => setShowApplyModal(false)}
+                                    onClick={() => {
+                                        setShowApplyModal(false);
+                                        setModalError(null);
+                                    }}
                                     className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                                 >
                                     Cancel
