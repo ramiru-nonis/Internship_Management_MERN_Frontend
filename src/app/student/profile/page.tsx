@@ -39,6 +39,7 @@ export default function ProfilePage() {
             setValue('degree', res.data.degree);
             setValue('degree_level', res.data.degree_level);
             setValue('availability', res.data.availability);
+            setValue('status', res.data.status);
 
             if (res.data.preferences && res.data.preferences.length > 0) {
                 setValue('preference1', res.data.preferences[0]);
@@ -279,6 +280,21 @@ export default function ProfilePage() {
                                             <option value="Full-Time">Full-Time</option>
                                             <option value="Part-Time">Part-Time</option>
                                         </select>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Current Status</label>
+                                        <select
+                                            {...register('status')}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        >
+                                            <option value="non-intern">Not Hired (Searching)</option>
+                                            <option value="hired">Hired</option>
+                                            <option value="not hired">Not Hired</option>
+                                        </select>
+                                        <p className="text-xs text-gray-500 mt-1">Set to "Hired" to stop applying.</p>
                                     </div>
                                 </div>
 
