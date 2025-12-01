@@ -52,7 +52,7 @@ export default function PlacementFormPage() {
 
     const checkExistingForm = async () => {
         try {
-            const response = await api.get('/placement/my-form');
+            const response = await api.get('/placement');
             if (response.data) {
                 setExistingForm(response.data);
             }

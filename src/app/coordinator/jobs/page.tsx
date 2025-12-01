@@ -4,8 +4,9 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import api from '@/lib/api';
-import { Plus, Search, Filter, Briefcase, Calendar, MapPin, Trash2, Edit2, X, Check, Loader2 } from 'lucide-react';
+import { Plus, Search, Filter, Briefcase, Calendar, MapPin, Trash2, Edit2, X, Check, Loader2, User } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import Link from 'next/link';
 
 export default function CoordinatorJobs() {
     const router = useRouter();
@@ -196,6 +197,13 @@ export default function CoordinatorJobs() {
                                     <p className="text-gray-600 line-clamp-2">{job.description}</p>
                                 </div>
                                 <div className="flex gap-2">
+                                    <Link
+                                        href={`/coordinator/jobs/${job._id}/applications`}
+                                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                        title="View Applications"
+                                    >
+                                        <User className="h-5 w-5" />
+                                    </Link>
                                     <button
                                         onClick={() => handleEdit(job)}
                                         className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
@@ -221,165 +229,167 @@ export default function CoordinatorJobs() {
             </div>
 
             {/* Modal */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-                        <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                            <h2 className="text-xl font-bold text-gray-900">
-                                {editingJob ? 'Edit Job Post' : 'Create New Job Post'}
-                            </h2>
-                            <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
-                                <X className="h-6 w-6" />
-                            </button>
+            {
+                showModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+                                <h2 className="text-xl font-bold text-gray-900">
+                                    {editingJob ? 'Edit Job Post' : 'Create New Job Post'}
+                                </h2>
+                                <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600">
+                                    <X className="h-6 w-6" />
+                                </button>
+                            </div>
+                            <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                                        <input
+                                            {...register('title', { required: true })}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
+                                        <input
+                                            {...register('company_name', { required: true })}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                                        <input
+                                            {...register('location', { required: true })}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                        <select
+                                            {...register('category', { required: true })}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        >
+                                            <option value="Software Engineering">Software Engineering</option>
+                                            <option value="Data Science">Data Science</option>
+                                            <option value="Design">Design</option>
+                                            <option value="Marketing">Marketing</option>
+                                            <option value="Business">Business</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Job Type</label>
+                                        <select
+                                            {...register('type', { required: true })}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        >
+                                            <option value="On-site">On-site</option>
+                                            <option value="Remote">Remote</option>
+                                            <option value="Hybrid">Hybrid</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Stipend</label>
+                                        <select
+                                            {...register('stipend', { required: true })}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        >
+                                            <option value="Paid">Paid</option>
+                                            <option value="Unpaid">Unpaid</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                                        <input
+                                            {...register('duration', { required: true })}
+                                            placeholder="e.g. 6 months"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Employer Email</label>
+                                        <input
+                                            type="email"
+                                            {...register('employer_email', { required: true })}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                                    <textarea
+                                        {...register('description', { required: true })}
+                                        rows={4}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
+                                    <textarea
+                                        {...register('requirements', { required: true })}
+                                        rows={4}
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
+                                        <input
+                                            type="date"
+                                            {...register('deadline', { required: true })}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Skills (comma separated)</label>
+                                        <input
+                                            {...register('skills')}
+                                            placeholder="React, Node.js, TypeScript"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowModal(false)}
+                                        className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg mr-2"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={saving}
+                                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center disabled:opacity-50"
+                                    >
+                                        {saving ? (
+                                            <>
+                                                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                                Saving...
+                                            </>
+                                        ) : (
+                                            'Save Job Post'
+                                        )}
+                                    </button>
+                                </div>
+                            </form>
                         </div>
-                        <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
-                                    <input
-                                        {...register('title', { required: true })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Company Name</label>
-                                    <input
-                                        {...register('company_name', { required: true })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                                    <input
-                                        {...register('location', { required: true })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                                    <select
-                                        {...register('category', { required: true })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    >
-                                        <option value="Software Engineering">Software Engineering</option>
-                                        <option value="Data Science">Data Science</option>
-                                        <option value="Design">Design</option>
-                                        <option value="Marketing">Marketing</option>
-                                        <option value="Business">Business</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Job Type</label>
-                                    <select
-                                        {...register('type', { required: true })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    >
-                                        <option value="On-site">On-site</option>
-                                        <option value="Remote">Remote</option>
-                                        <option value="Hybrid">Hybrid</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Stipend</label>
-                                    <select
-                                        {...register('stipend', { required: true })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    >
-                                        <option value="Paid">Paid</option>
-                                        <option value="Unpaid">Unpaid</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
-                                    <input
-                                        {...register('duration', { required: true })}
-                                        placeholder="e.g. 6 months"
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Employer Email</label>
-                                    <input
-                                        type="email"
-                                        {...register('employer_email', { required: true })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                                <textarea
-                                    {...register('description', { required: true })}
-                                    rows={4}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                />
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">Requirements</label>
-                                <textarea
-                                    {...register('requirements', { required: true })}
-                                    rows={4}
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Deadline</label>
-                                    <input
-                                        type="date"
-                                        {...register('deadline', { required: true })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Skills (comma separated)</label>
-                                    <input
-                                        {...register('skills')}
-                                        placeholder="React, Node.js, TypeScript"
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex justify-end pt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowModal(false)}
-                                    className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg mr-2"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={saving}
-                                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center disabled:opacity-50"
-                                >
-                                    {saving ? (
-                                        <>
-                                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                                            Saving...
-                                        </>
-                                    ) : (
-                                        'Save Job Post'
-                                    )}
-                                </button>
-                            </div>
-                        </form>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }

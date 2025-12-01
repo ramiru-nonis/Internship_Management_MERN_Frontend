@@ -3,15 +3,15 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
-import StatusBadge from '@/components/StatusBadge';
 import api from '@/lib/api';
-import { Calendar, MapPin, Briefcase, FileText, Download } from 'lucide-react';
+import { Briefcase, Calendar, MapPin, Building, FileText } from 'lucide-react';
+import Link from 'next/link';
 
-export default function ApplicationsPage() {
+export default function ApplicationHistoryPage() {
     const router = useRouter();
     const [applications, setApplications] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState('all');
+    const [studentId, setStudentId] = useState<string | null>(null);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -19,14 +19,26 @@ export default function ApplicationsPage() {
             router.push('/login');
             return;
         }
-
-        fetchApplications();
+        fetchStudentProfile();
     }, []);
 
-    const fetchApplications = async () => {
+    const fetchStudentProfile = async () => {
         try {
-            const response = await api.get('/students/applications');
-            setApplications(response.data);
+            const res = await api.get('/students/profile');
+            if (res.data && res.data._id) {
+                setStudentId(res.data._id);
+                fetchApplications(res.data._id);
+            }
+        } catch (error) {
+            console.error('Error fetching profile:', error);
+            setLoading(false);
+        }
+    };
+
+    const fetchApplications = async (id: string) => {
+        try {
+            const res = await api.get(`/applications/student/${id}`);
+            setApplications(res.data);
         } catch (error) {
             console.error('Error fetching applications:', error);
         } finally {
@@ -34,111 +46,94 @@ export default function ApplicationsPage() {
         }
     };
 
-    const filteredApplications = applications.filter(app => {
-        if (filter === 'all') return true;
-        return app.status === filter;
-    });
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <Navbar />
+                <div className="flex items-center justify-center h-96">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                        <p className="mt-4 text-gray-600">Loading history...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
             <Navbar />
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Header */}
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">My Applications</h1>
-                    <p className="text-gray-600 mt-2">Track the status of your internship applications</p>
+                    <h1 className="text-3xl font-bold text-gray-900">Application History</h1>
+                    <p className="text-gray-600 mt-2">Track your internship applications</p>
                 </div>
 
-                {/* Filter */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
-                    <div className="flex flex-wrap gap-2">
-                        {['all', 'Applied', 'Shortlisted', 'Contacted', 'Sent to Company', 'Rejected'].map(status => (
-                            <button
-                                key={status}
-                                onClick={() => setFilter(status)}
-                                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === status
-                                        ? 'bg-blue-600 text-white'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
-                            >
-                                {status === 'all' ? 'All' : status}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Applications List */}
-                {loading ? (
-                    <div className="flex items-center justify-center h-64">
-                        <div className="text-center">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                            <p className="mt-4 text-gray-600">Loading applications...</p>
-                        </div>
-                    </div>
-                ) : filteredApplications.length === 0 ? (
-                    <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-200">
-                        <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                        <p className="text-gray-600 text-lg">No applications found</p>
-                        <p className="text-gray-500 text-sm mt-2">
-                            {filter === 'all' ? 'Start applying to internships!' : `No applications with status "${filter}"`}
-                        </p>
-                    </div>
-                ) : (
-                    <div className="space-y-4">
-                        {filteredApplications.map(application => (
-                            <div key={application._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="flex-1">
-                                        <h3 className="text-xl font-bold text-gray-900 mb-1">
-                                            {application.internship.title}
-                                        </h3>
-                                        <p className="text-lg text-gray-600 font-medium">
-                                            {application.internship.company_name}
-                                        </p>
+                <div className="space-y-6">
+                    {applications.map((app) => (
+                        <div key={app._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                                <div>
+                                    <div className="flex items-center gap-3 mb-2">
+                                        <h3 className="text-xl font-bold text-gray-900">{app.internship?.title || 'Unknown Position'}</h3>
+                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${app.status === 'Accepted' ? 'bg-green-100 text-green-800' :
+                                                app.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                                                    app.status === 'Reviewed' ? 'bg-yellow-100 text-yellow-800' :
+                                                        'bg-blue-100 text-blue-800'
+                                            }`}>
+                                            {app.status}
+                                        </span>
                                     </div>
-                                    <StatusBadge status={application.status} type="application" />
+
+                                    <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                                        <div className="flex items-center">
+                                            <Building className="h-4 w-4 mr-2" />
+                                            {app.internship?.company_name || 'Unknown Company'}
+                                        </div>
+                                        <div className="flex items-center">
+                                            <Calendar className="h-4 w-4 mr-2" />
+                                            Applied: {new Date(app.createdAt).toLocaleDateString()}
+                                        </div>
+                                        <div className="flex items-center">
+                                            <FileText className="h-4 w-4 mr-2" />
+                                            Type: {app.apply_type === 'custom_cv' ? 'Custom CV' : 'Profile CV'}
+                                        </div>
+                                    </div>
+
+                                    {app.notes && (
+                                        <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700">
+                                            <span className="font-semibold">Coordinator Notes:</span> {app.notes}
+                                        </div>
+                                    )}
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Briefcase className="h-4 w-4 mr-2" />
-                                        <span>{application.internship.category}</span>
-                                    </div>
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <MapPin className="h-4 w-4 mr-2" />
-                                        <span>{application.internship.location}</span>
-                                    </div>
-                                    <div className="flex items-center text-sm text-gray-600">
-                                        <Calendar className="h-4 w-4 mr-2" />
-                                        <span>Applied: {new Date(application.createdAt).toLocaleDateString()}</span>
-                                    </div>
-                                </div>
-
-                                {application.notes && (
-                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                                        <p className="text-sm font-medium text-blue-900 mb-1">Coordinator Notes:</p>
-                                        <p className="text-sm text-blue-800">{application.notes}</p>
-                                    </div>
-                                )}
-
-                                {application.cv && (
-                                    <div className="flex items-center space-x-2">
-                                        <Download className="h-4 w-4 text-gray-600" />
-                                        <a
-                                            href={`${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${application.cv}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-                                        >
-                                            View Submitted CV
-                                        </a>
-                                    </div>
+                                {app.internship && (
+                                    <Link
+                                        href={`/student/internships/${app.internship._id}`}
+                                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                    >
+                                        View Job Details &rarr;
+                                    </Link>
                                 )}
                             </div>
-                        ))}
-                    </div>
-                )}
+                        </div>
+                    ))}
+
+                    {applications.length === 0 && (
+                        <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+                            <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                            <h3 className="text-lg font-medium text-gray-900">No applications yet</h3>
+                            <p className="text-gray-500 mt-2">Start applying for internships to see them here.</p>
+                            <Link
+                                href="/student/internships"
+                                className="inline-block mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                Browse Internships
+                            </Link>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

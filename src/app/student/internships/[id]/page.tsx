@@ -36,15 +36,30 @@ export default function JobDetailsPage() {
         }
     };
 
-    const handleApply = async () => {
-        if (!confirm('Are you sure you want to apply for this internship?')) return;
+    const [showApplyModal, setShowApplyModal] = useState(false);
+    const [applyType, setApplyType] = useState<'profile' | 'custom'>('profile');
+    const [customCv, setCustomCv] = useState<File | null>(null);
 
+    const handleApply = async (e: React.FormEvent) => {
+        e.preventDefault();
         setApplying(true);
         setMessage({ type: '', text: '' });
 
         try {
-            await api.post(`/internships/${params.id}/apply`);
+            const formData = new FormData();
+            formData.append('internshipId', params.id as string);
+            formData.append('apply_type', applyType);
+
+            if (applyType === 'custom' && customCv) {
+                formData.append('cv', customCv);
+            }
+
+            await api.post('/applications', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
             setMessage({ type: 'success', text: 'Application submitted successfully!' });
+            setShowApplyModal(false);
         } catch (error: any) {
             setMessage({ type: 'error', text: error.response?.data?.message || 'Failed to apply' });
         } finally {
@@ -188,6 +203,82 @@ export default function JobDetailsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Apply Modal */}
+            {showApplyModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-xl max-w-md w-full p-6">
+                        <h3 className="text-xl font-bold text-gray-900 mb-4">Apply for {job.title}</h3>
+
+                        <form onSubmit={handleApply}>
+                            <div className="space-y-4 mb-6">
+                                <div>
+                                    <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                        <input
+                                            type="radio"
+                                            name="applyType"
+                                            value="profile"
+                                            checked={applyType === 'profile'}
+                                            onChange={() => setApplyType('profile')}
+                                            className="h-4 w-4 text-blue-600"
+                                        />
+                                        <div>
+                                            <span className="font-medium text-gray-900">Use Profile CV</span>
+                                            <p className="text-sm text-gray-500">Apply with your default CV</p>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <div>
+                                    <label className="flex items-center space-x-3 p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                                        <input
+                                            type="radio"
+                                            name="applyType"
+                                            value="custom"
+                                            checked={applyType === 'custom'}
+                                            onChange={() => setApplyType('custom')}
+                                            className="h-4 w-4 text-blue-600"
+                                        />
+                                        <div>
+                                            <span className="font-medium text-gray-900">Upload Custom CV</span>
+                                            <p className="text-sm text-gray-500">Upload a specific CV for this job</p>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                {applyType === 'custom' && (
+                                    <div className="mt-3 ml-7">
+                                        <input
+                                            type="file"
+                                            accept=".pdf,.doc,.docx"
+                                            onChange={(e) => setCustomCv(e.target.files ? e.target.files[0] : null)}
+                                            required={applyType === 'custom'}
+                                            className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex space-x-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setShowApplyModal(false)}
+                                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={applying || (applyType === 'custom' && !customCv)}
+                                    className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                                >
+                                    {applying ? 'Applying...' : 'Submit Application'}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

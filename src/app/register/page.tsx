@@ -117,7 +117,7 @@ export default function RegisterPage() {
                                 <label className="block text-sm font-medium text-white/90 mb-1">Level</label>
                                 <select {...register('degree_level', { required: 'Required' })} className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 [&>option]:text-black">
                                     <option value="">Select Level</option>
-                                    <option value="Level 4">Level 4</option>
+
                                     <option value="Level 5">Level 5</option>
                                     <option value="Level 6">Level 6</option>
                                 </select>

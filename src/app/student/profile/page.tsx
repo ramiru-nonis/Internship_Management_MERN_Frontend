@@ -300,7 +300,7 @@ export default function ProfilePage() {
                                             {...register('degree_level', { required: 'Required' })}
                                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                         >
-                                            <option value="Level 4">Level 4</option>
+
                                             <option value="Level 5">Level 5</option>
                                             <option value="Level 6">Level 6</option>
                                         </select>
