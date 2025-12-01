@@ -286,7 +286,7 @@ export default function JobDetailsPage() {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={applying || (applyType === 'custom' && !customCv)}
+                                    disabled={applying || (applyType === 'custom_cv' && !customCv)}
                                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                                 >
                                     {applying ? 'Applying...' : 'Submit Application'}
