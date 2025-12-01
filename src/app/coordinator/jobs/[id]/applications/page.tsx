@@ -91,7 +91,9 @@ export default function JobApplicationsPage() {
             setApplications(applications.map(a => a._id === appId ? { ...a, status: newStatus } : a));
         } catch (error) {
             console.error('Error updating status:', error);
-            alert('Failed to update status');
+            const errorMessage = error.response?.data?.message || 'Failed to update status';
+            console.error('Error updating status:', errorMessage);
+            alert(errorMessage);
         }
     };
 
@@ -213,9 +215,9 @@ export default function JobApplicationsPage() {
                                                 value={app.status}
                                                 onChange={(e) => handleStatusUpdate(app._id, e.target.value)}
                                                 className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${app.status === 'Accepted' ? 'bg-green-100 text-green-800' :
-                                                        app.status === 'Rejected' ? 'bg-red-100 text-red-800' :
-                                                            app.status === 'Reviewed' ? 'bg-yellow-100 text-yellow-800' :
-                                                                'bg-blue-100 text-blue-800'
+                                                    app.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                                                        app.status === 'Reviewed' ? 'bg-yellow-100 text-yellow-800' :
+                                                            'bg-blue-100 text-blue-800'
                                                     }`}
                                             >
                                                 <option value="Applied">Applied</option>
