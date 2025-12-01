@@ -230,7 +230,7 @@ export default function CoordinatorStudents() {
                                                 <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
                                                     {student.profile_picture ? (
                                                         <img
-                                                            src={student.profile_picture.startsWith('http') ? student.profile_picture : `http://localhost:5000/${student.profile_picture}`}
+                                                            src={student.profile_picture.startsWith('http') ? student.profile_picture : `https://internship-management-backend-production.up.railway.app/${student.profile_picture}`}
                                                             alt=""
                                                             className="h-10 w-10 rounded-full object-cover"
                                                         />
@@ -268,27 +268,28 @@ export default function CoordinatorStudents() {
                                                     try {
                                                         await api.put(`/coordinator/students/${student._id}/status`, { status: newStatus });
                                                         setStudents(students.map(s => s._id === student._id ? { ...s, status: newStatus } : s));
-                                                    } catch (error) {
+                                                    } catch (error: any) {
                                                         console.error('Error updating status:', error);
-                                                        alert('Failed to update status');
+                                                        alert(error.response?.data?.message || 'Failed to update status');
                                                     }
                                                 }}
-                                                className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${student.status === 'Hired' ? 'bg-green-100 text-green-800' :
-                                                    student.status === 'Applied' ? 'bg-blue-100 text-blue-800' :
-                                                        student.status === 'Completed' ? 'bg-purple-100 text-purple-800' :
+                                                className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${student.status === 'hired' ? 'bg-green-100 text-green-800' :
+                                                    student.status === 'intern' ? 'bg-blue-100 text-blue-800' :
+                                                        student.status === 'approved' ? 'bg-purple-100 text-purple-800' :
                                                             'bg-gray-100 text-gray-800'
                                                     }`}
                                             >
-                                                <option value="Not Applied">Not Applied</option>
-                                                <option value="Applied">Applied</option>
-                                                <option value="Hired">Hired</option>
-                                                <option value="Completed">Completed</option>
+                                                <option value="non-intern">Non-Intern</option>
+                                                <option value="intern">Intern</option>
+                                                <option value="approved">Approved</option>
+                                                <option value="hired">Hired</option>
+                                                <option value="not hired">Not Hired</option>
                                             </select>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {student.cv ? (
                                                 <a
-                                                    href={student.cv.startsWith('http') ? student.cv : `http://localhost:5000/${student.cv}`}
+                                                    href={student.cv.startsWith('http') ? student.cv : `https://internship-management-backend-production.up.railway.app/${student.cv}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="text-blue-600 hover:text-blue-900 flex items-center"
