@@ -138,7 +138,7 @@ export default function CoordinatorApplications() {
                                                     try {
                                                         await api.put(`/applications/${app._id}/status`, { status: newStatus });
                                                         setApplications(applications.map(a => a._id === app._id ? { ...a, status: newStatus } : a));
-                                                    } catch (error) {
+                                                    } catch (error: any) {
                                                         console.error('Error updating status:', error);
                                                         const errorMessage = error.response?.data?.message || 'Failed to update status';
                                                         console.error('Error updating status:', errorMessage);
