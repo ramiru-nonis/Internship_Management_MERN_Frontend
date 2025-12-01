@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import Navbar from '@/components/Navbar';
 import api from '@/lib/api';
-import { User, FileText, Mail, Phone, Book, Calendar, Upload, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { User, FileText, Mail, Phone, Book, Calendar, Upload, Loader2, CheckCircle, AlertCircle, Download } from 'lucide-react';
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -207,14 +207,40 @@ export default function ProfilePage() {
                                         <FileText className="w-8 h-8 text-red-500 mr-3" />
                                         <div className="text-left">
                                             <p className="text-sm font-medium text-gray-900">Current CV</p>
-                                            <a
-                                                href={student?.cv?.startsWith('http') ? student.cv : `https://internship-management-backend-production.up.railway.app/${student?.cv}`}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-xs text-blue-600 hover:underline"
-                                            >
-                                                View PDF
-                                            </a>
+                                            <div className="flex items-center space-x-3">
+                                                <a
+                                                    href={student?.cv?.startsWith('http') ? student.cv : `https://internship-management-backend-production.up.railway.app/${student?.cv}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs text-blue-600 hover:underline"
+                                                >
+                                                    View PDF
+                                                </a>
+                                                <span className="text-gray-300">|</span>
+                                                <button
+                                                    onClick={async () => {
+                                                        try {
+                                                            const cvUrl = student?.cv?.startsWith('http') ? student.cv : `https://internship-management-backend-production.up.railway.app/${student?.cv}`;
+                                                            const response = await fetch(cvUrl);
+                                                            const blob = await response.blob();
+                                                            const url = window.URL.createObjectURL(blob);
+                                                            const link = document.createElement('a');
+                                                            link.href = url;
+                                                            link.download = `CV_${student.first_name}_${student.last_name}.pdf`;
+                                                            document.body.appendChild(link);
+                                                            link.click();
+                                                            link.remove();
+                                                        } catch (error) {
+                                                            console.error('Download failed:', error);
+                                                            setMessage({ type: 'error', text: 'Failed to download CV' });
+                                                        }
+                                                    }}
+                                                    className="text-xs text-blue-600 hover:underline flex items-center"
+                                                >
+                                                    <Download className="w-3 h-3 mr-1" />
+                                                    Download
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                     <label className="p-2 hover:bg-gray-200 rounded-full cursor-pointer transition-colors">
