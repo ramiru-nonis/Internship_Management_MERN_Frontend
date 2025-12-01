@@ -73,7 +73,7 @@ export default function PlacementFormPage() {
 
         try {
             await api.post('/placement', formData);
-            alert('Placement form submitted successfully! Your status has been updated to "Hired".');
+            alert('Placement form submitted successfully! Your status has been updated to "Approved".');
             router.push('/student/dashboard');
         } catch (error: any) {
             setError(error.response?.data?.message || 'Failed to submit placement form');
