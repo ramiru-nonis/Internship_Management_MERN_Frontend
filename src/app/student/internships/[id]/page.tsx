@@ -28,6 +28,9 @@ export default function JobDetailsPage() {
         try {
             const res = await api.get(`/internships/${params.id}`);
             setJob(res.data);
+            if (res.data.hasApplied) {
+                setMessage({ type: 'success', text: 'You have already applied for this position' });
+            }
         } catch (error) {
             console.error('Error fetching job details:', error);
             setMessage({ type: 'error', text: 'Failed to load job details' });
