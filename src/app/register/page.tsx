@@ -7,6 +7,21 @@ import Link from 'next/link';
 import api from '@/lib/api';
 import { Loader2, Upload, User, FileText } from 'lucide-react';
 
+const JOB_PREFERENCES = [
+    "Software Engineering",
+    "Data Science",
+    "Web Development",
+    "Mobile App Development",
+    "UI/UX Design",
+    "Quality Assurance",
+    "DevOps",
+    "Business Analysis",
+    "Product Management",
+    "Network Engineering",
+    "Cybersecurity",
+    "Database Administration"
+];
+
 export default function RegisterPage() {
     const { register, handleSubmit, formState: { errors }, watch } = useForm();
     const [isLoading, setIsLoading] = useState(false);
@@ -152,9 +167,24 @@ export default function RegisterPage() {
                         <h3 className="text-xl font-semibold text-white border-b border-white/20 pb-2">Preferences & Files</h3>
 
                         <div className="grid grid-cols-3 gap-2">
-                            <input {...register('preference1', { required: 'At least 1 pref required' })} className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm placeholder-white/50" placeholder="Pref 1 (e.g. SE)" />
-                            <input {...register('preference2')} className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm placeholder-white/50" placeholder="Pref 2" />
-                            <input {...register('preference3')} className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm placeholder-white/50" placeholder="Pref 3" />
+                            <select {...register('preference1', { required: 'At least 1 pref required' })} className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 [&>option]:text-black">
+                                <option value="">Pref 1</option>
+                                {JOB_PREFERENCES.map(pref => (
+                                    <option key={pref} value={pref}>{pref}</option>
+                                ))}
+                            </select>
+                            <select {...register('preference2')} className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 [&>option]:text-black">
+                                <option value="">Pref 2</option>
+                                {JOB_PREFERENCES.map(pref => (
+                                    <option key={pref} value={pref}>{pref}</option>
+                                ))}
+                            </select>
+                            <select {...register('preference3')} className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 [&>option]:text-black">
+                                <option value="">Pref 3</option>
+                                {JOB_PREFERENCES.map(pref => (
+                                    <option key={pref} value={pref}>{pref}</option>
+                                ))}
+                            </select>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
