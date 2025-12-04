@@ -36,7 +36,7 @@ export default function StudentDashboard() {
             ]);
 
             setStudent(profileRes.data);
-            const placementStatuses = ['approved', 'Hired', 'Completed'];
+            const placementStatuses = ['approved', 'hired', 'Hired', 'Completed'];
             setStats({
                 totalApplications: applicationsRes.data.length,
                 activeApplications: applicationsRes.data.filter((app: any) =>
@@ -171,12 +171,16 @@ export default function StudentDashboard() {
                         className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all group"
                     >
                         <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                                <ClipboardList className="h-6 w-6 text-purple-600" />
+                            <div className={`p-3 rounded-lg transition-colors ${stats.placementSubmitted ? 'bg-green-100 group-hover:bg-green-200' : 'bg-purple-100 group-hover:bg-purple-200'}`}>
+                                <ClipboardList className={`h-6 w-6 ${stats.placementSubmitted ? 'text-green-600' : 'text-purple-600'}`} />
                             </div>
                             <div>
-                                <p className="font-semibold text-gray-900">Placement Form</p>
-                                <p className="text-sm text-gray-600">Submit details</p>
+                                <p className="font-semibold text-gray-900">
+                                    {stats.placementSubmitted ? 'Status: Submitted' : 'Placement Form'}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                    {stats.placementSubmitted ? 'View details' : 'Submit details'}
+                                </p>
                             </div>
                         </div>
                     </Link>
