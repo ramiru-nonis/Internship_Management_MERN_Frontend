@@ -31,9 +31,7 @@ export default function PlacementFormPage() {
         placement_job_role: '',
         start_date: '',
         end_date: '',
-        supervisor_name: '',
-        supervisor_email: '',
-        supervisor_phone: '',
+
         mentor_name: '',
         mentor_email: '',
         mentor_phone: '',
@@ -132,7 +130,7 @@ export default function PlacementFormPage() {
                                 <div className="space-y-3">
                                     <div><span className="text-gray-500 text-sm">Company:</span> <p>{existingForm.company_name}</p></div>
                                     <div><span className="text-gray-500 text-sm">Address:</span> <p>{existingForm.company_address}</p></div>
-                                    <div><span className="text-gray-500 text-sm">Supervisor:</span> <p>{existingForm.supervisor_name}</p></div>
+
                                     <div><span className="text-gray-500 text-sm">Mentor:</span> <p>{existingForm.mentor_name}</p></div>
                                 </div>
                             </div>
@@ -255,18 +253,7 @@ export default function PlacementFormPage() {
                         <div>
                             <h3 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Supervisor & Mentor</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Supervisor Name *</label>
-                                    <input required type="text" value={formData.supervisor_name} onChange={e => setFormData({ ...formData, supervisor_name: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Supervisor Email *</label>
-                                    <input required type="email" value={formData.supervisor_email} onChange={e => setFormData({ ...formData, supervisor_email: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Supervisor Phone</label>
-                                    <input type="tel" value={formData.supervisor_phone} onChange={e => setFormData({ ...formData, supervisor_phone: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
-                                </div>
+
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-2">Mentor Name *</label>
                                     <input required type="text" value={formData.mentor_name} onChange={e => setFormData({ ...formData, mentor_name: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />

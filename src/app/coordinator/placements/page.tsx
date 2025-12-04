@@ -87,16 +87,8 @@ export default function CoordinatorPlacements() {
                                             <span className="font-medium mr-2">Company:</span>
                                             {placement.company_name}
                                         </div>
-                                        <div className="flex items-center text-gray-600">
-                                            <User className="h-4 w-4 mr-2" />
-                                            <span className="font-medium mr-2">Supervisor:</span>
-                                            {placement.supervisor_name}
-                                        </div>
-                                        <div className="flex items-center text-gray-600">
-                                            <Mail className="h-4 w-4 mr-2" />
-                                            <span className="font-medium mr-2">Email:</span>
-                                            {placement.supervisor_email}
-                                        </div>
+
+
                                         <div className="flex items-center text-gray-600">
                                             <Calendar className="h-4 w-4 mr-2" />
                                             <span className="font-medium mr-2">Duration:</span>
