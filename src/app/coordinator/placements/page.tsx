@@ -108,7 +108,7 @@ export default function CoordinatorPlacements() {
                                 <div className="flex flex-col justify-center border-l border-gray-100 pl-6">
                                     <div className="text-sm text-gray-500 mb-1">Submitted on</div>
                                     <div className="font-medium text-gray-900">
-                                        {new Date(placement.submitted_at).toLocaleDateString()}
+                                        {new Date(placement.submittedDate || placement.createdAt).toLocaleDateString()}
                                     </div>
                                 </div>
                             </div>
