@@ -191,7 +191,7 @@ export default function PlacementFormPage() {
                             <h3 className="text-xl font-bold text-gray-900 mb-4 border-b pb-2">Emergency Contact</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-2">Contact Name *</label>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Contact Number *</label>
                                     <input required type="text" value={formData.emergency_contact} onChange={e => setFormData({ ...formData, emergency_contact: e.target.value })} className="w-full px-4 py-2 border rounded-lg" />
                                 </div>
                                 <div>
