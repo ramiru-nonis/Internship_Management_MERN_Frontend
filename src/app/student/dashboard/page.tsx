@@ -176,7 +176,7 @@ export default function StudentDashboard() {
                             </div>
                             <div>
                                 <p className="font-semibold text-gray-900">
-                                    {stats.placementSubmitted ? 'Status: Submitted' : 'Placement Form'}
+                                    {stats.placementSubmitted ? 'Placement Form' : 'Placement Form'}
                                 </p>
                                 <p className="text-sm text-gray-600">
                                     {stats.placementSubmitted ? 'View details' : 'Submit details'}
