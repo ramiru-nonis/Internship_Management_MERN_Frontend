@@ -79,6 +79,8 @@ export default function Navbar() {
         { href: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/student/internships', label: 'Browse Jobs', icon: Briefcase },
         { href: '/student/applications', label: 'My Applications', icon: FileText },
+        { href: '/student/logbook', label: 'Logbook', icon: FileText },
+        { href: '/student/final-submission', label: 'Final Submission', icon: Check },
         { href: '/student/placement', label: 'Placement Form', icon: ClipboardList },
         { href: '/student/profile', label: 'Profile', icon: User },
     ];
@@ -88,6 +90,7 @@ export default function Navbar() {
         { href: '/coordinator/students', label: 'Students', icon: Users },
         { href: '/coordinator/jobs', label: 'Job Posts', icon: Briefcase },
         { href: '/coordinator/applications', label: 'Applications', icon: FileText },
+        { href: '/coordinator/submissions', label: 'Submissions', icon: Check },
         { href: '/coordinator/placements', label: 'Placements', icon: ClipboardList },
     ];
 
