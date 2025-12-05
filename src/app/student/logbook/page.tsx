@@ -48,6 +48,17 @@ export default function LogbookPage() {
 
     const fetchPlacementInfo = async (id: string) => {
         try {
+            // Check student profile status first
+            const profileRes = await api.get('/students/profile');
+            const status = profileRes.data.status;
+            const allowedStatuses = ['approved', 'hired', 'Hired', 'Completed'];
+
+            if (!allowedStatuses.includes(status)) {
+                alert("You need to submit your placement form and get approved before accessing the logbook.");
+                router.push('/student/dashboard');
+                return;
+            }
+
             // Mock placement fetch or real
             // const res = await api.get(`/placement/student/${id}`);
             // setMentorEmail(res.data.mentorEmail);
@@ -60,6 +71,7 @@ export default function LogbookPage() {
             setMonths(Array.from({ length: monthDiff }, (_, i) => i + 1));
         } catch (error) {
             console.error("Error fetching placement info", error);
+            router.push('/student/dashboard');
         }
     }
 
@@ -234,8 +246,8 @@ export default function LogbookPage() {
                                                 onClick={() => handleWeekClick(week)}
                                                 disabled={monthStatus !== 'Draft'}
                                                 className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${monthStatus !== 'Draft'
-                                                        ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                        : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
                                                     }`}
                                             >
                                                 Week {week}
@@ -255,9 +267,9 @@ export default function LogbookPage() {
                 <div className="flex justify-end items-center space-x-4">
                     <div className="text-sm font-semibold">
                         Status: <span className={`${monthStatus === 'Approved' ? 'text-green-600' :
-                                monthStatus === 'Rejected' ? 'text-red-600' :
-                                    monthStatus === 'Pending' ? 'text-yellow-600' :
-                                        'text-gray-600'
+                            monthStatus === 'Rejected' ? 'text-red-600' :
+                                monthStatus === 'Pending' ? 'text-yellow-600' :
+                                    'text-gray-600'
                             }`}>{monthStatus}</span>
                     </div>
                     {monthStatus === 'Draft' && (
