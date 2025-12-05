@@ -133,7 +133,22 @@ export default function LogbookPage() {
     };
 
     const handleSaveDraft = async () => {
-        if (!studentId || !selectedWeek) return;
+        if (!studentId) {
+            alert("Error: Student ID missing. Please try logging out and back in.");
+            return;
+        }
+        if (!selectedWeek) {
+            alert("Error: No week selected.");
+            return;
+        }
+
+        console.log("Sending Logbook Entry:", {
+            studentId,
+            month: `Month ${selectedMonth}`,
+            year: 2024,
+            weekNumber: selectedWeek,
+            data: formData
+        });
 
         try {
             await api.post('/logbooks/entry', {
