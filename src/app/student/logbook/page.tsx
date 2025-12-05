@@ -155,9 +155,10 @@ export default function LogbookPage() {
             })
             setShowModal(false);
             alert("Draft saved successfully!");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error saving draft", error);
-            alert("Failed to save draft.");
+            const msg = error.response?.data?.message || error.message || "Unknown error";
+            alert(`Failed to save draft: ${msg}`);
         }
     };
 
