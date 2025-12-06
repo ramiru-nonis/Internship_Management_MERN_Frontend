@@ -171,6 +171,7 @@ export default function LogbookPage() {
             setShowModal(false);
             alert("Draft saved successfully!");
         } catch (error: any) {
+            console.log(error);
             console.error("Error saving draft", error);
             const msg = error.response?.data?.message || error.message || "Unknown error";
             alert(`Failed to save draft: ${msg}`);
