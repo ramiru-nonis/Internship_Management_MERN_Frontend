@@ -26,9 +26,8 @@ export default function LogbookPage() {
         trainings: ""
     });
 
-    // Auto-Save State
-    const [isDirty, setIsDirty] = useState(false);
-    const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
+    // Auto-Save State Removed
+    const [saving, setSaving] = useState(false);
 
     // --- Init & Auth Check ---
     useEffect(() => {
@@ -111,31 +110,18 @@ export default function LogbookPage() {
             setFormData({ activities: "", techSkills: "", softSkills: "", trainings: "" });
         }
 
-        setIsDirty(false);
-        setSaveStatus("idle");
         setShowModal(true);
     };
 
     const handleDataChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
-        setIsDirty(true);
     };
 
-    // --- Auto Save Logic ---
-    useEffect(() => {
-        if (!isDirty || !activeWeek || !studentId) return;
-
-        const timer = setTimeout(() => {
-            performSave();
-        }, 1000); // 1s debounce
-
-        return () => clearTimeout(timer);
-    }, [formData, isDirty]);
-
-    const performSave = async () => {
+    // --- Manual Save Logic ---
+    const handleSave = async () => {
         if (!studentId || !activeWeek) return;
 
-        setSaveStatus("saving");
+        setSaving(true);
         try {
             const res = await api.post('/logbooks/entry', {
                 studentId,
@@ -145,27 +131,20 @@ export default function LogbookPage() {
                 data: formData
             });
 
-            setLogbookData(res.data.logbook); // Update local cache with server response
-            setSaveStatus("saved");
-            setIsDirty(false);
-
-            // Clear "Saved" message after a moment
-            setTimeout(() => setSaveStatus("idle"), 2000);
+            setLogbookData(res.data.logbook); // Update local cache
+            alert("Entry Saved Successfully!");
+            setShowModal(false);
 
         } catch (error: any) {
             console.error("Save failed", error);
             const errMsg = error.response?.data?.error || error.response?.data?.message || "Error saving";
-            setSaveStatus("error");
-            // Optionally log full error
-            console.log("Auto-save error details:", errMsg);
+            alert(`Failed to save: ${errMsg}`);
+        } finally {
+            setSaving(false);
         }
     };
 
-    const handleCloseModal = async () => {
-        // If dirty when closing, force save immediately
-        if (isDirty) {
-            await performSave();
-        }
+    const handleCloseModal = () => {
         setShowModal(false);
     };
 
@@ -339,16 +318,18 @@ export default function LogbookPage() {
                         </div>
 
                         <div className="p-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex justify-between items-center">
-                            <div className="flex items-center space-x-2">
-                                {saveStatus === 'saving' && <span className="text-blue-600 text-sm font-medium animate-pulse">Saving...</span>}
-                                {saveStatus === 'saved' && <span className="text-green-600 text-sm font-medium">✨ Saved</span>}
-                                {saveStatus === 'error' && <span className="text-red-500 text-sm font-medium">Error saving!</span>}
-                            </div>
                             <button
                                 onClick={handleCloseModal}
-                                className="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                                className="text-gray-600 hover:text-gray-900 font-medium px-4 py-2"
                             >
-                                Close
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                disabled={saving}
+                                className={`bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-md ${saving ? 'opacity-70 cursor-wait' : ''}`}
+                            >
+                                {saving ? "Saving..." : "Save Entry"}
                             </button>
                         </div>
                     </div>
