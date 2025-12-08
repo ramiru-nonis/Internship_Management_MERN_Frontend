@@ -76,281 +76,266 @@ export default function LogbookPage() {
             const res = await api.get('/logbooks', {
                 params: { studentId: id, month, year: currentYear }
             });
+            setCurrentMonth(month);
+            if (studentId) fetchLogbook(studentId, month);
+        };
 
-            if (res.data.exists) {
-                setLogbookData(res.data.logbook);
+        const openWeekModal = (weekNum: number) => {
+            setActiveWeek(weekNum);
+
+            // Populate Form
+            const weekData = logbookData?.weeks?.find((w: any) => w.weekNumber === weekNum);
+            if (weekData) {
+                setFormData({
+                    activities: weekData.activities || "",
+                    techSkills: weekData.techSkills || "",
+                    softSkills: weekData.softSkills || "",
+                    trainings: weekData.trainings || ""
+                });
             } else {
-                setLogbookData(null); // No entry for this month yet
+                setFormData({ activities: "", techSkills: "", softSkills: "", trainings: "" });
             }
-        } catch (error) {
-            console.error("Fetch logbook error", error);
-        } finally {
-            setLoading(false);
-        }
-    };
 
-    // --- Event Handlers ---
-    const handleMonthChange = (month: number) => {
-        setCurrentMonth(month);
-        if (studentId) fetchLogbook(studentId, month);
-    };
-
-    const openWeekModal = (weekNum: number) => {
-        setActiveWeek(weekNum);
-
-        // Populate Form
-        const weekData = logbookData?.weeks?.find((w: any) => w.weekNumber === weekNum);
-        if (weekData) {
-            setFormData({
-                activities: weekData.activities || "",
-                techSkills: weekData.techSkills || "",
-                softSkills: weekData.softSkills || "",
-                trainings: weekData.trainings || ""
-            });
-        } else {
-            setFormData({ activities: "", techSkills: "", softSkills: "", trainings: "" });
-        }
-
-        setIsDirty(false);
-        setSaveStatus("idle");
-        setShowModal(true);
-    };
-
-    const handleDataChange = (field: string, value: string) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-        setIsDirty(true);
-    };
-
-    // --- Auto Save Logic ---
-    useEffect(() => {
-        if (!isDirty || !activeWeek || !studentId) return;
-
-        const timer = setTimeout(() => {
-            performSave();
-        }, 1000); // 1s debounce
-
-        return () => clearTimeout(timer);
-    }, [formData, isDirty]);
-
-    const performSave = async () => {
-        if (!studentId || !activeWeek) return;
-
-        setSaveStatus("saving");
-        try {
-            const res = await api.post('/logbooks/entry', {
-                studentId,
-                month: currentMonth,
-                year: currentYear,
-                weekNumber: activeWeek,
-                data: formData
-            });
-
-            setLogbookData(res.data.logbook); // Update local cache with server response
-            setSaveStatus("saved");
             setIsDirty(false);
+            setSaveStatus("idle");
+            setShowModal(true);
+        };
 
-            // Clear "Saved" message after a moment
-            setTimeout(() => setSaveStatus("idle"), 2000);
+        const handleDataChange = (field: string, value: string) => {
+            setFormData(prev => ({ ...prev, [field]: value }));
+            setIsDirty(true);
+        };
 
-        } catch (error) {
-            console.error("Save failed", error);
-            setSaveStatus("error");
-        }
-    };
+        // --- Auto Save Logic ---
+        useEffect(() => {
+            if (!isDirty || !activeWeek || !studentId) return;
 
-    const handleCloseModal = async () => {
-        // If dirty when closing, force save immediately
-        if (isDirty) {
-            await performSave();
-        }
-        setShowModal(false);
-    };
+            const timer = setTimeout(() => {
+                performSave();
+            }, 1000); // 1s debounce
 
-    // --- Submission ---
-    const handleSubmitForApproval = async () => {
-        if (!logbookData?._id) return alert("Nothing to submit.");
-        if (!mentorEmail) return alert("Mentor email not found.");
+            return () => clearTimeout(timer);
+        }, [formData, isDirty]);
 
-        const confirm = window.confirm(`Submit Month ${currentMonth} logbook to ${mentorEmail}?`);
-        if (!confirm) return;
+        const performSave = async () => {
+            if (!studentId || !activeWeek) return;
 
-        try {
-            await api.post('/logbooks/submit', {
-                logbookId: logbookData._id,
-                mentorEmail
-            });
-            alert("Submitted Successfully!");
-            fetchLogbook(studentId!, currentMonth); // Refresh status
-        } catch (error) {
-            alert("Submission failed.");
-            console.error(error);
-        }
-    };
+            setSaveStatus("saving");
+            try {
+                const res = await api.post('/logbooks/entry', {
+                    studentId,
+                    month: currentMonth,
+                    year: currentYear,
+                    weekNumber: activeWeek,
+                    data: formData
+                });
 
-    // Helper to get week summary
-    const getWeekSummary = (weekKey: number) => {
-        const found = logbookData?.weeks?.find((w: any) => w.weekNumber === weekKey);
-        if (!found) return "No entries yet.";
-        return (found.activities || "").substring(0, 50) + (found.activities?.length > 50 ? "..." : "");
-    };
+                setLogbookData(res.data.logbook); // Update local cache with server response
+                setSaveStatus("saved");
+                setIsDirty(false);
 
-    return (
-        <div className="min-h-screen bg-gray-50 p-6 font-sans text-gray-800">
-            <div className="max-w-5xl mx-auto">
+                // Clear "Saved" message after a moment
+                setTimeout(() => setSaveStatus("idle"), 2000);
 
-                {/* Header */}
-                <header className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">Student Logbook</h1>
-                    <p className="text-gray-500 mt-1">Record your weekly progress and submit for mentor approval.</p>
-                </header>
+            } catch (error) {
+                console.error("Save failed", error);
+                setSaveStatus("error");
+            }
+        };
 
-                {/* Month Tabs */}
-                <div className="flex space-x-2 overflow-x-auto pb-4 mb-6 border-b border-gray-200">
-                    {[1, 2, 3, 4, 5, 6].map(m => (
-                        <button
-                            key={m}
-                            onClick={() => handleMonthChange(m)}
-                            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${currentMonth === m
+        const handleCloseModal = async () => {
+            // If dirty when closing, force save immediately
+            if (isDirty) {
+                await performSave();
+            }
+            setShowModal(false);
+        };
+
+        // --- Submission ---
+        const handleSubmitForApproval = async () => {
+            if (!logbookData?._id) return alert("Nothing to submit.");
+            if (!mentorEmail) return alert("Mentor email not found.");
+
+            const confirm = window.confirm(`Submit Month ${currentMonth} logbook to ${mentorEmail}?`);
+            if (!confirm) return;
+
+            try {
+                await api.post('/logbooks/submit', {
+                    logbookId: logbookData._id,
+                    mentorEmail
+                });
+                alert("Submitted Successfully!");
+                fetchLogbook(studentId!, currentMonth); // Refresh status
+            } catch (error) {
+                alert("Submission failed.");
+                console.error(error);
+            }
+        };
+
+        // Helper to get week summary
+        const getWeekSummary = (weekKey: number) => {
+            const found = logbookData?.weeks?.find((w: any) => w.weekNumber === weekKey);
+            if (!found) return "No entries yet.";
+            return (found.activities || "").substring(0, 50) + (found.activities?.length > 50 ? "..." : "");
+        };
+
+        return (
+            <div className="min-h-screen bg-gray-50 p-6 font-sans text-gray-800">
+                <div className="max-w-5xl mx-auto">
+
+                    {/* Header */}
+                    <header className="mb-8">
+                        <h1 className="text-3xl font-bold text-gray-900">Student Logbook</h1>
+                        <p className="text-gray-500 mt-1">Record your weekly progress and submit for mentor approval.</p>
+                    </header>
+
+                    {/* Month Tabs */}
+                    <div className="flex space-x-2 overflow-x-auto pb-4 mb-6 border-b border-gray-200">
+                        {[1, 2, 3, 4, 5, 6].map(m => (
+                            <button
+                                key={m}
+                                onClick={() => handleMonthChange(m)}
+                                className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${currentMonth === m
                                     ? "bg-blue-600 text-white shadow-md"
                                     : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
-                                }`}
-                        >
-                            Month {m}
-                        </button>
-                    ))}
-                </div>
+                                    }`}
+                            >
+                                Month {m}
+                            </button>
+                        ))}
+                    </div>
 
-                {/* Main Content Area */}
-                {loading ? (
-                    <div className="text-center py-20 text-gray-500">Loading logbook...</div>
-                ) : (
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        {/* Status Bar */}
-                        <div className="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
-                            <div>
-                                <span className="text-sm text-gray-500 uppercase tracking-wider font-semibold">Status: </span>
-                                <span className={`font-bold ml-2 ${logbookData?.status === 'Approved' ? 'text-green-600' :
+                    {/* Main Content Area */}
+                    {loading ? (
+                        <div className="text-center py-20 text-gray-500">Loading logbook...</div>
+                    ) : (
+                        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            {/* Status Bar */}
+                            <div className="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                                <div>
+                                    <span className="text-sm text-gray-500 uppercase tracking-wider font-semibold">Status: </span>
+                                    <span className={`font-bold ml-2 ${logbookData?.status === 'Approved' ? 'text-green-600' :
                                         logbookData?.status === 'Rejected' ? 'text-red-600' :
                                             logbookData?.status === 'Pending' ? 'text-yellow-600' :
                                                 'text-gray-600'
-                                    }`}>
-                                    {logbookData?.status || "Draft"}
-                                </span>
+                                        }`}>
+                                        {logbookData?.status || "Draft"}
+                                    </span>
+                                </div>
+
+                                {(logbookData?.status === 'Draft' || logbookData?.status === 'Rejected' || !logbookData) && (
+                                    <button
+                                        onClick={handleSubmitForApproval}
+                                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-sm"
+                                    >
+                                        Request Approval
+                                    </button>
+                                )}
                             </div>
 
-                            {(logbookData?.status === 'Draft' || logbookData?.status === 'Rejected' || !logbookData) && (
-                                <button
-                                    onClick={handleSubmitForApproval}
-                                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-sm"
-                                >
-                                    Request Approval
-                                </button>
-                            )}
-                        </div>
-
-                        {/* Weeks Grid */}
-                        <div className="p-6 grid gap-4">
-                            {[1, 2, 3, 4].map(week => (
-                                <div
-                                    key={week}
-                                    onClick={() => (logbookData?.status === 'Draft' || !logbookData || logbookData?.status === 'Rejected') && openWeekModal(week)}
-                                    className={`
+                            {/* Weeks Grid */}
+                            <div className="p-6 grid gap-4">
+                                {[1, 2, 3, 4].map(week => (
+                                    <div
+                                        key={week}
+                                        onClick={() => (logbookData?.status === 'Draft' || !logbookData || logbookData?.status === 'Rejected') && openWeekModal(week)}
+                                        className={`
                                         border rounded-lg p-5 flex justify-between items-center transition-all group
                                         ${(logbookData?.status === 'Draft' || !logbookData || logbookData?.status === 'Rejected')
-                                            ? "hover:border-blue-400 hover:shadow-md cursor-pointer bg-white"
-                                            : "opacity-75 cursor-default bg-gray-50"
-                                        }
+                                                ? "hover:border-blue-400 hover:shadow-md cursor-pointer bg-white"
+                                                : "opacity-75 cursor-default bg-gray-50"
+                                            }
                                     `}
-                                >
-                                    <div>
-                                        <h3 className="text-lg font-bold text-gray-800 group-hover:text-blue-600">Week {week}</h3>
-                                        <p className="text-sm text-gray-500 mt-1">{getWeekSummary(week)}</p>
+                                    >
+                                        <div>
+                                            <h3 className="text-lg font-bold text-gray-800 group-hover:text-blue-600">Week {week}</h3>
+                                            <p className="text-sm text-gray-500 mt-1">{getWeekSummary(week)}</p>
+                                        </div>
+                                        <div className="text-gray-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                            </svg>
+                                        </div>
                                     </div>
-                                    <div className="text-gray-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                        </svg>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </div>
+
+                {/* Edit Modal */}
+                {showModal && (
+                    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[90vh]">
+                            <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                                <h2 className="text-xl font-bold text-gray-800">Editing Week {activeWeek}</h2>
+                                <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="p-6 overflow-y-auto space-y-6 flex-1">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Activities Carried Out</label>
+                                    <textarea
+                                        className="w-full p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none bg-gray-50 focus:bg-white"
+                                        rows={4}
+                                        placeholder="What did you work on this week?"
+                                        value={formData.activities}
+                                        onChange={(e) => handleDataChange('activities', e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Technical Skills</label>
+                                        <textarea
+                                            className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white"
+                                            rows={3}
+                                            value={formData.techSkills}
+                                            onChange={(e) => handleDataChange('techSkills', e.target.value)}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">Soft Skills</label>
+                                        <textarea
+                                            className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white"
+                                            rows={3}
+                                            value={formData.softSkills}
+                                            onChange={(e) => handleDataChange('softSkills', e.target.value)}
+                                        />
                                     </div>
                                 </div>
-                            ))}
+
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Trainings Attended</label>
+                                    <textarea
+                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white"
+                                        rows={2}
+                                        value={formData.trainings}
+                                        onChange={(e) => handleDataChange('trainings', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="p-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex justify-between items-center">
+                                <div className="flex items-center space-x-2">
+                                    {saveStatus === 'saving' && <span className="text-blue-600 text-sm font-medium animate-pulse">Saving...</span>}
+                                    {saveStatus === 'saved' && <span className="text-green-600 text-sm font-medium">✨ Saved</span>}
+                                    {saveStatus === 'error' && <span className="text-red-500 text-sm font-medium">Error saving!</span>}
+                                </div>
+                                <button
+                                    onClick={handleCloseModal}
+                                    className="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                                >
+                                    Close
+                                </button>
+                            </div>
                         </div>
                     </div>
                 )}
             </div>
-
-            {/* Edit Modal */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[90vh]">
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                            <h2 className="text-xl font-bold text-gray-800">Editing Week {activeWeek}</h2>
-                            <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-600">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-
-                        <div className="p-6 overflow-y-auto space-y-6 flex-1">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Activities Carried Out</label>
-                                <textarea
-                                    className="w-full p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none bg-gray-50 focus:bg-white"
-                                    rows={4}
-                                    placeholder="What did you work on this week?"
-                                    value={formData.activities}
-                                    onChange={(e) => handleDataChange('activities', e.target.value)}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Technical Skills</label>
-                                    <textarea
-                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white"
-                                        rows={3}
-                                        value={formData.techSkills}
-                                        onChange={(e) => handleDataChange('techSkills', e.target.value)}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Soft Skills</label>
-                                    <textarea
-                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white"
-                                        rows={3}
-                                        value={formData.softSkills}
-                                        onChange={(e) => handleDataChange('softSkills', e.target.value)}
-                                    />
-                                </div>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Trainings Attended</label>
-                                <textarea
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white"
-                                    rows={2}
-                                    value={formData.trainings}
-                                    onChange={(e) => handleDataChange('trainings', e.target.value)}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="p-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex justify-between items-center">
-                            <div className="flex items-center space-x-2">
-                                {saveStatus === 'saving' && <span className="text-blue-600 text-sm font-medium animate-pulse">Saving...</span>}
-                                {saveStatus === 'saved' && <span className="text-green-600 text-sm font-medium">✨ Saved</span>}
-                                {saveStatus === 'error' && <span className="text-red-500 text-sm font-medium">Error saving!</span>}
-                            </div>
-                            <button
-                                onClick={handleCloseModal}
-                                className="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors"
-                            >
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-}
+        );
+    }
