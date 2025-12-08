@@ -94,6 +94,10 @@ export default function LogbookPage() {
         if (studentId) fetchLogbook(studentId, month);
     };
 
+    const isEditable = () => {
+        return !logbookData || logbookData.status === 'Draft' || logbookData.status === 'Rejected';
+    };
+
     const openWeekModal = (weekNum: number) => {
         setActiveWeek(weekNum);
 
@@ -114,6 +118,7 @@ export default function LogbookPage() {
     };
 
     const handleDataChange = (field: string, value: string) => {
+        if (!isEditable()) return; // Prevent edits in RO mode
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
@@ -132,8 +137,8 @@ export default function LogbookPage() {
             });
 
             setLogbookData(res.data.logbook); // Update local cache
-            alert("Entry Saved Successfully!");
-            setShowModal(false);
+            // alert("Entry Saved Successfully!"); // Optional: Remove alert if sticky notification preferred
+            // setShowModal(false); // KEEP OPEN per user request
 
         } catch (error: any) {
             console.error("Save failed", error);
@@ -235,13 +240,10 @@ export default function LogbookPage() {
                             {[1, 2, 3, 4].map(week => (
                                 <div
                                     key={week}
-                                    onClick={() => (logbookData?.status === 'Draft' || !logbookData || logbookData?.status === 'Rejected') && openWeekModal(week)}
+                                    onClick={() => openWeekModal(week)} // Always allow open, logic handles read-only
                                     className={`
-                                        border rounded-lg p-5 flex justify-between items-center transition-all group
-                                        ${(logbookData?.status === 'Draft' || !logbookData || logbookData?.status === 'Rejected')
-                                            ? "hover:border-blue-400 hover:shadow-md cursor-pointer bg-white"
-                                            : "opacity-75 cursor-default bg-gray-50"
-                                        }
+                                        border rounded-lg p-5 flex justify-between items-center transition-all group cursor-pointer bg-white hover:shadow-md
+                                        ${(!isEditable()) ? "opacity-90" : "hover:border-blue-400"}
                                     `}
                                 >
                                     <div>
@@ -265,7 +267,9 @@ export default function LogbookPage() {
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[90vh]">
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center">
-                            <h2 className="text-xl font-bold text-gray-800">Editing Week {activeWeek}</h2>
+                            <h2 className="text-xl font-bold text-gray-800">
+                                {isEditable() ? `Editing Week ${activeWeek}` : `Viewing Week ${activeWeek}`}
+                            </h2>
                             <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-600">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -274,14 +278,20 @@ export default function LogbookPage() {
                         </div>
 
                         <div className="p-6 overflow-y-auto space-y-6 flex-1">
+                            {!isEditable() && (
+                                <div className="bg-yellow-50 text-yellow-800 p-3 rounded-lg text-sm mb-4">
+                                    <strong>Read Only:</strong> This logbook has been submitted/approved and cannot be edited.
+                                </div>
+                            )}
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">Activities Carried Out</label>
                                 <textarea
-                                    className="w-full p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none bg-gray-50 focus:bg-white"
+                                    className="w-full p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none bg-gray-50 focus:bg-white disabled:bg-gray-100 disabled:text-gray-500"
                                     rows={4}
                                     placeholder="What did you work on this week?"
                                     value={formData.activities}
                                     onChange={(e) => handleDataChange('activities', e.target.value)}
+                                    disabled={!isEditable()}
                                 />
                             </div>
 
@@ -289,19 +299,21 @@ export default function LogbookPage() {
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">Technical Skills</label>
                                     <textarea
-                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white"
+                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white disabled:bg-gray-100 disabled:text-gray-500"
                                         rows={3}
                                         value={formData.techSkills}
                                         onChange={(e) => handleDataChange('techSkills', e.target.value)}
+                                        disabled={!isEditable()}
                                     />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-semibold text-gray-700 mb-2">Soft Skills</label>
                                     <textarea
-                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white"
+                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white disabled:bg-gray-100 disabled:text-gray-500"
                                         rows={3}
                                         value={formData.softSkills}
                                         onChange={(e) => handleDataChange('softSkills', e.target.value)}
+                                        disabled={!isEditable()}
                                     />
                                 </div>
                             </div>
@@ -309,10 +321,11 @@ export default function LogbookPage() {
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">Trainings Attended</label>
                                 <textarea
-                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white"
+                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white disabled:bg-gray-100 disabled:text-gray-500"
                                     rows={2}
                                     value={formData.trainings}
                                     onChange={(e) => handleDataChange('trainings', e.target.value)}
+                                    disabled={!isEditable()}
                                 />
                             </div>
                         </div>
@@ -322,15 +335,21 @@ export default function LogbookPage() {
                                 onClick={handleCloseModal}
                                 className="text-gray-600 hover:text-gray-900 font-medium px-4 py-2"
                             >
-                                Cancel
+                                {isEditable() ? 'Cancel' : 'Close'}
                             </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={saving}
-                                className={`bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-md ${saving ? 'opacity-70 cursor-wait' : ''}`}
-                            >
-                                {saving ? "Saving..." : "Save Entry"}
-                            </button>
+                            {isEditable() && (
+                                <div className="flex items-center gap-4">
+                                    {/* Success Indicator could go here, for now using alert/state */}
+                                    {/* {logbookData?.weeks?.find(w => w.weekNumber === activeWeek) && <span className="text-green-600 text-sm">Saved!</span>} */}
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={saving}
+                                        className={`bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-md ${saving ? 'opacity-70 cursor-wait' : ''}`}
+                                    >
+                                        {saving ? "Saving..." : "Save Entry"}
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
