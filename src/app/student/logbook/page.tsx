@@ -22,6 +22,9 @@ export default function LogbookPage() {
     const [mentorEmail, setMentorEmail] = useState<string>("");
     const [loading, setLoading] = useState(false);
     const [monthStatus, setMonthStatus] = useState<string>("Draft");
+    // Auto-save states
+    const [saving, setSaving] = useState(false);
+    const [saveStatus, setSaveStatus] = useState<string>("");
 
     // Form State
     const [formData, setFormData] = useState({
@@ -33,15 +36,14 @@ export default function LogbookPage() {
 
     const [entries, setEntries] = useState<LogbookEntry[]>([]);
 
+    const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
+
     useEffect(() => {
         // Get Student ID and Placement Info
         const userStr = localStorage.getItem('user');
         if (userStr) {
             const user = JSON.parse(userStr);
-            setStudentId(user._id); // Assuming _id field
-
-            // Fetch Placement Info to calculate months
-            // In real app, fetch /api/placement/student/${user._id}
+            setStudentId(user._id);
             fetchPlacementInfo(user._id);
         }
     }, []);
@@ -59,16 +61,34 @@ export default function LogbookPage() {
                 return;
             }
 
-            // Mock placement fetch or real
-            // const res = await api.get(`/placement/student/${id}`);
-            // setMentorEmail(res.data.mentorEmail);
-            setMentorEmail("mentor@example.com"); // Mock for now
+            // Fetch Real Placement Info
+            const res = await api.get('/placement');
+            if (res.data && res.data.mentor_email) {
+                setMentorEmail(res.data.mentor_email);
+            } else {
+                // Fallback if no email found (should not happen if status is hired)
+                console.warn("No mentor email found in placement data");
+            }
 
-            // Calculate months logic
-            const start = new Date("2024-01-01"); // Mock start
-            const end = new Date("2024-06-30"); // Mock end
-            const monthDiff = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
-            setMonths(Array.from({ length: monthDiff }, (_, i) => i + 1));
+            // Calculate months logic (Dynamic)
+            // Assuming internship starts in the current year. 
+            // Ideally, start/end dates should also come from placement data.
+            // For now, using dynamic year but static month range to match user request "6 months only"
+            const startStr = res.data.start_date || `${currentYear}-01-01`;
+            const endStr = res.data.end_date || `${currentYear}-06-30`;
+
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+
+            // Handle edge case where dates might be invalid or missing
+            if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+                setMonths([1, 2, 3, 4, 5, 6]); // Default fallback
+            } else {
+                const monthDiff = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
+                // Generate relative month numbers (1, 2, 3...)
+                setMonths(Array.from({ length: Math.max(1, monthDiff) }, (_, i) => i + 1));
+            }
+
         } catch (error) {
             console.error("Error fetching placement info", error);
             router.push('/student/dashboard');
@@ -81,11 +101,59 @@ export default function LogbookPage() {
         }
     }, [studentId, selectedMonth]);
 
+    // Auto-save effect
+    useEffect(() => {
+        if (!showModal || !selectedWeek || !studentId) return;
+
+        const timeoutId = setTimeout(() => {
+            if (monthStatus === 'Draft') {
+                saveEntry();
+            }
+        }, 1000);
+
+        return () => clearTimeout(timeoutId);
+    }, [formData, showModal, selectedWeek, studentId]);
+
+    const saveEntry = async () => {
+        if (!studentId || !selectedWeek) return;
+
+        setSaving(true);
+        setSaveStatus("Saving...");
+
+        try {
+            await api.post('/logbooks/entry', {
+                studentId,
+                month: `Month ${selectedMonth}`,
+                year: currentYear,
+                weekNumber: selectedWeek,
+                data: formData
+            });
+
+            // Update local state silently
+            setEntries(prev => {
+                const temp = prev.filter(e => e.week !== selectedWeek);
+                return [...temp, {
+                    week: selectedWeek,
+                    ...formData,
+                    status: monthStatus as any
+                }].sort((a, b) => a.week - b.week)
+            });
+
+            setSaveStatus("Saved");
+            setTimeout(() => setSaveStatus(""), 3000); // Clear saved message after 3s
+        } catch (error: any) {
+            console.error("Error auto-saving", error);
+            setSaveStatus("Error saving");
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const fetchLogbook = async () => {
         try {
             setLoading(true);
             const res = await api.get('/logbooks', {
-                params: { studentId, month: `Month ${selectedMonth}`, year: 2024 } // Hardcoded year for now
+                params: { studentId, month: `Month ${selectedMonth}`, year: currentYear }
             });
 
             if (res.data.exists) {
@@ -132,51 +200,8 @@ export default function LogbookPage() {
         setShowModal(true);
     };
 
-    const handleSaveDraft = async () => {
-        if (!studentId) {
-            alert("Error: Student ID missing. Please try logging out and back in.");
-            return;
-        }
-        if (!selectedWeek) {
-            alert("Error: No week selected.");
-            return;
-        }
-
-        console.log("Sending Logbook Entry:", {
-            studentId,
-            month: `Month ${selectedMonth}`,
-            year: 2024,
-            weekNumber: selectedWeek,
-            data: formData
-        });
-
-        try {
-            await api.post('/logbooks/entry', {
-                studentId,
-                month: `Month ${selectedMonth}`,
-                year: 2024,
-                weekNumber: selectedWeek,
-                data: formData
-            });
-
-            // Update local state
-            setEntries(prev => {
-                const temp = prev.filter(e => e.week !== selectedWeek);
-                return [...temp, {
-                    week: selectedWeek,
-                    ...formData,
-                    status: monthStatus as any
-                }].sort((a, b) => a.week - b.week)
-            })
-            setShowModal(false);
-            alert("Draft saved successfully!");
-        } catch (error: any) {
-            console.log(error);
-            console.error("Error saving draft", error);
-            const msg = error.response?.data?.message || error.message || "Unknown error";
-            alert(`Failed to save draft: ${msg}`);
-        }
-    };
+    // Manual Save Removed in favor of Auto-save
+    // const handleSaveDraft = async () => { ... }
 
     const handleClear = () => {
         setFormData({
@@ -194,9 +219,15 @@ export default function LogbookPage() {
             return;
         }
 
+        // Ensure mentor email is available
+        if (!mentorEmail) {
+            alert("Mentor email not found. Please contact support.");
+            return;
+        }
+
         try {
             const res = await api.get('/logbooks', {
-                params: { studentId, month: `Month ${selectedMonth}`, year: 2024 }
+                params: { studentId, month: `Month ${selectedMonth}`, year: currentYear }
             });
 
             if (res.data.exists) {
@@ -206,7 +237,7 @@ export default function LogbookPage() {
                     mentorEmail
                 });
                 setMonthStatus("Pending");
-                alert("Submitted for approval! Mentor has been notified.");
+                alert(`Submitted for approval! Notification sent to ${mentorEmail}.`);
             } else {
                 alert("Please save at least one entry first.");
             }
@@ -341,25 +372,24 @@ export default function LogbookPage() {
                                 </div>
                             </div>
 
-                            <div className="flex justify-end space-x-4 mt-8">
-                                <button
-                                    onClick={handleClear}
-                                    className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
-                                >
-                                    Clear
-                                </button>
-                                <button
-                                    onClick={() => setShowModal(false)}
-                                    className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleSaveDraft}
-                                    className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-bold shadow-md shadow-purple-200 transition-all"
-                                >
-                                    Save Draft
-                                </button>
+                            <div className="flex justify-between items-center mt-8">
+                                <div className="text-sm font-medium italic text-gray-500">
+                                    {saveStatus}
+                                </div>
+                                <div className="flex space-x-4">
+                                    <button
+                                        onClick={handleClear}
+                                        className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+                                    >
+                                        Clear
+                                    </button>
+                                    <button
+                                        onClick={() => setShowModal(false)}
+                                        className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 font-medium transition-colors shadow-md"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
