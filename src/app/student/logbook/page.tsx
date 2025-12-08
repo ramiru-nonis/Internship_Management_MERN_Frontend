@@ -13,6 +13,7 @@ export default function LogbookPage() {
     const [currentMonth, setCurrentMonth] = useState<number>(1);
     const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
     const [totalMonths, setTotalMonths] = useState<number>(6); // Default to 6, update from placement
+    const [placementDates, setPlacementDates] = useState<{ start: string, end: string } | null>(null);
 
     const [logbookData, setLogbookData] = useState<any>(null); // Full logbook doc
     const [loading, setLoading] = useState(false);
@@ -66,9 +67,19 @@ export default function LogbookPage() {
             if (pData?.start_date && pData?.end_date) {
                 const start = new Date(pData.start_date);
                 const end = new Date(pData.end_date);
+
+                // Format for display
+                setPlacementDates({
+                    start: start.toLocaleDateString(),
+                    end: end.toLocaleDateString()
+                });
+
                 // Difference in months
                 const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
                 setTotalMonths(Math.max(1, months)); // Ensure at least 1 month
+                console.log("Placement Duration:", start, "to", end, "Months:", months);
+            } else {
+                console.warn("Placement dates missing in response:", pData);
             }
 
             // 3. Load Logbook for default month
@@ -201,6 +212,11 @@ export default function LogbookPage() {
                 <header className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900">Student Logbook</h1>
                     <p className="text-gray-500 mt-1">Record your weekly progress and submit for mentor approval.</p>
+                    {placementDates && (
+                        <div className="mt-3 inline-block bg-blue-50 text-blue-700 px-3 py-1 rounded-md text-sm font-medium border border-blue-100">
+                            Placement Duration: {placementDates.start} — {placementDates.end} ({totalMonths} Months)
+                        </div>
+                    )}
                 </header>
 
                 {/* Month Tabs */}
