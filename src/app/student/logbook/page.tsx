@@ -25,6 +25,7 @@ export default function LogbookPage() {
     // Auto-save states
     const [saving, setSaving] = useState(false);
     const [saveStatus, setSaveStatus] = useState<string>("");
+    const [isDirty, setIsDirty] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -103,7 +104,7 @@ export default function LogbookPage() {
 
     // Auto-save effect
     useEffect(() => {
-        if (!showModal || !selectedWeek || !studentId) return;
+        if (!showModal || !selectedWeek || !studentId || !isDirty) return;
 
         const timeoutId = setTimeout(() => {
             if (monthStatus === 'Draft') {
@@ -112,7 +113,7 @@ export default function LogbookPage() {
         }, 1000);
 
         return () => clearTimeout(timeoutId);
-    }, [formData, showModal, selectedWeek, studentId]);
+    }, [formData, showModal, selectedWeek, studentId, isDirty]);
 
     const saveEntry = async () => {
         if (!studentId || !selectedWeek) return;
@@ -140,13 +141,21 @@ export default function LogbookPage() {
             });
 
             setSaveStatus("Saved");
-            setTimeout(() => setSaveStatus(""), 3000); // Clear saved message after 3s
+            setIsDirty(false); // Reset dirty flag
+            setTimeout(() => setSaveStatus(""), 3000);
         } catch (error: any) {
             console.error("Error auto-saving", error);
             setSaveStatus("Error saving");
         } finally {
             setSaving(false);
         }
+    };
+
+    const handleClose = async () => {
+        if (isDirty && monthStatus === 'Draft') {
+            await saveEntry();
+        }
+        setShowModal(false);
     };
 
     const fetchLogbook = async () => {
@@ -197,6 +206,7 @@ export default function LogbookPage() {
                 trainings: ""
             })
         }
+        setIsDirty(false); // Reset dirty on open based on loaded data
         setShowModal(true);
     };
 
@@ -340,7 +350,7 @@ export default function LogbookPage() {
                                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                                         rows={3}
                                         value={formData.activities}
-                                        onChange={(e) => setFormData({ ...formData, activities: e.target.value })}
+                                        onChange={(e) => { setFormData({ ...formData, activities: e.target.value }); setIsDirty(true); }}
                                     />
                                 </div>
                                 <div>
@@ -349,7 +359,7 @@ export default function LogbookPage() {
                                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                                         rows={2}
                                         value={formData.techSkills}
-                                        onChange={(e) => setFormData({ ...formData, techSkills: e.target.value })}
+                                        onChange={(e) => { setFormData({ ...formData, techSkills: e.target.value }); setIsDirty(true); }}
                                     />
                                 </div>
                                 <div>
@@ -358,7 +368,7 @@ export default function LogbookPage() {
                                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                                         rows={2}
                                         value={formData.softSkills}
-                                        onChange={(e) => setFormData({ ...formData, softSkills: e.target.value })}
+                                        onChange={(e) => { setFormData({ ...formData, softSkills: e.target.value }); setIsDirty(true); }}
                                     />
                                 </div>
                                 <div>
@@ -367,7 +377,7 @@ export default function LogbookPage() {
                                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
                                         rows={2}
                                         value={formData.trainings}
-                                        onChange={(e) => setFormData({ ...formData, trainings: e.target.value })}
+                                        onChange={(e) => { setFormData({ ...formData, trainings: e.target.value }); setIsDirty(true); }}
                                     />
                                 </div>
                             </div>
@@ -384,7 +394,7 @@ export default function LogbookPage() {
                                         Clear
                                     </button>
                                     <button
-                                        onClick={() => setShowModal(false)}
+                                        onClick={handleClose}
                                         className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 font-medium transition-colors shadow-md"
                                     >
                                         Close
