@@ -137,7 +137,7 @@ export default function LogbookPage() {
             });
 
             setLogbookData(res.data.logbook); // Update local cache
-            // alert("Entry Saved Successfully!"); // Optional: Remove alert if sticky notification preferred
+            alert("Your information saved successfully");
             // setShowModal(false); // KEEP OPEN per user request
 
         } catch (error: any) {
