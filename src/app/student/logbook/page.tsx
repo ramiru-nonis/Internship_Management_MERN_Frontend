@@ -12,6 +12,7 @@ export default function LogbookPage() {
 
     const [currentMonth, setCurrentMonth] = useState<number>(1);
     const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
+    const [totalMonths, setTotalMonths] = useState<number>(6); // Default to 6, update from placement
 
     const [logbookData, setLogbookData] = useState<any>(null); // Full logbook doc
     const [loading, setLoading] = useState(false);
@@ -53,10 +54,21 @@ export default function LogbookPage() {
                 return;
             }
 
-            // 2. Get Mentor Info
+            // 2. Get Placement Info (Mentor & Dates)
             const placementRes = await api.get('/placement');
-            if (placementRes.data?.mentor_email) {
-                setMentorEmail(placementRes.data.mentor_email);
+            const pData = placementRes.data;
+
+            if (pData?.mentor_email) {
+                setMentorEmail(pData.mentor_email);
+            }
+
+            // Calculate Months Duration
+            if (pData?.start_date && pData?.end_date) {
+                const start = new Date(pData.start_date);
+                const end = new Date(pData.end_date);
+                // Difference in months
+                const months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
+                setTotalMonths(Math.max(1, months)); // Ensure at least 1 month
             }
 
             // 3. Load Logbook for default month
@@ -193,7 +205,7 @@ export default function LogbookPage() {
 
                 {/* Month Tabs */}
                 <div className="flex space-x-2 overflow-x-auto pb-4 mb-6 border-b border-gray-200">
-                    {[1, 2, 3, 4, 5, 6].map(m => (
+                    {Array.from({ length: totalMonths }, (_, i) => i + 1).map(m => (
                         <button
                             key={m}
                             onClick={() => handleMonthChange(m)}
