@@ -123,7 +123,7 @@ export default function LogbookPage() {
                 mentorEmail
             });
             setLogbookData(res.data.logbook);
-            // alert("Saved Draft!"); // Requirements say "displayed in logbook table", doesn't explicitly ask for alert, but good UX.
+            alert("Entry Saved Successfully!");
             setShowModal(false);
         } catch (error) {
             alert("Failed to save draft.");
@@ -174,8 +174,8 @@ export default function LogbookPage() {
                         key={m}
                         onClick={() => handleMonthChange(m)}
                         className={`px-6 py-2 rounded-t-lg font-medium transition-colors ${currentMonth === m
-                                ? "bg-blue-600 text-white"
-                                : "bg-white text-gray-600 hover:bg-gray-100"
+                            ? "bg-blue-600 text-white"
+                            : "bg-white text-gray-600 hover:bg-gray-100"
                             }`}
                     >
                         Month {m}
@@ -235,8 +235,8 @@ export default function LogbookPage() {
                     onClick={handleSubmitApproval}
                     disabled={logbookData?.status === 'Pending' || logbookData?.status === 'Approved'}
                     className={`px-6 py-3 rounded-lg font-bold text-white shadow-md transition-all ${logbookData?.status === 'Pending' || logbookData?.status === 'Approved'
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-green-600 hover:bg-green-700"
+                        ? "bg-gray-400 cursor-not-allowed"
+                        : "bg-green-600 hover:bg-green-700"
                         }`}
                 >
                     Get Approval
