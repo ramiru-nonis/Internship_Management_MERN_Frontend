@@ -3,408 +3,354 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 
-interface LogbookEntry {
-    week: number;
-    activities: string;
-    techSkills: string;
-    softSkills: string;
-    trainings: string;
-    status: "Draft" | "Submitted" | "Approved" | "Rejected";
-}
-
 export default function LogbookPage() {
     const router = useRouter();
-    const [selectedMonth, setSelectedMonth] = useState<number>(1);
-    const [months, setMonths] = useState<number[]>([]);
-    const [showModal, setShowModal] = useState<boolean>(false);
-    const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
+
+    // --- State ---
     const [studentId, setStudentId] = useState<string | null>(null);
     const [mentorEmail, setMentorEmail] = useState<string>("");
-    const [loading, setLoading] = useState(false);
-    const [monthStatus, setMonthStatus] = useState<string>("Draft");
-    // Auto-save states
-    const [saving, setSaving] = useState(false);
-    const [saveStatus, setSaveStatus] = useState<string>("");
-    const [isDirty, setIsDirty] = useState(false);
 
-    // Form State
+    const [currentMonth, setCurrentMonth] = useState<number>(1);
+    const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
+
+    const [logbookData, setLogbookData] = useState<any>(null); // Full logbook doc
+    const [loading, setLoading] = useState(false);
+
+    // Modal & Editing
+    const [showModal, setShowModal] = useState(false);
+    const [activeWeek, setActiveWeek] = useState<number | null>(null);
     const [formData, setFormData] = useState({
         activities: "",
         techSkills: "",
         softSkills: "",
-        trainings: "",
+        trainings: ""
     });
 
-    const [entries, setEntries] = useState<LogbookEntry[]>([]);
+    // Auto-Save State
+    const [isDirty, setIsDirty] = useState(false);
+    const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
-    const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
-
+    // --- Init & Auth Check ---
     useEffect(() => {
-        // Get Student ID and Placement Info
         const userStr = localStorage.getItem('user');
         if (userStr) {
             const user = JSON.parse(userStr);
             setStudentId(user._id);
-            fetchPlacementInfo(user._id);
+            checkPlacementAndLoad(user._id);
+        } else {
+            router.push('/login');
         }
     }, []);
 
-    const fetchPlacementInfo = async (id: string) => {
+    const checkPlacementAndLoad = async (id: string) => {
         try {
-            // Check student profile status first
+            // 1. Check Profile Status
             const profileRes = await api.get('/students/profile');
             const status = profileRes.data.status;
-            const allowedStatuses = ['approved', 'hired', 'Hired', 'Completed'];
 
-            if (!allowedStatuses.includes(status)) {
-                alert("You need to submit your placement form and get approved before accessing the logbook.");
+            if (!['approved', 'hired', 'Hired', 'Completed'].includes(status)) {
+                alert("Access Denied: You must be placed/hired to access the Logbook.");
                 router.push('/student/dashboard');
                 return;
             }
 
-            // Fetch Real Placement Info
-            const res = await api.get('/placement');
-            if (res.data && res.data.mentor_email) {
-                setMentorEmail(res.data.mentor_email);
-            } else {
-                // Fallback if no email found (should not happen if status is hired)
-                console.warn("No mentor email found in placement data");
+            // 2. Get Mentor Info
+            const placementRes = await api.get('/placement');
+            if (placementRes.data?.mentor_email) {
+                setMentorEmail(placementRes.data.mentor_email);
             }
 
-            // Calculate months logic (Dynamic)
-            // Assuming internship starts in the current year. 
-            // Ideally, start/end dates should also come from placement data.
-            // For now, using dynamic year but static month range to match user request "6 months only"
-            const startStr = res.data.start_date || `${currentYear}-01-01`;
-            const endStr = res.data.end_date || `${currentYear}-06-30`;
-
-            const start = new Date(startStr);
-            const end = new Date(endStr);
-
-            // Handle edge case where dates might be invalid or missing
-            if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-                setMonths([1, 2, 3, 4, 5, 6]); // Default fallback
-            } else {
-                const monthDiff = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth()) + 1;
-                // Generate relative month numbers (1, 2, 3...)
-                setMonths(Array.from({ length: Math.max(1, monthDiff) }, (_, i) => i + 1));
-            }
+            // 3. Load Logbook for default month
+            fetchLogbook(id, 1);
 
         } catch (error) {
-            console.error("Error fetching placement info", error);
+            console.error("Init check failed", error);
             router.push('/student/dashboard');
-        }
-    }
-
-    useEffect(() => {
-        if (studentId) {
-            fetchLogbook();
-        }
-    }, [studentId, selectedMonth]);
-
-    // Auto-save effect
-    useEffect(() => {
-        if (!showModal || !selectedWeek || !studentId || !isDirty) return;
-
-        const timeoutId = setTimeout(() => {
-            if (monthStatus === 'Draft') {
-                saveEntry();
-            }
-        }, 1000);
-
-        return () => clearTimeout(timeoutId);
-    }, [formData, showModal, selectedWeek, studentId, isDirty]);
-
-    const saveEntry = async () => {
-        if (!studentId || !selectedWeek) return;
-
-        setSaving(true);
-        setSaveStatus("Saving...");
-
-        try {
-            await api.post('/logbooks/entry', {
-                studentId,
-                month: `Month ${selectedMonth}`,
-                year: currentYear,
-                weekNumber: selectedWeek,
-                data: formData
-            });
-
-            // Update local state silently
-            setEntries(prev => {
-                const temp = prev.filter(e => e.week !== selectedWeek);
-                return [...temp, {
-                    week: selectedWeek,
-                    ...formData,
-                    status: monthStatus as any
-                }].sort((a, b) => a.week - b.week)
-            });
-
-            setSaveStatus("Saved");
-            setIsDirty(false); // Reset dirty flag
-            setTimeout(() => setSaveStatus(""), 3000);
-        } catch (error: any) {
-            console.error("Error auto-saving", error);
-            setSaveStatus("Error saving");
-        } finally {
-            setSaving(false);
         }
     };
 
-    const handleClose = async () => {
-        if (isDirty && monthStatus === 'Draft') {
-            await saveEntry();
+    // --- Data Fetching ---
+    const fetchLogbook = async (id: string, month: number) => {
+        setLoading(true);
+        try {
+            const res = await api.get('/logbooks', {
+                params: { studentId: id, month, year: currentYear }
+            });
+
+            if (res.data.exists) {
+                setLogbookData(res.data.logbook);
+            } else {
+                setLogbookData(null); // No entry for this month yet
+            }
+        } catch (error) {
+            console.error("Fetch logbook error", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // --- Event Handlers ---
+    const handleMonthChange = (month: number) => {
+        setCurrentMonth(month);
+        if (studentId) fetchLogbook(studentId, month);
+    };
+
+    const openWeekModal = (weekNum: number) => {
+        setActiveWeek(weekNum);
+
+        // Populate Form
+        const weekData = logbookData?.weeks?.find((w: any) => w.weekNumber === weekNum);
+        if (weekData) {
+            setFormData({
+                activities: weekData.activities || "",
+                techSkills: weekData.techSkills || "",
+                softSkills: weekData.softSkills || "",
+                trainings: weekData.trainings || ""
+            });
+        } else {
+            setFormData({ activities: "", techSkills: "", softSkills: "", trainings: "" });
+        }
+
+        setIsDirty(false);
+        setSaveStatus("idle");
+        setShowModal(true);
+    };
+
+    const handleDataChange = (field: string, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        setIsDirty(true);
+    };
+
+    // --- Auto Save Logic ---
+    useEffect(() => {
+        if (!isDirty || !activeWeek || !studentId) return;
+
+        const timer = setTimeout(() => {
+            performSave();
+        }, 1000); // 1s debounce
+
+        return () => clearTimeout(timer);
+    }, [formData, isDirty]);
+
+    const performSave = async () => {
+        if (!studentId || !activeWeek) return;
+
+        setSaveStatus("saving");
+        try {
+            const res = await api.post('/logbooks/entry', {
+                studentId,
+                month: currentMonth,
+                year: currentYear,
+                weekNumber: activeWeek,
+                data: formData
+            });
+
+            setLogbookData(res.data.logbook); // Update local cache with server response
+            setSaveStatus("saved");
+            setIsDirty(false);
+
+            // Clear "Saved" message after a moment
+            setTimeout(() => setSaveStatus("idle"), 2000);
+
+        } catch (error) {
+            console.error("Save failed", error);
+            setSaveStatus("error");
+        }
+    };
+
+    const handleCloseModal = async () => {
+        // If dirty when closing, force save immediately
+        if (isDirty) {
+            await performSave();
         }
         setShowModal(false);
     };
 
-    const fetchLogbook = async () => {
-        try {
-            setLoading(true);
-            const res = await api.get('/logbooks', {
-                params: { studentId, month: `Month ${selectedMonth}`, year: currentYear }
-            });
+    // --- Submission ---
+    const handleSubmitForApproval = async () => {
+        if (!logbookData?._id) return alert("Nothing to submit.");
+        if (!mentorEmail) return alert("Mentor email not found.");
 
-            if (res.data.exists) {
-                const logbook = res.data.logbook;
-                setEntries(logbook.weeks.map((w: any) => ({
-                    week: w.weekNumber,
-                    activities: w.activities,
-                    techSkills: w.techSkills,
-                    softSkills: w.softSkills,
-                    trainings: w.trainings,
-                    status: logbook.status
-                })));
-                setMonthStatus(logbook.status);
-            } else {
-                setEntries([]);
-                setMonthStatus("Draft");
-            }
-        } catch (error) {
-            console.error("Error fetching logbook", error);
-        } finally {
-            setLoading(false);
-        }
-    }
-
-    const handleWeekClick = (week: number) => {
-        setSelectedWeek(week);
-        // Load existing data for the week if exists
-        const existing = entries.find(e => e.week === week);
-        if (existing) {
-            setFormData({
-                activities: existing.activities,
-                techSkills: existing.techSkills,
-                softSkills: existing.softSkills,
-                trainings: existing.trainings
-            })
-        } else {
-            setFormData({
-                activities: "",
-                techSkills: "",
-                softSkills: "",
-                trainings: ""
-            })
-        }
-        setIsDirty(false); // Reset dirty on open based on loaded data
-        setShowModal(true);
-    };
-
-    // Manual Save Removed in favor of Auto-save
-    // const handleSaveDraft = async () => { ... }
-
-    const handleClear = () => {
-        setFormData({
-            activities: "",
-            techSkills: "",
-            softSkills: "",
-            trainings: "",
-        });
-    };
-
-    const handleGetApproval = async () => {
-        if (!studentId) return;
-        if (entries.length < 4) {
-            alert("Please complete all 4 weeks before submitting for approval.");
-            return;
-        }
-
-        // Ensure mentor email is available
-        if (!mentorEmail) {
-            alert("Mentor email not found. Please contact support.");
-            return;
-        }
+        const confirm = window.confirm(`Submit Month ${currentMonth} logbook to ${mentorEmail}?`);
+        if (!confirm) return;
 
         try {
-            const res = await api.get('/logbooks', {
-                params: { studentId, month: `Month ${selectedMonth}`, year: currentYear }
+            await api.post('/logbooks/submit', {
+                logbookId: logbookData._id,
+                mentorEmail
             });
-
-            if (res.data.exists) {
-                const logbookId = res.data.logbook._id;
-                await api.post('/logbooks/submit', {
-                    logbookId,
-                    mentorEmail
-                });
-                setMonthStatus("Pending");
-                alert(`Submitted for approval! Notification sent to ${mentorEmail}.`);
-            } else {
-                alert("Please save at least one entry first.");
-            }
+            alert("Submitted Successfully!");
+            fetchLogbook(studentId!, currentMonth); // Refresh status
         } catch (error) {
-            console.error("Error submitting logbook", error);
-            alert("Failed to submit logbook.");
+            alert("Submission failed.");
+            console.error(error);
         }
-    }
+    };
+
+    // Helper to get week summary
+    const getWeekSummary = (weekKey: number) => {
+        const found = logbookData?.weeks?.find((w: any) => w.weekNumber === weekKey);
+        if (!found) return "No entries yet.";
+        return (found.activities || "").substring(0, 50) + (found.activities?.length > 50 ? "..." : "");
+    };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
-            <div className="max-w-7xl mx-auto">
-                <h1 className="text-3xl font-bold text-gray-800 mb-8">Weekly Logbook</h1>
+        <div className="min-h-screen bg-gray-50 p-6 font-sans text-gray-800">
+            <div className="max-w-5xl mx-auto">
 
-                {/* Month Navigation */}
-                <div className="flex space-x-4 mb-8 overflow-x-auto pb-4">
-                    {months.map((month) => (
+                {/* Header */}
+                <header className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900">Student Logbook</h1>
+                    <p className="text-gray-500 mt-1">Record your weekly progress and submit for mentor approval.</p>
+                </header>
+
+                {/* Month Tabs */}
+                <div className="flex space-x-2 overflow-x-auto pb-4 mb-6 border-b border-gray-200">
+                    {[1, 2, 3, 4, 5, 6].map(m => (
                         <button
-                            key={month}
-                            onClick={() => setSelectedMonth(month)}
-                            className={`px-6 py-3 rounded-lg font-semibold transition-all shadow-sm whitespace-nowrap ${selectedMonth === month
-                                ? "bg-purple-600 text-white shadow-purple-200"
-                                : "bg-white text-gray-600 hover:bg-gray-100"
+                            key={m}
+                            onClick={() => handleMonthChange(m)}
+                            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${currentMonth === m
+                                    ? "bg-blue-600 text-white shadow-md"
+                                    : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
                                 }`}
                         >
-                            Month {month}
+                            Month {m}
                         </button>
                     ))}
                 </div>
 
-                {/* Logbook Table */}
-                <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8 border border-gray-100 relative">
-                    {loading && (
-                        <div className="absolute inset-0 bg-white/50 flex items-center justify-center z-10">
-                            Loading...
+                {/* Main Content Area */}
+                {loading ? (
+                    <div className="text-center py-20 text-gray-500">Loading logbook...</div>
+                ) : (
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        {/* Status Bar */}
+                        <div className="px-6 py-4 bg-gray-50 border-b border-gray-200 flex justify-between items-center">
+                            <div>
+                                <span className="text-sm text-gray-500 uppercase tracking-wider font-semibold">Status: </span>
+                                <span className={`font-bold ml-2 ${logbookData?.status === 'Approved' ? 'text-green-600' :
+                                        logbookData?.status === 'Rejected' ? 'text-red-600' :
+                                            logbookData?.status === 'Pending' ? 'text-yellow-600' :
+                                                'text-gray-600'
+                                    }`}>
+                                    {logbookData?.status || "Draft"}
+                                </span>
+                            </div>
+
+                            {(logbookData?.status === 'Draft' || logbookData?.status === 'Rejected' || !logbookData) && (
+                                <button
+                                    onClick={handleSubmitForApproval}
+                                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-sm"
+                                >
+                                    Request Approval
+                                </button>
+                            )}
                         </div>
-                    )}
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-gray-50 border-b border-gray-200">
-                                <th className="p-4 font-semibold text-gray-600 text-sm">Week</th>
-                                <th className="p-4 font-semibold text-gray-600 text-sm">Activities Carried Out</th>
-                                <th className="p-4 font-semibold text-gray-600 text-sm">Technical Skills Developed</th>
-                                <th className="p-4 font-semibold text-gray-600 text-sm">Soft Skills Developed</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {[1, 2, 3, 4].map((week) => {
-                                const entry = entries.find(e => e.week === week);
-                                return (
-                                    <tr key={week} className="hover:bg-gray-50 transition-colors">
-                                        <td className="p-4">
-                                            <button
-                                                onClick={() => handleWeekClick(week)}
-                                                disabled={monthStatus !== 'Draft'}
-                                                className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${monthStatus !== 'Draft'
-                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                                                    : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
-                                                    }`}
-                                            >
-                                                Week {week}
-                                            </button>
-                                        </td>
-                                        <td className="p-4 text-gray-700 text-sm">{entry?.activities || "-"}</td>
-                                        <td className="p-4 text-gray-700 text-sm">{entry?.techSkills || "-"}</td>
-                                        <td className="p-4 text-gray-700 text-sm">{entry?.softSkills || "-"}</td>
-                                    </tr>
-                                )
-                            })}
-                        </tbody>
-                    </table>
-                </div>
 
-                {/* Get Approval Button */}
-                <div className="flex justify-end items-center space-x-4">
-                    <div className="text-sm font-semibold">
-                        Status: <span className={`${monthStatus === 'Approved' ? 'text-green-600' :
-                            monthStatus === 'Rejected' ? 'text-red-600' :
-                                monthStatus === 'Pending' ? 'text-yellow-600' :
-                                    'text-gray-600'
-                            }`}>{monthStatus}</span>
-                    </div>
-                    {monthStatus === 'Draft' && (
-                        <button onClick={handleGetApproval} className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-green-200 transition-all transform hover:-translate-y-1">
-                            Get Approval for Month {selectedMonth}
-                        </button>
-                    )}
-                </div>
-
-                {/* Add Entry Modal */}
-                {showModal && (
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-                        <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full scale-100 transform transition-all">
-                            <h2 className="text-2xl font-bold text-gray-800 mb-6">Week {selectedWeek} Log Entry</h2>
-
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Activities Carried Out</label>
-                                    <textarea
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                                        rows={3}
-                                        value={formData.activities}
-                                        onChange={(e) => { setFormData({ ...formData, activities: e.target.value }); setIsDirty(true); }}
-                                    />
+                        {/* Weeks Grid */}
+                        <div className="p-6 grid gap-4">
+                            {[1, 2, 3, 4].map(week => (
+                                <div
+                                    key={week}
+                                    onClick={() => (logbookData?.status === 'Draft' || !logbookData || logbookData?.status === 'Rejected') && openWeekModal(week)}
+                                    className={`
+                                        border rounded-lg p-5 flex justify-between items-center transition-all group
+                                        ${(logbookData?.status === 'Draft' || !logbookData || logbookData?.status === 'Rejected')
+                                            ? "hover:border-blue-400 hover:shadow-md cursor-pointer bg-white"
+                                            : "opacity-75 cursor-default bg-gray-50"
+                                        }
+                                    `}
+                                >
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-800 group-hover:text-blue-600">Week {week}</h3>
+                                        <p className="text-sm text-gray-500 mt-1">{getWeekSummary(week)}</p>
+                                    </div>
+                                    <div className="text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Technical Skills Developed</label>
-                                    <textarea
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                                        rows={2}
-                                        value={formData.techSkills}
-                                        onChange={(e) => { setFormData({ ...formData, techSkills: e.target.value }); setIsDirty(true); }}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Soft Skills Developed</label>
-                                    <textarea
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                                        rows={2}
-                                        value={formData.softSkills}
-                                        onChange={(e) => { setFormData({ ...formData, softSkills: e.target.value }); setIsDirty(true); }}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Trainings Received/Attended</label>
-                                    <textarea
-                                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-                                        rows={2}
-                                        value={formData.trainings}
-                                        onChange={(e) => { setFormData({ ...formData, trainings: e.target.value }); setIsDirty(true); }}
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex justify-between items-center mt-8">
-                                <div className="text-sm font-medium italic text-gray-500">
-                                    {saveStatus}
-                                </div>
-                                <div className="flex space-x-4">
-                                    <button
-                                        onClick={handleClear}
-                                        className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
-                                    >
-                                        Clear
-                                    </button>
-                                    <button
-                                        onClick={handleClose}
-                                        className="px-6 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700 font-medium transition-colors shadow-md"
-                                    >
-                                        Close
-                                    </button>
-                                </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
                 )}
             </div>
+
+            {/* Edit Modal */}
+            {showModal && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl flex flex-col max-h-[90vh]">
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center">
+                            <h2 className="text-xl font-bold text-gray-800">Editing Week {activeWeek}</h2>
+                            <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className="p-6 overflow-y-auto space-y-6 flex-1">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Activities Carried Out</label>
+                                <textarea
+                                    className="w-full p-4 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all resize-none bg-gray-50 focus:bg-white"
+                                    rows={4}
+                                    placeholder="What did you work on this week?"
+                                    value={formData.activities}
+                                    onChange={(e) => handleDataChange('activities', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Technical Skills</label>
+                                    <textarea
+                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white"
+                                        rows={3}
+                                        value={formData.techSkills}
+                                        onChange={(e) => handleDataChange('techSkills', e.target.value)}
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Soft Skills</label>
+                                    <textarea
+                                        className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white"
+                                        rows={3}
+                                        value={formData.softSkills}
+                                        onChange={(e) => handleDataChange('softSkills', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">Trainings Attended</label>
+                                <textarea
+                                    className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50 focus:bg-white"
+                                    rows={2}
+                                    value={formData.trainings}
+                                    onChange={(e) => handleDataChange('trainings', e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="p-4 border-t border-gray-100 bg-gray-50 rounded-b-2xl flex justify-between items-center">
+                            <div className="flex items-center space-x-2">
+                                {saveStatus === 'saving' && <span className="text-blue-600 text-sm font-medium animate-pulse">Saving...</span>}
+                                {saveStatus === 'saved' && <span className="text-green-600 text-sm font-medium">✨ Saved</span>}
+                                {saveStatus === 'error' && <span className="text-red-500 text-sm font-medium">Error saving!</span>}
+                            </div>
+                            <button
+                                onClick={handleCloseModal}
+                                className="bg-gray-900 text-white px-6 py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
