@@ -200,21 +200,7 @@ export default function StudentDashboard() {
                         </div>
                     </Link>
 
-                    {/* Logbook Quick Action */}
-                    <Link
-                        href="/student/logbook"
-                        className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all group"
-                    >
-                        <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-purple-100 rounded-lg group-hover:bg-purple-200 transition-colors">
-                                <FileText className="h-6 w-6 text-purple-600" />
-                            </div>
-                            <div>
-                                <p className="font-semibold text-gray-900">Logbook</p>
-                                <p className="text-sm text-gray-600">Update Weekly</p>
-                            </div>
-                        </div>
-                    </Link>
+
 
                     {/* Final Submission Quick Action */}
                     <Link
