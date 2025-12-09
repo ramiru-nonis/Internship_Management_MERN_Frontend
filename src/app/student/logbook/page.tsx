@@ -13,7 +13,8 @@ export default function LogbookPage() {
 
     // Dates & Tabs
     const [currentMonth, setCurrentMonth] = useState<number>(1);
-    const [totalMonths, setTotalMonths] = useState<number>(6);
+    const [totalMonths, setTotalMonths] = useState<number>(0);
+    const [initializing, setInitializing] = useState(true);
 
     // Data
     const [logbookData, setLogbookData] = useState<any>(null); // Full doc
@@ -67,9 +68,8 @@ export default function LogbookPage() {
             // 3. Load Data
             fetchLogbook(id, 1);
 
-        } catch (error) {
-            console.error("Init Error", error);
-            router.push('/student/dashboard');
+        } finally {
+            setInitializing(false);
         }
     };
 
@@ -164,6 +164,17 @@ export default function LogbookPage() {
         return w ? w[field] : "-";
     };
 
+    if (initializing) {
+        return (
+            <div className="min-h-screen bg-gray-50">
+                <Navbar />
+                <div className="flex items-center justify-center h-96">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
             <Navbar />
@@ -171,20 +182,22 @@ export default function LogbookPage() {
                 <h1 className="text-3xl font-bold text-gray-900 mb-6">Logbook Management</h1>
 
                 {/* Month Tabs */}
-                <div className="flex gap-2 overflow-x-auto mb-6 border-b pb-2">
-                    {Array.from({ length: totalMonths }, (_, i) => i + 1).map(m => (
-                        <button
-                            key={m}
-                            onClick={() => handleMonthChange(m)}
-                            className={`px-6 py-2 rounded-t-lg font-medium transition-colors ${currentMonth === m
-                                ? "bg-blue-600 text-white"
-                                : "bg-white text-gray-600 hover:bg-gray-100"
-                                }`}
-                        >
-                            Month {m}
-                        </button>
-                    ))}
-                </div>
+                {totalMonths > 0 && (
+                    <div className="flex gap-2 overflow-x-auto mb-6 border-b pb-2">
+                        {Array.from({ length: totalMonths }, (_, i) => i + 1).map(m => (
+                            <button
+                                key={m}
+                                onClick={() => handleMonthChange(m)}
+                                className={`px-6 py-2 rounded-t-lg font-medium transition-colors ${currentMonth === m
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-white text-gray-600 hover:bg-gray-100"
+                                    }`}
+                            >
+                                Month {m}
+                            </button>
+                        ))}
+                    </div>
+                )}
 
                 {/* Status Display */}
                 {logbookData && (
@@ -198,7 +211,12 @@ export default function LogbookPage() {
                 )}
 
                 {/* Table */}
-                <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 mb-6">
+                <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200 mb-6 min-h-[300px] relative">
+                    {loading && (
+                        <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-10">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                        </div>
+                    )}
                     <table className="w-full text-left border-collapse">
                         <thead className="bg-gray-100 text-gray-700">
                             <tr>
