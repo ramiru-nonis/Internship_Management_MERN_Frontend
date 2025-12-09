@@ -115,7 +115,7 @@ export default function LogbookPage() {
         if (!studentId || !activeWeek) return;
         setSaving(true);
         try {
-            const res = await api.post('/logbooks/save', {
+            const res = await api.post('/logbooks/entry', {
                 studentId,
                 month: currentMonth,
                 year: new Date().getFullYear(),
