@@ -49,10 +49,8 @@ export default function LogbookPage() {
             const placementRes = await api.get('/placement');
             const pData = placementRes.data;
 
-            if (!pData || !pData.submitted) {
-                alert("Access Denied: Please fill placement form first.");
-                router.push('/student/dashboard');
-                return;
+            if (!pData) {
+                throw new Error("No placement data");
             }
 
             setMentorEmail(pData.mentor_email || "");
@@ -68,6 +66,9 @@ export default function LogbookPage() {
             // 3. Load Data
             fetchLogbook(id, 1);
 
+        } catch (error) {
+            alert("Access Denied: Please fill placement form first.");
+            router.push('/student/dashboard');
         } finally {
             setInitializing(false);
         }

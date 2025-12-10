@@ -27,15 +27,28 @@ export default function Navbar() {
     const [showNotifications, setShowNotifications] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
 
+    const [placementStatus, setPlacementStatus] = useState(false);
+
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const userData = localStorage.getItem('user');
             if (userData) {
-                setUser(JSON.parse(userData));
+                const parsedUser = JSON.parse(userData);
+                setUser(parsedUser);
                 fetchNotifications();
+                if (parsedUser.role === 'student') checkPlacement();
             }
         }
     }, [pathname]); // Re-fetch on navigation
+
+    const checkPlacement = async () => {
+        try {
+            await api.get('/placement');
+            setPlacementStatus(true);
+        } catch (error) {
+            setPlacementStatus(false);
+        }
+    };
 
     const fetchNotifications = async () => {
         try {
@@ -79,8 +92,11 @@ export default function Navbar() {
         { href: '/student/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/student/internships', label: 'Browse Jobs', icon: Briefcase },
         { href: '/student/applications', label: 'My Applications', icon: FileText },
-        { href: '/student/logbook', label: 'Logbook', icon: FileText },
-        { href: '/student/final-submission', label: 'Final Submission', icon: Check },
+        // Only show if placement is approved/submitted
+        ...(placementStatus ? [
+            { href: '/student/logbook', label: 'Logbook', icon: FileText },
+            { href: '/student/final-submission', label: 'Final Submission', icon: Check }
+        ] : []),
         { href: '/student/placement', label: 'Placement Form', icon: ClipboardList },
         { href: '/student/profile', label: 'Profile', icon: User },
     ];
