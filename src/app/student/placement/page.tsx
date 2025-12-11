@@ -53,14 +53,36 @@ export default function PlacementFormPage() {
             const response = await api.get('/placement');
             if (response.data) {
                 setExistingForm(response.data);
+            } else {
+                // If no existing form, fetch student details to autofill
+                fetchStudentDetails();
             }
         } catch (error: any) {
-            // If 404, no form exists yet - this is fine
-            if (error.response?.status !== 404) {
+            // If 404, no form exists yet - this is expected
+            if (error.response?.status === 404) {
+                fetchStudentDetails();
+            } else {
                 console.error('Error checking existing form:', error);
             }
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchStudentDetails = async () => {
+        try {
+            const response = await api.get('/students/profile');
+            const student = response.data;
+            if (student) {
+                setFormData(prev => ({
+                    ...prev,
+                    full_name: `${student.first_name} ${student.last_name}`,
+                    student_id_number: student.cb_number,
+                    email: student.user?.email || prev.email,
+                }));
+            }
+        } catch (error) {
+            console.error('Error fetching student details:', error);
         }
     };
 
