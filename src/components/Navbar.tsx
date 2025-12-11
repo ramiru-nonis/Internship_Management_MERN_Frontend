@@ -28,7 +28,12 @@ export default function Navbar() {
     const [showNotifications, setShowNotifications] = useState(false);
     const [unreadCount, setUnreadCount] = useState(0);
 
-    const [placementStatus, setPlacementStatus] = useState(false);
+    const [placementStatus, setPlacementStatus] = useState(() => {
+        if (typeof window !== 'undefined') {
+            return localStorage.getItem('placementStatus') === 'true';
+        }
+        return false;
+    });
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -46,8 +51,10 @@ export default function Navbar() {
         try {
             await api.get('/placement');
             setPlacementStatus(true);
+            localStorage.setItem('placementStatus', 'true');
         } catch (error) {
             setPlacementStatus(false);
+            localStorage.setItem('placementStatus', 'false');
         }
     };
 
