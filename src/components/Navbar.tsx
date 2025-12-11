@@ -120,7 +120,10 @@ export default function Navbar() {
                     <div className="flex items-center">
                         <Link href={user.role === 'student' ? '/student/dashboard' : '/coordinator/dashboard'} className="flex items-center">
                             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xl px-4 py-2 rounded-lg">
-                                Next Step
+                                <div className="flex flex-col items-center leading-none">
+                                    <span>Next</span>
+                                    <span>Step</span>
+                                </div>
                             </div>
                         </Link>
                     </div>

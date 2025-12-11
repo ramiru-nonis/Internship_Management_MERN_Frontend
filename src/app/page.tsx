@@ -10,7 +10,7 @@ export default function Home() {
 
                 <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
                     <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
-                        Launch Your Career with <span className="text-blue-400">NextStep</span>
+                        Launch Your Career with <span className="text-blue-400">Next Step</span>
                     </h1>
                     <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed">
                         The premier platform connecting ambitious students with world-class internships. Your future starts here.
