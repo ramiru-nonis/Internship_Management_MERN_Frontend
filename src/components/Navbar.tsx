@@ -94,6 +94,7 @@ export default function Navbar() {
         router.push('/login');
     };
 
+    if (pathname === '/') return null;
     if (!user) return null;
 
     const studentLinks = [
