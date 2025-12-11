@@ -44,7 +44,7 @@ export default function LoginPage() {
             <div className="relative z-10 w-full max-w-md p-8 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl">
                 <div className="flex justify-center mb-8">
                     {/* Placeholder for Logo - assuming assets are moved or we use text */}
-                    <div className="relative w-48 h-16 md:w-56 md:h-20">
+                    <div className="relative w-72 h-24 md:w-96 md:h-32">
                         <Image
                             src="/images/NewLogo.png"
                             alt="NextStep Logo"
