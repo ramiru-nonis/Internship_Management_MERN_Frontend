@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
+
 import StatusBadge from '@/components/StatusBadge';
 import api from '@/lib/api';
 import { Search, Filter, Mail, Phone, FileText, User } from 'lucide-react';
@@ -96,7 +96,7 @@ export default function CoordinatorStudents() {
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50">
-                <Navbar />
+
                 <div className="flex items-center justify-center h-96">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -109,7 +109,7 @@ export default function CoordinatorStudents() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Navbar />
+
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8">

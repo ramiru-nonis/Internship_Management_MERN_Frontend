@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
+
 import api from '@/lib/api';
 import { Briefcase, Calendar, MapPin, Building, FileText } from 'lucide-react';
 import Link from 'next/link';
@@ -49,7 +49,7 @@ export default function ApplicationHistoryPage() {
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50">
-                <Navbar />
+
                 <div className="flex items-center justify-center h-96">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -62,7 +62,7 @@ export default function ApplicationHistoryPage() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Navbar />
+
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8">
@@ -78,9 +78,9 @@ export default function ApplicationHistoryPage() {
                                     <div className="flex items-center gap-3 mb-2">
                                         <h3 className="text-xl font-bold text-gray-900">{app.internship?.title || 'Unknown Position'}</h3>
                                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${app.status === 'Accepted' ? 'bg-green-100 text-green-800' :
-                                                app.status === 'Rejected' ? 'bg-red-100 text-red-800' :
-                                                    app.status === 'Reviewed' ? 'bg-yellow-100 text-yellow-800' :
-                                                        'bg-blue-100 text-blue-800'
+                                            app.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                                                app.status === 'Reviewed' ? 'bg-yellow-100 text-yellow-800' :
+                                                    'bg-blue-100 text-blue-800'
                                             }`}>
                                             {app.status}
                                         </span>

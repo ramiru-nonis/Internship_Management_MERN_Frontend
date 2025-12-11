@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
+
 import JobCard from '@/components/JobCard';
 import api from '@/lib/api';
 import { Search, Filter } from 'lucide-react';
@@ -57,7 +57,7 @@ export default function InternshipsPage() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Navbar />
+
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header */}

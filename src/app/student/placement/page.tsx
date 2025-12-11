@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
+
 import api from '@/lib/api';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 
@@ -83,7 +83,7 @@ export default function PlacementFormPage() {
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50">
-                <Navbar />
+
                 <div className="flex items-center justify-center h-96">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
@@ -96,7 +96,7 @@ export default function PlacementFormPage() {
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <Navbar />
+
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header */}
