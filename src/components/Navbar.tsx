@@ -125,7 +125,7 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between h-16">
                     {/* Logo */}
-                    <div className="flex items-center">
+                    <div className="flex items-center -ml-2">
                         <Link href={user.role === 'student' ? '/student/dashboard' : '/coordinator/dashboard'} className="flex items-center gap-3">
                             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xl px-4 py-2 rounded-lg shadow-sm">
                                 <div className="flex flex-col items-center leading-none">
