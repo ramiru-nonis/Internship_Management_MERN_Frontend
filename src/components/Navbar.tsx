@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import {
@@ -118,8 +119,16 @@ export default function Navbar() {
                 <div className="flex justify-between h-16">
                     {/* Logo */}
                     <div className="flex items-center">
-                        <Link href={user.role === 'student' ? '/student/dashboard' : '/coordinator/dashboard'} className="flex items-center">
-                            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xl px-4 py-2 rounded-lg">
+                        <Link href={user.role === 'student' ? '/student/dashboard' : '/coordinator/dashboard'} className="flex items-center gap-3">
+                            <div className="relative w-12 h-12 rounded-full overflow-hidden border-2 border-indigo-100 shadow-sm">
+                                <Image
+                                    src="/images/NewLogo.png"
+                                    alt="NextStep Logo"
+                                    fill
+                                    className="object-cover"
+                                />
+                            </div>
+                            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xl px-4 py-2 rounded-lg shadow-sm">
                                 <div className="flex flex-col items-center leading-none">
                                     <span>Next</span>
                                     <span>Step</span>
