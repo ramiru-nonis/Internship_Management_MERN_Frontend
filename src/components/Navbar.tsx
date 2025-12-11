@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import {
@@ -120,14 +120,11 @@ export default function Navbar() {
                     {/* Logo */}
                     <div className="flex items-center">
                         <Link href={user.role === 'student' ? '/student/dashboard' : '/coordinator/dashboard'} className="flex items-center gap-3">
-                            <div className="relative h-14 w-40">
-                                <Image
-                                    src="/images/NewLogo.png"
-                                    alt="NextStep Logo"
-                                    fill
-                                    className="object-contain"
-                                    priority
-                                />
+                            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xl px-4 py-2 rounded-lg shadow-sm">
+                                <div className="flex flex-col items-center leading-none">
+                                    <span>Next</span>
+                                    <span>Step</span>
+                                </div>
                             </div>
                         </Link>
                     </div>

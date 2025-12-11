@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import api from '@/lib/api';
 import { Loader2 } from 'lucide-react';
 
@@ -43,7 +44,15 @@ export default function LoginPage() {
             <div className="relative z-10 w-full max-w-md p-8 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl">
                 <div className="flex justify-center mb-8">
                     {/* Placeholder for Logo - assuming assets are moved or we use text */}
-                    <h1 className="text-4xl font-bold text-white tracking-tight">NextStep</h1>
+                    <div className="relative w-48 h-16 md:w-56 md:h-20">
+                        <Image
+                            src="/images/NewLogo.png"
+                            alt="NextStep Logo"
+                            fill
+                            className="object-contain"
+                            priority
+                        />
+                    </div>
                 </div>
 
                 <h2 className="text-3xl font-bold text-center text-white mb-8">Welcome Back</h2>
