@@ -94,7 +94,8 @@ export default function Navbar() {
         router.push('/login');
     };
 
-    if (pathname === '/') return null;
+    const hiddenPaths = ['/', '/login', '/register'];
+    if (hiddenPaths.includes(pathname)) return null;
     if (!user) return null;
 
     const studentLinks = [
