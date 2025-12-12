@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 import StatusBadge from '@/components/StatusBadge';
 import api from '@/lib/api';
-import { Briefcase, FileText, ClipboardList, User, TrendingUp } from 'lucide-react';
+import { Briefcase, FileText, ClipboardList, User, TrendingUp, BookOpen } from 'lucide-react';
 import Link from 'next/link';
 
 export default function StudentDashboard() {
@@ -201,6 +201,22 @@ export default function StudentDashboard() {
                     </Link>
 
 
+
+                    {/* Logbook Quick Action */}
+                    <Link
+                        href="/student/logbook"
+                        className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all group"
+                    >
+                        <div className="flex items-center space-x-4">
+                            <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
+                                <BookOpen className="h-6 w-6 text-indigo-600" />
+                            </div>
+                            <div>
+                                <p className="font-semibold text-gray-900">Logbook</p>
+                                <p className="text-sm text-gray-600">Weekly entries</p>
+                            </div>
+                        </div>
+                    </Link>
 
                     {/* Final Submission Quick Action */}
                     <Link
