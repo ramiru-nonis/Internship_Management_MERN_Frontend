@@ -138,6 +138,8 @@ export default function LogbookPage() {
         setFormData({ activities: "", techSkills: "", softSkills: "", trainings: "" });
     };
 
+    const [sending, setSending] = useState(false);
+
     const handleSubmitApproval = async () => {
         if (!logbookData?._id) return alert("No entries to submit.");
 
@@ -147,6 +149,7 @@ export default function LogbookPage() {
 
         if (!window.confirm("Submit for Mentor Approval?")) return;
 
+        setSending(true);
         try {
             await api.post('/logbooks/submit', {
                 logbookId: logbookData._id,
@@ -155,7 +158,10 @@ export default function LogbookPage() {
             alert("Submitted for Approval!");
             fetchLogbook(studentId!, currentMonth);
         } catch (error) {
-            alert("Submission Failed");
+            alert("Submission Failed. Please try again.");
+            console.error(error);
+        } finally {
+            setSending(false);
         }
     };
 
@@ -256,13 +262,15 @@ export default function LogbookPage() {
                 <div className="text-right">
                     <button
                         onClick={handleSubmitApproval}
-                        disabled={logbookData?.status === 'Pending' || logbookData?.status === 'Approved'}
-                        className={`px-6 py-3 rounded-lg font-bold text-white shadow-md transition-all ${logbookData?.status === 'Pending' || logbookData?.status === 'Approved'
-                            ? "bg-gray-400 cursor-not-allowed"
-                            : "bg-green-600 hover:bg-green-700"
+                        disabled={logbookData?.status === 'Pending' || logbookData?.status === 'Approved' || sending}
+                        className={`px-6 py-3 rounded-lg font-bold text-white shadow-md transition-all ${logbookData?.status === 'Pending' || logbookData?.status === 'Approved' || sending
+                                ? "bg-gray-400 cursor-not-allowed"
+                                : "bg-green-600 hover:bg-green-700"
                             }`}
                     >
-                        Get Approval
+                        {sending ? "Sending..." :
+                            logbookData?.status === 'Pending' ? "Pending Approval" :
+                                logbookData?.status === 'Approved' ? "Approved" : "Get Approval"}
                     </button>
                 </div>
 
