@@ -157,8 +157,9 @@ export default function LogbookPage() {
             });
             alert("Submitted for Approval!");
             fetchLogbook(studentId!, currentMonth);
-        } catch (error) {
-            alert("Submission Failed. Please try again.");
+        } catch (error: any) {
+            const msg = error.response?.data?.message || "Submission Failed. Please try again.";
+            alert(`Error: ${msg}`);
             console.error(error);
         } finally {
             setSending(false);
@@ -264,8 +265,8 @@ export default function LogbookPage() {
                         onClick={handleSubmitApproval}
                         disabled={logbookData?.status === 'Pending' || logbookData?.status === 'Approved' || sending}
                         className={`px-6 py-3 rounded-lg font-bold text-white shadow-md transition-all ${logbookData?.status === 'Pending' || logbookData?.status === 'Approved' || sending
-                                ? "bg-gray-400 cursor-not-allowed"
-                                : "bg-green-600 hover:bg-green-700"
+                            ? "bg-gray-400 cursor-not-allowed"
+                            : "bg-green-600 hover:bg-green-700"
                             }`}
                     >
                         {sending ? "Sending..." :
