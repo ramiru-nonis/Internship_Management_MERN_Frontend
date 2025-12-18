@@ -10,6 +10,7 @@ export default function CoordinatorApplications() {
     const router = useRouter();
     const [applications, setApplications] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [search, setSearch] = useState('');
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -26,12 +27,19 @@ export default function CoordinatorApplications() {
             return;
         }
 
-        fetchApplications();
-    }, []);
+        const delaySearch = setTimeout(() => {
+            fetchApplications();
+        }, 500);
+
+        return () => clearTimeout(delaySearch);
+    }, [search]);
 
     const fetchApplications = async () => {
         try {
-            const res = await api.get('/coordinator/applications');
+            const params: any = {};
+            if (search) params.search = search;
+
+            const res = await api.get('/coordinator/applications', { params });
             setApplications(res.data);
         } catch (error) {
             console.error('Error fetching applications:', error);
@@ -62,6 +70,20 @@ export default function CoordinatorApplications() {
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900">Applications</h1>
                     <p className="text-gray-600 mt-2">Track student applications</p>
+                </div>
+
+                {/* Search Bar */}
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                    <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search by student name, CB number, or company..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                        />
+                    </div>
                 </div>
 
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
