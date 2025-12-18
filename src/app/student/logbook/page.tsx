@@ -308,7 +308,7 @@ export default function LogbookPage() {
                                     </div>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium mb-1">Trainings Received</label>
+                                    <label className="block text-sm font-medium mb-1">Trainings Received (Received by the company)</label>
                                     <textarea
                                         className="w-full border rounded-lg p-3 h-16 focus:ring-2 focus:ring-blue-500 outline-none"
                                         value={formData.trainings}
