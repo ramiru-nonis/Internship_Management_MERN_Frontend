@@ -85,17 +85,7 @@ export default function JobApplicationsPage() {
         }
     };
 
-    const handleStatusUpdate = async (appId: string, newStatus: string) => {
-        try {
-            await api.put(`/applications/${appId}/status`, { status: newStatus });
-            setApplications(applications.map(a => a._id === appId ? { ...a, status: newStatus } : a));
-        } catch (error: any) {
-            console.error('Error updating status:', error);
-            const errorMessage = error.response?.data?.message || 'Failed to update status';
-            console.error('Error updating status:', errorMessage);
-            alert(errorMessage);
-        }
-    };
+
 
     if (loading) {
         return (
@@ -170,7 +160,7 @@ export default function JobApplicationsPage() {
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied Date</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CV</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
@@ -210,27 +200,12 @@ export default function JobApplicationsPage() {
                                                 <span className="text-gray-400">No CV</span>
                                             )}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <select
-                                                value={app.status}
-                                                onChange={(e) => handleStatusUpdate(app._id, e.target.value)}
-                                                className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${app.status === 'Accepted' ? 'bg-green-100 text-green-800' :
-                                                    app.status === 'Rejected' ? 'bg-red-100 text-red-800' :
-                                                        app.status === 'Reviewed' ? 'bg-yellow-100 text-yellow-800' :
-                                                            'bg-blue-100 text-blue-800'
-                                                    }`}
-                                            >
-                                                <option value="Applied">Applied</option>
-                                                <option value="Reviewed">Reviewed</option>
-                                                <option value="Accepted">Accepted</option>
-                                                <option value="Rejected">Rejected</option>
-                                            </select>
-                                        </td>
+
                                     </tr>
                                 ))}
                                 {applications.length === 0 && (
                                     <tr>
-                                        <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                                        <td colSpan={3} className="px-6 py-12 text-center text-gray-500">
                                             No applications found
                                         </td>
                                     </tr>
