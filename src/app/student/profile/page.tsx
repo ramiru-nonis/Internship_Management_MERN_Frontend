@@ -156,7 +156,7 @@ export default function ProfilePage() {
                                         <div className="w-32 h-32 rounded-full border-4 border-white bg-gray-200 overflow-hidden">
                                             {student?.profile_picture ? (
                                                 <img
-                                                    src={student.profile_picture.startsWith('http') ? student.profile_picture : `https://internship-management-backend-production.up.railway.app/${student.profile_picture}`}
+                                                    src={student.profile_picture.startsWith('http') ? student.profile_picture : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${student.profile_picture}`}
                                                     alt="Profile"
                                                     className="w-full h-full object-cover"
                                                 />
@@ -209,7 +209,7 @@ export default function ProfilePage() {
                                             <p className="text-sm font-medium text-gray-900">Current CV</p>
                                             <div className="flex items-center space-x-3">
                                                 <a
-                                                    href={student?.cv?.startsWith('http') ? student.cv : `https://internship-management-backend-production.up.railway.app/${student?.cv}`}
+                                                    href={student?.cv?.startsWith('http') ? student.cv : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${student?.cv}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="text-xs text-blue-600 hover:underline"
@@ -220,7 +220,7 @@ export default function ProfilePage() {
                                                 <button
                                                     onClick={async () => {
                                                         try {
-                                                            const cvUrl = student?.cv?.startsWith('http') ? student.cv : `https://internship-management-backend-production.up.railway.app/${student?.cv}`;
+                                                            const cvUrl = student?.cv?.startsWith('http') ? student.cv : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${student?.cv}`;
                                                             const response = await fetch(cvUrl);
                                                             const blob = await response.blob();
                                                             const url = window.URL.createObjectURL(blob);

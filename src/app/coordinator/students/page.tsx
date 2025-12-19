@@ -230,7 +230,7 @@ export default function CoordinatorStudents() {
                                                 <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
                                                     {student.profile_picture ? (
                                                         <img
-                                                            src={student.profile_picture.startsWith('http') ? student.profile_picture : `https://internship-management-backend-production.up.railway.app/${student.profile_picture}`}
+                                                            src={student.profile_picture.startsWith('http') ? student.profile_picture : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${student.profile_picture}`}
                                                             alt=""
                                                             className="h-10 w-10 rounded-full object-cover"
                                                         />
@@ -289,7 +289,7 @@ export default function CoordinatorStudents() {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {student.cv ? (
                                                 <a
-                                                    href={student.cv.startsWith('http') ? student.cv : `https://internship-management-backend-production.up.railway.app/${student.cv}`}
+                                                    href={student.cv.startsWith('http') ? student.cv : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${student.cv}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="text-blue-600 hover:text-blue-900 flex items-center"

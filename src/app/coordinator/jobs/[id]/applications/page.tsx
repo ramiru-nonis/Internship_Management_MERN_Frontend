@@ -188,7 +188,7 @@ export default function JobApplicationsPage() {
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {(app.cv || (app.student && app.student.cv)) ? (
                                                 <a
-                                                    href={app.cv || app.student.cv}
+                                                    href={(app.cv || app.student.cv)?.startsWith('http') ? (app.cv || app.student.cv) : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${app.cv || app.student.cv}`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="text-blue-600 hover:text-blue-800 flex items-center"
