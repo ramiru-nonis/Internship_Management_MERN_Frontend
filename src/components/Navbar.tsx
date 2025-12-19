@@ -89,9 +89,11 @@ export default function Navbar() {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        router.push('/login');
+        if (window.confirm('Are you sure you want to logout?')) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            router.push('/login');
+        }
     };
 
     const hiddenPaths = ['/', '/login', '/register'];
