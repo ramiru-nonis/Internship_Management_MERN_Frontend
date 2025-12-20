@@ -46,7 +46,7 @@ export default function CoordinatorSubmissionsPage() {
             alert(`View Logic for Logbook ${sub.id} (Open Detail Modal or Page)`);
         } else if (sub.fileUrl) {
             // Construct full URL if needed, assuming API serves static files
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
             const url = `${apiUrl}${sub.fileUrl}`;
             window.open(url, '_blank');
         }
