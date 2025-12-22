@@ -100,7 +100,6 @@ export default function Navbar() {
         }
     };
 
-    const hiddenPaths = ['/', '/login', '/register', '/verify-logbook'];
     if (hiddenPaths.includes(pathname)) return null;
     if (!user) return null;
 
