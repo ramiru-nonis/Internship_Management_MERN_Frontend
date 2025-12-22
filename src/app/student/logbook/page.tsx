@@ -154,8 +154,9 @@ export default function LogbookPage() {
             await api.post('/logbooks/submit', {
                 logbookId: logbookData._id,
                 mentorEmail
+            }).then(res => {
+                alert(`Submitted for Approval! Notification sent to: ${res.data.mentorEmail}`);
             });
-            alert("Submitted for Approval!");
             fetchLogbook(studentId!, currentMonth);
         } catch (error: any) {
             const msg = error.response?.data?.message || "Submission Failed. Please try again.";
