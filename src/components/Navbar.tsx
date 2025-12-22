@@ -35,7 +35,11 @@ export default function Navbar() {
         return false;
     });
 
+    const hiddenPaths = ['/', '/login', '/register', '/verify-logbook'];
+
     useEffect(() => {
+        if (hiddenPaths.includes(pathname)) return;
+
         if (typeof window !== 'undefined') {
             const userData = localStorage.getItem('user');
             if (userData) {
