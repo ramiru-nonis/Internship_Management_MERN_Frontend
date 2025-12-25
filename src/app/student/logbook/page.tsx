@@ -184,6 +184,12 @@ export default function LogbookPage() {
         );
     }
 
+    // Helper for table weeks to render
+    const isSubmitted = logbookData?.status === 'Pending' || logbookData?.status === 'Approved';
+    const weeksToRender = isSubmitted
+        ? (logbookData?.weeks || []).map((w: any) => w.weekNumber).sort((a: number, b: number) => a - b)
+        : [1, 2, 3, 4];
+
     return (
         <div className="min-h-screen bg-gray-50">
 
@@ -238,7 +244,7 @@ export default function LogbookPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {[1, 2, 3, 4].map(week => (
+                            {weeksToRender.map((week: number) => (
                                 <tr key={week} className="border-b last:border-b-0 hover:bg-gray-50">
                                     <td className="p-4 font-semibold text-gray-900">Week {week}</td>
                                     <td className="p-4 text-gray-600 text-sm">{getCell(week, 'activities')}</td>
