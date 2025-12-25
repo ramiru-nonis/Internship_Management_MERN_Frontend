@@ -318,7 +318,7 @@ export default function LogbookPage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {weeksToRender.map(week => {
+                        {weeksToRender.map((week: number) => {
                             const wData = logbookData?.weeks?.find((w: any) => w.weekNumber === week);
                             const hasData = !!wData;
                             return (
