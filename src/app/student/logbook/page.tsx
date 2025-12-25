@@ -149,7 +149,7 @@ export default function LogbookPage() {
     };
 
     const openModal = (week: number) => {
-        if (!isEditable) return;
+        // if (!isEditable) return; // Allow opening in view-only mode
         setActiveWeek(week);
         // Find existing data
         const weekData = logbookData?.weeks?.find((w: any) => w.weekNumber === week);
@@ -350,10 +350,11 @@ export default function LogbookPage() {
                                     <div className="p-4 bg-gray-50 border-t border-gray-100">
                                         <button
                                             onClick={() => openModal(week)}
-                                            disabled={!isEditable}
+                                            // disabled={!isEditable} // View Only allowed
                                             className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${isEditable
                                                 ? "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 shadow-sm"
-                                                : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                                // View Only Style
+                                                : "bg-blue-50 text-blue-600 border border-blue-100 hover:bg-blue-100"
                                                 }`}
                                         >
                                             <FiEdit3 />
@@ -427,6 +428,7 @@ export default function LogbookPage() {
                                     placeholder="Describe the tasks you worked on this week..."
                                     value={formData.activities}
                                     onChange={e => setFormData({ ...formData, activities: e.target.value })}
+                                    readOnly={!isEditable}
                                 />
                             </div>
 
@@ -438,6 +440,7 @@ export default function LogbookPage() {
                                         placeholder="React, Node.js, etc."
                                         value={formData.techSkills}
                                         onChange={e => setFormData({ ...formData, techSkills: e.target.value })}
+                                        readOnly={!isEditable}
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -447,6 +450,7 @@ export default function LogbookPage() {
                                         placeholder="Communication, Teamwork..."
                                         value={formData.softSkills}
                                         onChange={e => setFormData({ ...formData, softSkills: e.target.value })}
+                                        readOnly={!isEditable}
                                     />
                                 </div>
                             </div>
@@ -459,6 +463,7 @@ export default function LogbookPage() {
                                     placeholder="Any workshops or mentorship sessions?"
                                     value={formData.trainings}
                                     onChange={e => setFormData({ ...formData, trainings: e.target.value })}
+                                    readOnly={!isEditable}
                                 />
                             </div>
                         </div>
@@ -469,15 +474,17 @@ export default function LogbookPage() {
                                 onClick={() => setShowModal(false)}
                                 className="px-6 py-2.5 text-gray-600 hover:text-gray-800 font-medium rounded-lg"
                             >
-                                Cancel
+                                {isEditable ? "Cancel" : "Close"}
                             </button>
-                            <button
-                                onClick={handleSaveDraft}
-                                disabled={saving}
-                                className="px-8 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-md shadow-blue-200 hover:shadow-lg transition-all disabled:opacity-70 disabled:shadow-none"
-                            >
-                                {saving ? "Saving..." : "Save Entry"}
-                            </button>
+                            {isEditable && (
+                                <button
+                                    onClick={handleSaveDraft}
+                                    disabled={saving}
+                                    className="px-8 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-md shadow-blue-200 hover:shadow-lg transition-all disabled:opacity-70 disabled:shadow-none"
+                                >
+                                    {saving ? "Saving..." : "Save Entry"}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
