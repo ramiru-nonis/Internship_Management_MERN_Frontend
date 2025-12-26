@@ -2,9 +2,6 @@ import axios from 'axios';
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === 'development' ? 'http://localhost:5001/api' : 'https://internship-management-backend-production.up.railway.app/api'),
-    headers: {
-        'Content-Type': 'application/json',
-    },
 });
 
 api.interceptors.request.use(
