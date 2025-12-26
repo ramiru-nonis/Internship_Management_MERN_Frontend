@@ -209,26 +209,9 @@ export default function ProfilePage() {
                                             <p className="text-sm font-medium text-gray-900">Current CV</p>
                                             <div className="flex items-center space-x-3">
                                                 <button
-                                                    onClick={async (e) => {
-                                                        e.preventDefault();
-                                                        try {
-                                                            const cvUrl = student?.cv?.startsWith('http') ? student.cv : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${student?.cv}`;
-
-                                                            // Show loading state if needed? For now just fetch.
-                                                            const response = await fetch(cvUrl);
-                                                            const blob = await response.blob();
-                                                            const pdfBlob = new Blob([blob], { type: 'application/pdf' });
-                                                            const url = window.URL.createObjectURL(pdfBlob);
-
-                                                            // Open in new tab
-                                                            window.open(url, '_blank');
-
-                                                            // Clean up URL after a delay to allow load
-                                                            setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-                                                        } catch (error) {
-                                                            console.error('View failed:', error);
-                                                            setMessage({ type: 'error', text: 'Failed to open CV' });
-                                                        }
+                                                    onClick={() => {
+                                                        const cvUrl = student?.cv?.startsWith('http') ? student.cv : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${student?.cv}`;
+                                                        window.open(cvUrl, '_blank');
                                                     }}
                                                     className="text-xs text-blue-600 hover:underline bg-transparent border-0 cursor-pointer p-0"
                                                 >
