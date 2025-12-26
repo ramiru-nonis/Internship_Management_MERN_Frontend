@@ -14,7 +14,7 @@ interface Submission {
 }
 
 export default function CoordinatorSubmissionsPage() {
-    const [filter, setFilter] = useState<"All" | "Logbook" | "Marksheet" | "Exit Presentation">("All");
+    const [filter, setFilter] = useState<"Logbook" | "Marksheet" | "Exit Presentation">("Logbook");
     const [searchTerm, setSearchTerm] = useState("");
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
@@ -35,7 +35,7 @@ export default function CoordinatorSubmissionsPage() {
     }
 
     const filteredSubmissions = submissions.filter((sub) => {
-        const matchesFilter = filter === "All" || sub.type === filter;
+        const matchesFilter = sub.type === filter;
         const matchesSearch = sub.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             sub.cbNumber.toLowerCase().includes(searchTerm.toLowerCase());
         return matchesFilter && matchesSearch;
@@ -73,7 +73,7 @@ export default function CoordinatorSubmissionsPage() {
 
                     {/* Filters */}
                     <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-100">
-                        {["All", "Logbook", "Marksheet", "Exit Presentation"].map((f) => (
+                        {["Logbook", "Marksheet", "Exit Presentation"].map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setFilter(f as any)}
