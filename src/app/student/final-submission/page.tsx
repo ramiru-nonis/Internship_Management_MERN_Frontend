@@ -44,26 +44,23 @@ export default function FinalSubmissionPage() {
             const marksheetData = new FormData();
             marksheetData.append('marksheet', marksheet);
             marksheetData.append('studentId', studentId);
-            await api.post('/submissions/marksheet', marksheetData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            await api.post('/submissions/marksheet', marksheetData);
 
             // Upload Presentation
             const presentationData = new FormData();
             presentationData.append('presentation', presentation);
             presentationData.append('studentId', studentId);
 
-            await api.post('/submissions/presentation', presentationData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            await api.post('/submissions/presentation', presentationData);
 
             // Notify Coordinator
             await api.post('/submissions/notify', { studentId });
 
             alert("Final submission successful! Coordinator notified.");
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error submitting files", error);
-            alert("Failed to submit files.");
+            const msg = error.response?.data?.message || "Failed to submit files.";
+            alert(`Submission failed: ${msg}`);
         }
     }
 
