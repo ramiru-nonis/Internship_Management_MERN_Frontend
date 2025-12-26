@@ -11,6 +11,7 @@ interface Submission {
     status: string;
     date: string;
     fileUrl?: string; // For Marksheet/Presentation
+    profilePicture?: string | null;
 }
 
 export default function CoordinatorSubmissionsPage() {
@@ -18,6 +19,7 @@ export default function CoordinatorSubmissionsPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
     useEffect(() => {
         fetchSubmissions();
@@ -46,8 +48,7 @@ export default function CoordinatorSubmissionsPage() {
             alert(`View Logic for Logbook ${sub.id} (Open Detail Modal or Page)`);
         } else if (sub.fileUrl) {
             // Construct full URL if needed, assuming API serves static files
-            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
-            const url = `${apiUrl}${sub.fileUrl}`;
+            const url = sub.fileUrl.startsWith('http') ? sub.fileUrl : `${apiUrl}${sub.fileUrl}`;
             window.open(url, '_blank');
         }
     }
@@ -97,11 +98,19 @@ export default function CoordinatorSubmissionsPage() {
                             {filteredSubmissions.map((sub) => (
                                 <div key={sub.id} className="p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
                                     <div className="flex items-center space-x-4">
-                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white ${sub.type === 'Logbook' ? 'bg-purple-500' :
-                                            sub.type === 'Marksheet' ? 'bg-red-500' : 'bg-orange-500'
-                                            }`}>
-                                            {sub.name.charAt(0)}
-                                        </div>
+                                        {sub.profilePicture ? (
+                                            <img
+                                                src={sub.profilePicture.startsWith('http') ? sub.profilePicture : `${apiUrl}${sub.profilePicture}`}
+                                                alt={sub.name}
+                                                className="w-12 h-12 rounded-full object-cover border border-gray-200"
+                                            />
+                                        ) : (
+                                            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white ${sub.type === 'Logbook' ? 'bg-purple-500' :
+                                                sub.type === 'Marksheet' ? 'bg-red-500' : 'bg-orange-500'
+                                                }`}>
+                                                {sub.name.charAt(0)}
+                                            </div>
+                                        )}
                                         <div>
                                             <h3 className="font-bold text-gray-800">{sub.name} <span className="text-gray-400 font-normal text-sm">({sub.cbNumber})</span></h3>
                                             <p className="text-sm text-gray-500">
