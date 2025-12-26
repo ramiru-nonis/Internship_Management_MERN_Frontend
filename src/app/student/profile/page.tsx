@@ -232,7 +232,7 @@ export default function ProfilePage() {
                                                     }}
                                                     className="text-xs text-blue-600 hover:underline bg-transparent border-0 cursor-pointer p-0"
                                                 >
-                                                    View PDF
+                                                    View Only
                                                 </button>
                                                 <span className="text-gray-300">|</span>
                                                 <button
