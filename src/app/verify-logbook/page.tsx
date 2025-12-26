@@ -35,7 +35,11 @@ function VerifyContent() {
             } catch (error: any) {
                 console.error("Verification error:", error);
                 setResult('error');
-                setMessage(error.response?.data?.message || "Failed to process verification. Please try again or contact support.");
+                let msg = "Failed to process verification. Please try again or contact support.";
+                if (error.response?.data) {
+                    msg = error.response.data.message || (typeof error.response.data === 'string' ? error.response.data : msg);
+                }
+                setMessage(msg);
             } finally {
                 setLoading(false);
             }
