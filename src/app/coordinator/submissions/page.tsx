@@ -11,11 +11,14 @@ interface Submission {
     status: string;
     date: string;
     fileUrl?: string; // For Marksheet/Presentation
+    fileUrl?: string; // For Marksheet/Presentation
     profilePicture?: string | null;
     logbookId?: string;
+    studentId?: string;
 }
 
 interface LogbookData {
+    _id: string; // Add ID for comparison
     month: number;
     year: number;
     status: string;
@@ -32,7 +35,9 @@ export default function CoordinatorSubmissionsPage() {
     // Logbook Modal State
     const [showLogbookModal, setShowLogbookModal] = useState(false);
     const [selectedLogbook, setSelectedLogbook] = useState<LogbookData | null>(null);
+    const [logbookHistory, setLogbookHistory] = useState<LogbookData[]>([]);
     const [loadingLogbook, setLoadingLogbook] = useState(false);
+    const [loadingHistory, setLoadingHistory] = useState(false);
 
     useEffect(() => {
         fetchSubmissions();
@@ -60,17 +65,35 @@ export default function CoordinatorSubmissionsPage() {
         if (sub.type === 'Logbook') {
             if (!sub.logbookId) return;
             setLoadingLogbook(true);
+            setLoadingHistory(true);
             setShowLogbookModal(true);
+            setLogbookHistory([]); // Clear previous
+
+            // Fetch specific logbook
             try {
                 const res = await api.get(`/logbooks/${sub.logbookId}`);
                 setSelectedLogbook(res.data);
             } catch (error) {
                 console.error("Error fetching logbook details", error);
                 alert("Failed to load logbook details.");
-                setShowLogbookModal(false);
             } finally {
                 setLoadingLogbook(false);
             }
+
+            // Fetch History if studentId available
+            if (sub.studentId) {
+                try {
+                    const histRes = await api.get(`/logbooks/history/${sub.studentId}`);
+                    setLogbookHistory(histRes.data);
+                } catch (error) {
+                    console.error("Error fetching history", error);
+                } finally {
+                    setLoadingHistory(false);
+                }
+            } else {
+                setLoadingHistory(false);
+            }
+
         } else if (sub.fileUrl) {
             const url = sub.fileUrl.startsWith('http') ? sub.fileUrl : `${apiUrl}${sub.fileUrl}`;
             try {
@@ -179,57 +202,93 @@ export default function CoordinatorSubmissionsPage() {
             {/* Logbook Details Modal */}
             {showLogbookModal && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
-                        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/30">
-                            <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-                                Logbook Details
-                                {selectedLogbook && <span className="ml-2 font-normal text-gray-500 text-base">({selectedLogbook.month}/{selectedLogbook.year})</span>}
-                            </h2>
-                            <button onClick={() => setShowLogbookModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl">&times;</button>
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex overflow-hidden">
+
+                        {/* Sidebar: History */}
+                        <div className="w-64 bg-gray-50 dark:bg-gray-900 border-r border-gray-100 dark:border-gray-700 flex flex-col">
+                            <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+                                <h3 className="font-bold text-gray-700 dark:text-gray-200">Logbook History</h3>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-2 space-y-2">
+                                {loadingHistory ? (
+                                    <div className="text-center p-4 text-xs text-gray-500">Loading history...</div>
+                                ) : logbookHistory.length > 0 ? (
+                                    logbookHistory.sort((a, b) => a.month - b.month).map(lb => (
+                                        <button
+                                            key={lb._id}
+                                            onClick={() => setSelectedLogbook(lb)}
+                                            className={`w-full text-left p-3 rounded-lg text-sm transition-colors ${selectedLogbook && selectedLogbook._id === lb._id
+                                                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-medium'
+                                                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                                }`}
+                                        >
+                                            <div className="flex justify-between items-center">
+                                                <span>Month {lb.month}</span>
+                                                <span className={`text-[10px] px-1.5 py-0.5 rounded ${lb.status === 'Approved' ? 'bg-green-100 text-green-700' :
+                                                        lb.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                            'bg-gray-200 text-gray-600'
+                                                    }`}>{lb.status}</span>
+                                            </div>
+                                        </button>
+                                    ))
+                                ) : (
+                                    <div className="text-center p-4 text-xs text-gray-400">No other logbooks found.</div>
+                                )}
+                            </div>
                         </div>
-                        <div className="p-6 overflow-y-auto flex-1">
-                            {loadingLogbook ? (
-                                <div className="flex justify-center p-12"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div></div>
-                            ) : selectedLogbook ? (
-                                <div className="space-y-8">
-                                    {selectedLogbook.weeks && selectedLogbook.weeks.length > 0 ? (
-                                        selectedLogbook.weeks.sort((a, b) => a.weekNumber - b.weekNumber).map((week) => (
-                                            <div key={week.weekNumber} className="bg-gray-50 dark:bg-gray-700/30 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
-                                                <h3 className="font-bold text-lg text-gray-800 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">
-                                                    Week {week.weekNumber}
-                                                </h3>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    <div>
-                                                        <label className="text-xs font-semibold text-gray-500 uppercase">Activities</label>
-                                                        <p className="text-sm text-gray-800 dark:text-gray-200 mt-1 whitespace-pre-wrap">{week.activities || 'N/A'}</p>
-                                                    </div>
-                                                    <div>
-                                                        <label className="text-xs font-semibold text-gray-500 uppercase">Tech Skills</label>
-                                                        <p className="text-sm text-gray-800 dark:text-gray-200 mt-1 whitespace-pre-wrap">{week.techSkills || 'N/A'}</p>
-                                                    </div>
-                                                    <div>
-                                                        <label className="text-xs font-semibold text-gray-500 uppercase">Soft Skills</label>
-                                                        <p className="text-sm text-gray-800 dark:text-gray-200 mt-1 whitespace-pre-wrap">{week.softSkills || 'N/A'}</p>
-                                                    </div>
-                                                    <div>
-                                                        <label className="text-xs font-semibold text-gray-500 uppercase">Trainings</label>
-                                                        <p className="text-sm text-gray-800 dark:text-gray-200 mt-1 whitespace-pre-wrap">{week.trainings || 'N/A'}</p>
+
+                        {/* Main Content: Details */}
+                        <div className="flex-1 flex flex-col min-w-0">
+                            <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/30">
+                                <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+                                    {selectedLogbook ? `Logbook - Month ${selectedLogbook.month}/${selectedLogbook.year}` : 'Logbook Details'}
+                                </h2>
+                                <button onClick={() => setShowLogbookModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl">&times;</button>
+                            </div>
+                            <div className="p-6 overflow-y-auto flex-1">
+                                {loadingLogbook ? (
+                                    <div className="flex justify-center p-12"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div></div>
+                                ) : selectedLogbook ? (
+                                    <div className="space-y-8">
+                                        {selectedLogbook.weeks && selectedLogbook.weeks.length > 0 ? (
+                                            selectedLogbook.weeks.sort((a, b) => a.weekNumber - b.weekNumber).map((week) => (
+                                                <div key={week.weekNumber} className="bg-gray-50 dark:bg-gray-700/30 rounded-xl p-6 border border-gray-100 dark:border-gray-700">
+                                                    <h3 className="font-bold text-lg text-gray-800 dark:text-white mb-4 border-b border-gray-200 dark:border-gray-600 pb-2">
+                                                        Week {week.weekNumber}
+                                                    </h3>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                        <div>
+                                                            <label className="text-xs font-semibold text-gray-500 uppercase">Activities</label>
+                                                            <p className="text-sm text-gray-800 dark:text-gray-200 mt-1 whitespace-pre-wrap">{week.activities || 'N/A'}</p>
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold text-gray-500 uppercase">Tech Skills</label>
+                                                            <p className="text-sm text-gray-800 dark:text-gray-200 mt-1 whitespace-pre-wrap">{week.techSkills || 'N/A'}</p>
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold text-gray-500 uppercase">Soft Skills</label>
+                                                            <p className="text-sm text-gray-800 dark:text-gray-200 mt-1 whitespace-pre-wrap">{week.softSkills || 'N/A'}</p>
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold text-gray-500 uppercase">Trainings</label>
+                                                            <p className="text-sm text-gray-800 dark:text-gray-200 mt-1 whitespace-pre-wrap">{week.trainings || 'N/A'}</p>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="text-center text-gray-500">No weekly entries found for this logbook.</div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className="text-red-500 text-center">Failed to load data.</div>
-                            )}
-                        </div>
-                        <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/30 flex justify-end">
-                            <button onClick={() => setShowLogbookModal(false)} className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
-                                Close
-                            </button>
+                                            ))
+                                        ) : (
+                                            <div className="text-center text-gray-500">No weekly entries found for this logbook.</div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <div className="text-red-500 text-center">Failed to load data.</div>
+                                )}
+                            </div>
+                            <div className="p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/30 flex justify-end">
+                                <button onClick={() => setShowLogbookModal(false)} className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 font-medium">
+                                    Close
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
