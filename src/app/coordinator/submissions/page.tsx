@@ -11,7 +11,6 @@ interface Submission {
     status: string;
     date: string;
     fileUrl?: string; // For Marksheet/Presentation
-    fileUrl?: string; // For Marksheet/Presentation
     profilePicture?: string | null;
     logbookId?: string;
     studentId?: string;
@@ -218,15 +217,15 @@ export default function CoordinatorSubmissionsPage() {
                                             key={lb._id}
                                             onClick={() => setSelectedLogbook(lb)}
                                             className={`w-full text-left p-3 rounded-lg text-sm transition-colors ${selectedLogbook && selectedLogbook._id === lb._id
-                                                    ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-medium'
-                                                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 font-medium'
+                                                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                                                 }`}
                                         >
                                             <div className="flex justify-between items-center">
                                                 <span>Month {lb.month}</span>
                                                 <span className={`text-[10px] px-1.5 py-0.5 rounded ${lb.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                                        lb.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                            'bg-gray-200 text-gray-600'
+                                                    lb.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                                                        'bg-gray-200 text-gray-600'
                                                     }`}>{lb.status}</span>
                                             </div>
                                         </button>
