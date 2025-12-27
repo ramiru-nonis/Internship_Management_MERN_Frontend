@@ -32,7 +32,11 @@ export default function CoordinatorStudents() {
             return;
         }
 
-        fetchStudents();
+        const delayDebounceFn = setTimeout(() => {
+            fetchStudents();
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
     }, [searchTerm, selectedStatuses, selectedDegrees]);
 
     const fetchStudents = async () => {
