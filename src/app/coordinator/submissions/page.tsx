@@ -95,17 +95,7 @@ export default function CoordinatorSubmissionsPage() {
 
         } else if (sub.fileUrl) {
             const url = sub.fileUrl.startsWith('http') ? sub.fileUrl : `${apiUrl}${sub.fileUrl}`;
-            try {
-                const response = await fetch(url);
-                const blob = await response.blob();
-                const pdfBlob = new Blob([blob], { type: 'application/pdf' });
-                const blobUrl = window.URL.createObjectURL(pdfBlob);
-                window.open(blobUrl, '_blank');
-                setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
-            } catch (error) {
-                console.error('Error viewing PDF:', error);
-                window.open(url, '_blank');
-            }
+            window.open(url, '_blank');
         }
     }
 
