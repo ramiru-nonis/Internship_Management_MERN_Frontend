@@ -61,32 +61,32 @@ export default function ApplicationHistoryPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
 
 
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">Application History</h1>
-                    <p className="text-gray-600 mt-2">Track your internship applications</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Application History</h1>
+                    <p className="text-gray-600 mt-2 dark:text-gray-400">Track your internship applications</p>
                 </div>
 
                 <div className="space-y-6">
                     {applications.map((app) => (
-                        <div key={app._id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <div key={app._id} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                                 <div>
                                     <div className="flex items-center gap-3 mb-2">
-                                        <h3 className="text-xl font-bold text-gray-900">{app.internship?.title || 'Unknown Position'}</h3>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${app.status === 'Accepted' ? 'bg-green-100 text-green-800' :
-                                            app.status === 'Rejected' ? 'bg-red-100 text-red-800' :
-                                                app.status === 'Reviewed' ? 'bg-yellow-100 text-yellow-800' :
-                                                    'bg-blue-100 text-blue-800'
+                                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">{app.internship?.title || 'Unknown Position'}</h3>
+                                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${app.status === 'Accepted' ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-200' :
+                                            app.status === 'Rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-200' :
+                                                app.status === 'Reviewed' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-200' :
+                                                    'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-200'
                                             }`}>
                                             {app.status}
                                         </span>
                                     </div>
 
-                                    <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
+                                    <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400 mb-4">
                                         <div className="flex items-center">
                                             <Building className="h-4 w-4 mr-2" />
                                             {app.internship?.company_name || 'Unknown Company'}
@@ -102,7 +102,7 @@ export default function ApplicationHistoryPage() {
                                     </div>
 
                                     {app.notes && (
-                                        <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-700">
+                                        <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 text-sm text-gray-700 dark:text-gray-300">
                                             <span className="font-semibold">Coordinator Notes:</span> {app.notes}
                                         </div>
                                     )}
@@ -111,7 +111,7 @@ export default function ApplicationHistoryPage() {
                                 {app.internship && (
                                     <Link
                                         href={`/student/internships/${app.internship._id}`}
-                                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium"
                                     >
                                         View Job Details &rarr;
                                     </Link>
@@ -121,10 +121,10 @@ export default function ApplicationHistoryPage() {
                     ))}
 
                     {applications.length === 0 && (
-                        <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
+                        <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
                             <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900">No applications yet</h3>
-                            <p className="text-gray-500 mt-2">Start applying for internships to see them here.</p>
+                            <h3 className="text-lg font-medium text-gray-900 dark:text-white">No applications yet</h3>
+                            <p className="text-gray-500 dark:text-gray-400 mt-2">Start applying for internships to see them here.</p>
                             <Link
                                 href="/student/internships"
                                 className="inline-block mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

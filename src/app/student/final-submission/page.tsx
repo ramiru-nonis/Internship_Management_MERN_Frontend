@@ -65,23 +65,23 @@ export default function FinalSubmissionPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
             <div className="max-w-4xl mx-auto">
-                <h1 className="text-3xl font-bold text-gray-800 mb-8">Final Submission</h1>
-                <p className="text-gray-600 mb-8">Please submit your marksheet and exit presentation to complete your internship.</p>
+                <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">Final Submission</h1>
+                <p className="text-gray-600 dark:text-gray-400 mb-8">Please submit your marksheet and exit presentation to complete your internship.</p>
 
                 <div className="grid md:grid-cols-2 gap-8 mb-8">
                     {/* Marksheet Card */}
-                    <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-                        <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                            <span className="bg-red-100 text-red-600 p-2 rounded-lg mr-3">
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow">
+                        <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
+                            <span className="bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 p-2 rounded-lg mr-3">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                             </span>
                             Marksheet Submission
                         </h2>
-                        <p className="text-sm text-gray-500 mb-6">Upload your verified marksheet in PDF format.</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Upload your verified marksheet in PDF format.</p>
 
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
+                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer relative">
                             <input
                                 type="file"
                                 accept=".pdf"
@@ -89,9 +89,9 @@ export default function FinalSubmissionPage() {
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                             />
                             {marksheet ? (
-                                <div className="text-green-600 font-medium break-all">{marksheet.name}</div>
+                                <div className="text-green-600 dark:text-green-400 font-medium break-all">{marksheet.name}</div>
                             ) : (
-                                <div className="text-gray-400">
+                                <div className="text-gray-400 dark:text-gray-500">
                                     <span className="block text-2xl mb-2">+</span>
                                     Drop PDF here or click to upload
                                 </div>
@@ -100,16 +100,16 @@ export default function FinalSubmissionPage() {
                     </div>
 
                     {/* Presentation Card */}
-                    <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-100 hover:shadow-xl transition-shadow">
-                        <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
-                            <span className="bg-orange-100 text-orange-600 p-2 rounded-lg mr-3">
+                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow">
+                        <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
+                            <span className="bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 p-2 rounded-lg mr-3">
                                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                             </span>
                             Exit Presentation
                         </h2>
-                        <p className="text-sm text-gray-500 mb-6">Upload your exit presentation in PPTX format.</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Upload your exit presentation in PPTX format.</p>
 
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition-colors cursor-pointer relative">
+                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer relative">
                             <input
                                 type="file"
                                 accept=".pptx"
@@ -117,9 +117,9 @@ export default function FinalSubmissionPage() {
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                             />
                             {presentation ? (
-                                <div className="text-green-600 font-medium break-all">{presentation.name}</div>
+                                <div className="text-green-600 dark:text-green-400 font-medium break-all">{presentation.name}</div>
                             ) : (
-                                <div className="text-gray-400">
+                                <div className="text-gray-400 dark:text-gray-500">
                                     <span className="block text-2xl mb-2">+</span>
                                     Drop PPTX here or click to upload
                                 </div>
@@ -131,7 +131,7 @@ export default function FinalSubmissionPage() {
                 <div className="flex justify-center">
                     <button
                         onClick={handleSubmit}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-12 py-4 rounded-xl font-bold text-lg shadow-xl shadow-indigo-200 transition-all transform hover:-translate-y-1 w-full md:w-auto"
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-12 py-4 rounded-xl font-bold text-lg shadow-xl shadow-indigo-200 dark:shadow-none transition-all transform hover:-translate-y-1 w-full md:w-auto"
                     >
                         Submit Everything
                     </button>

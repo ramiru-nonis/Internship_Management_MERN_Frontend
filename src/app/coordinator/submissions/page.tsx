@@ -63,9 +63,9 @@ export default function CoordinatorSubmissionsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 p-8">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
             <div className="max-w-6xl mx-auto">
-                <h1 className="text-3xl font-bold text-gray-800 mb-8">View Student Submissions</h1>
+                <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">View Student Submissions</h1>
 
                 {/* Controls */}
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
@@ -74,22 +74,22 @@ export default function CoordinatorSubmissionsPage() {
                         <input
                             type="text"
                             placeholder="Search by Name or CB Number..."
-                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none shadow-sm"
+                            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none shadow-sm dark:shadow-none placeholder-gray-500 dark:placeholder-gray-400"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
-                        <svg className="w-5 h-5 text-gray-400 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <svg className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute left-3 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
 
                     {/* Filters */}
-                    <div className="flex bg-white rounded-lg p-1 shadow-sm border border-gray-100">
+                    <div className="flex bg-white dark:bg-gray-800 rounded-lg p-1 shadow-sm border border-gray-100 dark:border-gray-700">
                         {["Logbook", "Marksheet", "Exit Presentation"].map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setFilter(f as any)}
                                 className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${filter === f
                                     ? "bg-blue-600 text-white shadow-sm"
-                                    : "text-gray-600 hover:bg-gray-50"
+                                    : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                                     }`}
                             >
                                 {f}
@@ -99,19 +99,19 @@ export default function CoordinatorSubmissionsPage() {
                 </div>
 
                 {/* Scrollable List */}
-                <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 max-h-[600px] overflow-y-auto">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 max-h-[600px] overflow-y-auto">
                     {loading ? (
-                        <div className="p-12 text-center text-gray-500">Loading submissions...</div>
+                        <div className="p-12 text-center text-gray-500 dark:text-gray-400">Loading submissions...</div>
                     ) : filteredSubmissions.length > 0 ? (
-                        <div className="divide-y divide-gray-100">
+                        <div className="divide-y divide-gray-100 dark:divide-gray-700">
                             {filteredSubmissions.map((sub) => (
-                                <div key={sub.id} className="p-6 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                                <div key={sub.id} className="p-6 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                     <div className="flex items-center space-x-4">
                                         {sub.profilePicture ? (
                                             <img
                                                 src={sub.profilePicture.startsWith('http') ? sub.profilePicture : `${apiUrl}${sub.profilePicture}`}
                                                 alt={sub.name}
-                                                className="w-12 h-12 rounded-full object-cover border border-gray-200"
+                                                className="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-gray-600"
                                             />
                                         ) : (
                                             <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white ${sub.type === 'Logbook' ? 'bg-purple-500' :
@@ -121,12 +121,12 @@ export default function CoordinatorSubmissionsPage() {
                                             </div>
                                         )}
                                         <div>
-                                            <h3 className="font-bold text-gray-800">{sub.name} <span className="text-gray-400 font-normal text-sm">({sub.cbNumber})</span></h3>
-                                            <p className="text-sm text-gray-500">
+                                            <h3 className="font-bold text-gray-800 dark:text-white">{sub.name} <span className="text-gray-400 dark:text-gray-500 font-normal text-sm">({sub.cbNumber})</span></h3>
+                                            <p className="text-sm text-gray-500 dark:text-gray-400">
                                                 {sub.type} {sub.month && `- ${sub.month}`}
-                                                <span className={`ml-2 px-2 py-0.5 rounded text-xs font-medium ${sub.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                                                    sub.status === 'Approved' ? 'bg-green-100 text-green-700' :
-                                                        'bg-blue-100 text-blue-700'
+                                                <span className={`ml-2 px-2 py-0.5 rounded text-xs font-medium ${sub.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-200' :
+                                                    sub.status === 'Approved' ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-200' :
+                                                        'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-200'
                                                     }`}>
                                                     {sub.status}
                                                 </span>
@@ -135,7 +135,7 @@ export default function CoordinatorSubmissionsPage() {
                                     </div>
                                     <button
                                         onClick={() => handleView(sub)}
-                                        className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-white hover:border-blue-500 hover:text-blue-600 font-medium transition-all shadow-sm hover:shadow-md"
+                                        className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-all shadow-sm hover:shadow-md"
                                     >
                                         View
                                     </button>
@@ -143,7 +143,7 @@ export default function CoordinatorSubmissionsPage() {
                             ))}
                         </div>
                     ) : (
-                        <div className="p-12 text-center text-gray-400">
+                        <div className="p-12 text-center text-gray-400 dark:text-gray-500">
                             No submissions found matching your criteria.
                         </div>
                     )}

@@ -109,7 +109,7 @@ export default function CoordinatorStudents() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
 
                 <div className="flex items-center justify-center h-96">
                     <div className="text-center">
@@ -122,19 +122,19 @@ export default function CoordinatorStudents() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
 
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">Students</h1>
-                    <p className="text-gray-600 mt-2">Manage and track student progress</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Students</h1>
+                    <p className="text-gray-600 mt-2 dark:text-gray-400">Manage and track student progress</p>
                 </div>
 
                 <div className="flex justify-between items-center mb-6">
                     {selectedStudents.length > 0 ? (
-                        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-center justify-between w-full">
-                            <div className="text-blue-700 font-medium">
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 flex items-center justify-between w-full">
+                            <div className="text-blue-700 dark:text-blue-300 font-medium">
                                 {selectedStudents.length} student{selectedStudents.length !== 1 ? 's' : ''} selected
                             </div>
                             <button
@@ -178,7 +178,7 @@ export default function CoordinatorStudents() {
                     )}
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
@@ -187,7 +187,7 @@ export default function CoordinatorStudents() {
                                 placeholder="Search by name or CB number..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
                             />
                         </div>
 
@@ -196,7 +196,7 @@ export default function CoordinatorStudents() {
                             <select
                                 value={statusFilter}
                                 onChange={(e) => setStatusFilter(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                             >
                                 <option value="all">All Statuses</option>
                                 <option value="non-intern">Non-Intern</option>
@@ -207,35 +207,35 @@ export default function CoordinatorStudents() {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-gray-50 border-b border-gray-200">
+                            <thead className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-200 dark:border-gray-700">
                                 <tr>
                                     <th className="px-6 py-3 text-left">
                                         <input
                                             type="checkbox"
                                             checked={selectedStudents.length === students.length && students.length > 0}
                                             onChange={handleSelectAll}
-                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
                                         />
                                     </th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Student</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Degree</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CV</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Student</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Contact</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Degree</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">CV</th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
                                 {students.map((student) => (
-                                    <tr key={student._id} className="hover:bg-gray-50">
+                                    <tr key={student._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <input
                                                 type="checkbox"
                                                 checked={selectedStudents.includes(student._id)}
                                                 onChange={() => handleSelectStudent(student._id)}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
                                             />
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -252,26 +252,26 @@ export default function CoordinatorStudents() {
                                                     )}
                                                 </div>
                                                 <div className="ml-4">
-                                                    <div className="text-sm font-medium text-gray-900">
+                                                    <div className="text-sm font-medium text-gray-900 dark:text-white">
                                                         {student.first_name} {student.last_name}
                                                     </div>
-                                                    <div className="text-sm text-gray-500">{student.cb_number}</div>
+                                                    <div className="text-sm text-gray-500 dark:text-gray-400">{student.cb_number}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900 flex items-center">
+                                            <div className="text-sm text-gray-900 dark:text-gray-300 flex items-center">
                                                 <Mail className="h-4 w-4 mr-2 text-gray-400" />
                                                 {student.user?.email}
                                             </div>
-                                            <div className="text-sm text-gray-500 flex items-center mt-1">
+                                            <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center mt-1">
                                                 <Phone className="h-4 w-4 mr-2 text-gray-400" />
                                                 {student.contact_number}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-sm text-gray-900">{student.degree}</div>
-                                            <div className="text-sm text-gray-500">{student.degree_level}</div>
+                                            <div className="text-sm text-gray-900 dark:text-white">{student.degree}</div>
+                                            <div className="text-sm text-gray-500 dark:text-gray-400">{student.degree_level}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <select
