@@ -7,13 +7,33 @@ export default function FinalSubmissionPage() {
     const [presentation, setPresentation] = useState<File | null>(null);
     const [studentId, setStudentId] = useState<string | null>(null);
 
+    // New State for existing submissions
+    const [existingMarksheet, setExistingMarksheet] = useState<any>(null);
+    const [existingPresentation, setExistingPresentation] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+
     useEffect(() => {
         const userStr = localStorage.getItem('user');
         if (userStr) {
             const user = JSON.parse(userStr);
             setStudentId(user._id);
+            fetchExistingSubmissions(user._id);
         }
     }, []);
+
+    const fetchExistingSubmissions = async (id: string) => {
+        try {
+            const res = await api.get(`/submissions/student/${id}`);
+            setExistingMarksheet(res.data.marksheet);
+            setExistingPresentation(res.data.presentation);
+        } catch (error) {
+            console.error("Error fetching submissions", error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'marksheet' | 'presentation') => {
         if (e.target.files && e.target.files[0]) {
@@ -34,35 +54,46 @@ export default function FinalSubmissionPage() {
 
     const handleSubmit = async () => {
         if (!studentId) return;
-        if (!marksheet || !presentation) {
+        // Only require upload if not already existing
+        if ((!marksheet && !existingMarksheet) || (!presentation && !existingPresentation)) {
             alert("Please upload both files.");
             return;
         }
 
         try {
-            // Upload Marksheet
-            const marksheetData = new FormData();
-            marksheetData.append('marksheet', marksheet);
-            marksheetData.append('studentId', studentId);
-            await api.post('/submissions/marksheet', marksheetData);
+            // Upload Marksheet if new
+            if (marksheet) {
+                const marksheetData = new FormData();
+                marksheetData.append('marksheet', marksheet);
+                marksheetData.append('studentId', studentId);
+                await api.post('/submissions/marksheet', marksheetData);
+            }
 
-            // Upload Presentation
-            const presentationData = new FormData();
-            presentationData.append('presentation', presentation);
-            presentationData.append('studentId', studentId);
-
-            await api.post('/submissions/presentation', presentationData);
+            // Upload Presentation if new
+            if (presentation) {
+                const presentationData = new FormData();
+                presentationData.append('presentation', presentation);
+                presentationData.append('studentId', studentId);
+                await api.post('/submissions/presentation', presentationData);
+            }
 
             // Notify Coordinator
             await api.post('/submissions/notify', { studentId });
 
             alert("Final submission successful! Coordinator notified.");
+            // Refresh
+            fetchExistingSubmissions(studentId);
+            setMarksheet(null);
+            setPresentation(null);
+
         } catch (error: any) {
             console.error("Error submitting files", error);
             const msg = error.response?.data?.message || "Failed to submit files.";
             alert(`Submission failed: ${msg}`);
         }
     }
+
+    const isFullySubmitted = existingMarksheet && existingPresentation;
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
@@ -79,24 +110,43 @@ export default function FinalSubmissionPage() {
                             </span>
                             Marksheet Submission
                         </h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Upload your verified marksheet in PDF format.</p>
 
-                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer relative">
-                            <input
-                                type="file"
-                                accept=".pdf"
-                                onChange={(e) => handleFileChange(e, 'marksheet')}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            />
-                            {marksheet ? (
-                                <div className="text-green-600 dark:text-green-400 font-medium break-all">{marksheet.name}</div>
-                            ) : (
-                                <div className="text-gray-400 dark:text-gray-500">
-                                    <span className="block text-2xl mb-2">+</span>
-                                    Drop PDF here or click to upload
+                        {existingMarksheet ? (
+                            <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
+                                <p className="text-green-700 dark:text-green-300 font-semibold flex items-center mb-2">
+                                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Submitted
+                                </p>
+                                <a
+                                    href={existingMarksheet.fileUrl.startsWith('http') ? existingMarksheet.fileUrl : `${apiUrl}${existingMarksheet.fileUrl}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline break-all"
+                                >
+                                    View Marksheet
+                                </a>
+                            </div>
+                        ) : (
+                            <>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Upload your verified marksheet in PDF format.</p>
+                                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer relative">
+                                    <input
+                                        type="file"
+                                        accept=".pdf"
+                                        onChange={(e) => handleFileChange(e, 'marksheet')}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    />
+                                    {marksheet ? (
+                                        <div className="text-green-600 dark:text-green-400 font-medium break-all">{marksheet.name}</div>
+                                    ) : (
+                                        <div className="text-gray-400 dark:text-gray-500">
+                                            <span className="block text-2xl mb-2">+</span>
+                                            Drop PDF here or click to upload
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
+                            </>
+                        )}
                     </div>
 
                     {/* Presentation Card */}
@@ -107,33 +157,56 @@ export default function FinalSubmissionPage() {
                             </span>
                             Exit Presentation
                         </h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Upload your exit presentation in PPTX format.</p>
 
-                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer relative">
-                            <input
-                                type="file"
-                                accept=".pptx"
-                                onChange={(e) => handleFileChange(e, 'presentation')}
-                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                            />
-                            {presentation ? (
-                                <div className="text-green-600 dark:text-green-400 font-medium break-all">{presentation.name}</div>
-                            ) : (
-                                <div className="text-gray-400 dark:text-gray-500">
-                                    <span className="block text-2xl mb-2">+</span>
-                                    Drop PPTX here or click to upload
+                        {existingPresentation ? (
+                            <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
+                                <p className="text-green-700 dark:text-green-300 font-semibold flex items-center mb-2">
+                                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Submitted
+                                </p>
+                                <a
+                                    href={existingPresentation.fileUrl.startsWith('http') ? existingPresentation.fileUrl : `${apiUrl}${existingPresentation.fileUrl}`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline break-all"
+                                >
+                                    View Presentation
+                                </a>
+                            </div>
+                        ) : (
+                            <>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">Upload your exit presentation in PPTX format.</p>
+                                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer relative">
+                                    <input
+                                        type="file"
+                                        accept=".pptx"
+                                        onChange={(e) => handleFileChange(e, 'presentation')}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    />
+                                    {presentation ? (
+                                        <div className="text-green-600 dark:text-green-400 font-medium break-all">{presentation.name}</div>
+                                    ) : (
+                                        <div className="text-gray-400 dark:text-gray-500">
+                                            <span className="block text-2xl mb-2">+</span>
+                                            Drop PPTX here or click to upload
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
+                            </>
+                        )}
                     </div>
                 </div>
 
                 <div className="flex justify-center">
                     <button
                         onClick={handleSubmit}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-12 py-4 rounded-xl font-bold text-lg shadow-xl shadow-indigo-200 dark:shadow-none transition-all transform hover:-translate-y-1 w-full md:w-auto"
+                        disabled={isFullySubmitted && !marksheet && !presentation}
+                        className={`px-12 py-4 rounded-xl font-bold text-lg shadow-xl dark:shadow-none transition-all w-full md:w-auto ${isFullySubmitted && !marksheet && !presentation
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none'
+                                : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200 transform hover:-translate-y-1'
+                            }`}
                     >
-                        Submit Everything
+                        {isFullySubmitted && !marksheet && !presentation ? 'Everything Submitted' : 'Submit Everything'}
                     </button>
                 </div>
 
