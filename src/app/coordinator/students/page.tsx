@@ -185,9 +185,8 @@ export default function CoordinatorStudents() {
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                             >
                                 <option value="all">All Statuses</option>
-                                <option value="Not Applied">Not Applied</option>
-                                <option value="Applied">Applied</option>
-                                <option value="Hired">Hired</option>
+                                <option value="non-intern">Non-Intern</option>
+                                <option value="intern">Intern</option>
                                 <option value="Completed">Completed</option>
                             </select>
                         </div>
@@ -273,17 +272,14 @@ export default function CoordinatorStudents() {
                                                         alert(error.response?.data?.message || 'Failed to update status');
                                                     }
                                                 }}
-                                                className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${student.status === 'hired' ? 'bg-green-100 text-green-800' :
+                                                className={`px-2 py-1 rounded-full text-xs font-medium border-0 cursor-pointer focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${student.status === 'Completed' ? 'bg-green-100 text-green-800' :
                                                     student.status === 'intern' ? 'bg-blue-100 text-blue-800' :
-                                                        student.status === 'approved' ? 'bg-purple-100 text-purple-800' :
-                                                            'bg-gray-100 text-gray-800'
+                                                        'bg-gray-100 text-gray-800'
                                                     }`}
                                             >
                                                 <option value="non-intern">Non-Intern</option>
                                                 <option value="intern">Intern</option>
-                                                <option value="approved">Approved</option>
-                                                <option value="hired">Hired</option>
-                                                <option value="not hired">Not Hired</option>
+                                                <option value="Completed">Completed</option>
                                             </select>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

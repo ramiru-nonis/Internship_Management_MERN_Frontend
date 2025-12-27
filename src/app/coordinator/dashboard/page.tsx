@@ -111,21 +111,17 @@ export default function CoordinatorDashboard() {
                 {/* Status Breakdown */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
                     <h2 className="text-lg font-bold text-gray-900 mb-4">Student Status Breakdown</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="text-center p-4 bg-gray-50 rounded-lg">
-                            <p className="text-2xl font-bold text-gray-900">{stats?.statusBreakdown?.notApplied || 0}</p>
-                            <p className="text-sm text-gray-600 mt-1">Not Applied</p>
+                            <p className="text-2xl font-bold text-gray-900">{stats?.statusBreakdown?.nonIntern || 0}</p>
+                            <p className="text-sm text-gray-600 mt-1">Non-Intern</p>
                         </div>
                         <div className="text-center p-4 bg-blue-50 rounded-lg">
-                            <p className="text-2xl font-bold text-blue-600">{stats?.statusBreakdown?.applied || 0}</p>
-                            <p className="text-sm text-gray-600 mt-1">Applied</p>
+                            <p className="text-2xl font-bold text-blue-600">{stats?.statusBreakdown?.intern || 0}</p>
+                            <p className="text-sm text-gray-600 mt-1">Intern</p>
                         </div>
                         <div className="text-center p-4 bg-green-50 rounded-lg">
-                            <p className="text-2xl font-bold text-green-600">{stats?.statusBreakdown?.hired || 0}</p>
-                            <p className="text-sm text-gray-600 mt-1">Hired</p>
-                        </div>
-                        <div className="text-center p-4 bg-purple-50 rounded-lg">
-                            <p className="text-2xl font-bold text-purple-600">{stats?.statusBreakdown?.completed || 0}</p>
+                            <p className="text-2xl font-bold text-green-600">{stats?.statusBreakdown?.completed || 0}</p>
                             <p className="text-sm text-gray-600 mt-1">Completed</p>
                         </div>
                     </div>
@@ -164,9 +160,8 @@ export default function CoordinatorDashboard() {
                                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                             >
                                 <option value="all">All Statuses</option>
-                                <option value="Not Applied">Not Applied</option>
-                                <option value="Applied">Applied</option>
-                                <option value="Hired">Hired</option>
+                                <option value="non-intern">Non-Intern</option>
+                                <option value="intern">Intern</option>
                                 <option value="Completed">Completed</option>
                             </select>
                         </div>
