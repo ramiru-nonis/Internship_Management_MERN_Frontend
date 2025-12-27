@@ -42,6 +42,8 @@ export default function CoordinatorStudents() {
             if (selectedDegrees.length > 0) params.degree = selectedDegrees.join(',');
             if (searchTerm) params.search = searchTerm;
 
+            if (searchTerm) params.search = searchTerm;
+
             const res = await api.get('/coordinator/students', { params });
             setStudents(res.data);
         } catch (error) {
@@ -49,6 +51,12 @@ export default function CoordinatorStudents() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleClearFilters = () => {
+        setSelectedStatuses([]);
+        setSelectedDegrees([]);
+        setSearchTerm('');
     };
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,10 +135,20 @@ export default function CoordinatorStudents() {
         <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 dark:bg-gray-900">
             {/* Sidebar */}
             <aside className="w-full md:w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-6 flex flex-col h-auto md:min-h-screen shadow-sm z-10">
-                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                    <Filter className="w-5 h-5 mr-2" />
-                    Filters
-                </h2>
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center">
+                        <Filter className="w-5 h-5 mr-2" />
+                        Filters
+                    </h2>
+                    {(selectedStatuses.length > 0 || selectedDegrees.length > 0 || searchTerm) && (
+                        <button
+                            onClick={handleClearFilters}
+                            className="text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded transition-colors"
+                        >
+                            Clear
+                        </button>
+                    )}
+                </div>
 
                 {/* Status Filter */}
                 <div className="mb-8">
