@@ -11,66 +11,44 @@ function VerifyContent() {
     const id = searchParams.get('id');
     const status = searchParams.get('status');
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false); // Not loading initially
     const [result, setResult] = useState<'success' | 'error' | null>(null);
     const [message, setMessage] = useState("");
+    const [processed, setProcessed] = useState(false);
 
-    useEffect(() => {
-        if (!id || !status) {
-            setLoading(false);
+    const handleConfirm = async () => {
+        if (!id || !status) return;
+
+        setLoading(true);
+        try {
+            // Call the backend action endpoint
+            await api.get(`/logbooks/action/${id}/${status}`);
+
+            setResult('success');
+            setMessage(status === 'Approved'
+                ? "Logbook Approved Successfully"
+                : "Logbook Rejected Successfully");
+            setProcessed(true);
+        } catch (error: any) {
+            console.error("Verification error:", error);
             setResult('error');
-            setMessage("Invalid verification link.");
-            return;
-        }
-
-        const verifyLogbook = async () => {
-            try {
-                // Call the backend action endpoint
-                await api.get(`/logbooks/action/${id}/${status}`);
-
-                setResult('success');
-                setMessage(status === 'Approved'
-                    ? "Logbook Approved Successfully"
-                    : "Logbook Rejected Successfully");
-            } catch (error: any) {
-                console.error("Verification error:", error);
-                setResult('error');
-                let msg = "Failed to process verification. Please try again or contact support.";
-                if (error.response?.data) {
-                    msg = error.response.data.message || (typeof error.response.data === 'string' ? error.response.data : msg);
-                }
-                setMessage(msg);
-            } finally {
-                setLoading(false);
+            let msg = "Failed to process verification. Please try again.";
+            if (error.response?.data) {
+                msg = error.response.data.message || (typeof error.response.data === 'string' ? error.response.data : msg);
             }
-        };
+            setMessage(msg);
+            setProcessed(true);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        verifyLogbook();
-    }, [id, status]);
-
-    if (loading) {
-        return (
-            <div className="flex flex-col items-center justify-center py-8">
-                <Loader2 className="h-12 w-12 text-blue-600 animate-spin mb-4" />
-                <p className="text-gray-600 font-medium">Processing verification...</p>
-            </div>
-        );
-    }
-
-    if (result === 'success') {
+    if (!id || !status) {
         return (
             <div className="flex flex-col items-center justify-center py-4">
-                {status === 'Approved' ? (
-                    <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-                ) : (
-                    <XCircle className="h-16 w-16 text-red-500 mb-4" />
-                )}
-                <h3 className={`text-xl font-bold mb-2 ${status === 'Approved' ? 'text-green-600' : 'text-red-600'}`}>
-                    {message}
-                </h3>
-                <p className="text-gray-500">
-                    The student has been notified of your decision.
-                </p>
+                <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Invalid Link</h3>
+                <p className="text-red-600 mb-4">Missing parameters.</p>
                 <Link href="/" className="text-blue-600 hover:text-blue-800 font-medium">
                     Return to Home
                 </Link>
@@ -78,14 +56,60 @@ function VerifyContent() {
         );
     }
 
+    if (processed) {
+        if (result === 'success') {
+            return (
+                <div className="flex flex-col items-center justify-center py-4">
+                    {status === 'Approved' ? (
+                        <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+                    ) : (
+                        <XCircle className="h-16 w-16 text-red-500 mb-4" />
+                    )}
+                    <h3 className={`text-xl font-bold mb-2 ${status === 'Approved' ? 'text-green-600' : 'text-red-600'}`}>
+                        {message}
+                    </h3>
+                    <p className="text-gray-500 mb-4">
+                        The student has been notified of your decision.
+                    </p>
+                    <button disabled className="bg-gray-300 text-gray-500 px-6 py-2 rounded-lg cursor-not-allowed font-medium">
+                        Action Completed
+                    </button>
+                </div>
+            );
+        }
+
+        return (
+            <div className="flex flex-col items-center justify-center py-4">
+                <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Verification Failed</h3>
+                <p className="text-red-600 mb-4">{message}</p>
+                <Link href="/" className="text-blue-600 hover:text-blue-800 font-medium">
+                    Return to Home
+                </Link>
+            </div>
+        );
+    }
+
+    // Initial Confirmation Screen
     return (
-        <div className="flex flex-col items-center justify-center py-4">
-            <AlertCircle className="h-16 w-16 text-red-500 mb-4" />
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Verification Failed</h3>
-            <p className="text-red-600 mb-4">{message}</p>
-            <Link href="/" className="text-blue-600 hover:text-blue-800 font-medium">
-                Return to Home
-            </Link>
+        <div className="flex flex-col items-center justify-center py-4 text-center">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Confirm Action</h3>
+            <p className="text-gray-600 mb-8">
+                Are you sure you want to <strong>{status}</strong> this logbook?
+            </p>
+
+            <button
+                onClick={handleConfirm}
+                disabled={loading}
+                className={`flex items-center justify-center px-8 py-3 rounded-lg font-bold text-white transition-all transform hover:-translate-y-0.5 ${loading ? 'opacity-70 cursor-wait' : ''
+                    } ${status === 'Approved'
+                        ? 'bg-green-600 hover:bg-green-700 shadow-green-200 shadow-lg'
+                        : 'bg-red-600 hover:bg-red-700 shadow-red-200 shadow-lg'
+                    }`}
+            >
+                {loading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
+                {loading ? 'Processing...' : `Confirm ${status}`}
+            </button>
         </div>
     );
 }
