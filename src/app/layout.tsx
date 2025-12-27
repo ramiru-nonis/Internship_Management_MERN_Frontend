@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
+import { ThemeProvider } from "@/providers/ThemeProvider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -18,8 +19,10 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${inter.variable} font-sans`}>
-                <Navbar />
-                {children}
+                <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                    <Navbar />
+                    {children}
+                </ThemeProvider>
             </body>
         </html>
     );
