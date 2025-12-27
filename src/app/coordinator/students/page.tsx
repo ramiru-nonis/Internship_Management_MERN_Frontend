@@ -13,6 +13,7 @@ export default function CoordinatorStudents() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
+    const [degreeFilter, setDegreeFilter] = useState('all');
     const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
     const [downloading, setDownloading] = useState(false);
 
@@ -32,12 +33,13 @@ export default function CoordinatorStudents() {
         }
 
         fetchStudents();
-    }, [searchTerm, statusFilter]);
+    }, [searchTerm, statusFilter, degreeFilter]);
 
     const fetchStudents = async () => {
         try {
             const params: any = {};
             if (statusFilter !== 'all') params.status = statusFilter;
+            if (degreeFilter !== 'all') params.degree = degreeFilter;
             if (searchTerm) params.search = searchTerm;
 
             const res = await api.get('/coordinator/students', { params });
@@ -122,90 +124,107 @@ export default function CoordinatorStudents() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="flex flex-col md:flex-row min-h-screen bg-gray-50 dark:bg-gray-900">
+            {/* Sidebar */}
+            <aside className="w-full md:w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 p-6 flex flex-col h-auto md:min-h-screen shadow-sm z-10">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center">
+                    <Filter className="w-5 h-5 mr-2" />
+                    Filters
+                </h2>
 
+                {/* Status Filter */}
+                <div className="mb-8">
+                    <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                        Status
+                    </h3>
+                    <div className="space-y-2">
+                        {['all', 'non-intern', 'intern', 'Completed'].map((status) => (
+                            <label key={status} className="flex items-center cursor-pointer group">
+                                <input
+                                    type="radio"
+                                    name="status"
+                                    checked={statusFilter === status}
+                                    onChange={() => setStatusFilter(status)}
+                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-full"
+                                />
+                                <span className={`ml-3 text-sm group-hover:text-blue-600 transition-colors ${statusFilter === status ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
+                                    {status === 'all' ? 'All Students' : status.charAt(0).toUpperCase() + status.slice(1)}
+                                </span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Degree Filter (New) - Mocked for now, can be dynamic */}
+                <div>
+                    <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                        Degree
+                    </h3>
+                    <div className="space-y-2">
+                        {['all', 'Computer Science', 'Information Technology', 'Software Engineering', 'Data Science'].map((degree) => (
+                            <label key={degree} className="flex items-center cursor-pointer group">
+                                <input
+                                    type="radio"
+                                    name="degree"
+                                    checked={degreeFilter === degree}
+                                    onChange={() => setDegreeFilter(degree)}
+                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-full"
+                                />
+                                <span className={`ml-3 text-sm group-hover:text-blue-600 transition-colors ${degreeFilter === degree ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
+                                    {degree === 'all' ? 'All Degrees' : degree}
+                                </span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
+            </aside>
+
+            {/* Main Content */}
+            <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 overflow-hidden">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Students</h1>
                     <p className="text-gray-600 mt-2 dark:text-gray-400">Manage and track student progress</p>
                 </div>
 
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                    {/* Search Bar - Moved here */}
+                    <div className="relative w-full md:w-96">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search by name or CB number..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                        />
+                    </div>
+
                     {selectedStudents.length > 0 ? (
-                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 flex items-center justify-between w-full">
-                            <div className="text-blue-700 dark:text-blue-300 font-medium">
-                                {selectedStudents.length} student{selectedStudents.length !== 1 ? 's' : ''} selected
+                        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-2 pl-4 flex items-center justify-between w-full md:w-auto gap-4">
+                            <div className="text-blue-700 dark:text-blue-300 font-medium whitespace-nowrap">
+                                {selectedStudents.length} selected
                             </div>
                             <button
                                 onClick={() => handleBulkDownload(false)}
                                 disabled={downloading}
-                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-70 flex items-center"
+                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-70 flex items-center text-sm"
                             >
-                                {downloading ? (
-                                    <>
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                        Downloading...
-                                    </>
-                                ) : (
-                                    <>
-                                        <FileText className="h-4 w-4 mr-2" />
-                                        Download Selected
-                                    </>
-                                )}
+                                {downloading ? 'Downloading...' : 'Download Selected'}
                             </button>
                         </div>
                     ) : (
-                        <div className="w-full flex justify-end">
-                            <button
-                                onClick={() => handleBulkDownload(true)}
-                                disabled={downloading}
-                                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-70 flex items-center"
-                            >
-                                {downloading ? (
-                                    <>
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                        Downloading All...
-                                    </>
-                                ) : (
-                                    <>
-                                        <FileText className="h-4 w-4 mr-2" />
-                                        Download All CVs
-                                    </>
-                                )}
-                            </button>
-                        </div>
+                        <button
+                            onClick={() => handleBulkDownload(true)}
+                            disabled={downloading}
+                            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-sm transition-colors disabled:opacity-70 flex items-center whitespace-nowrap"
+                        >
+                            <FileText className="h-4 w-4 mr-2" />
+                            Download All CVs
+                        </button>
                     )}
                 </div>
 
-                <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Search by name or CB number..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
-                            />
-                        </div>
-
-                        <div className="relative">
-                            <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                            <select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                            >
-                                <option value="all">All Statuses</option>
-                                <option value="non-intern">Non-Intern</option>
-                                <option value="intern">Intern</option>
-                                <option value="Completed">Completed</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
+                {/* Removed the old filter bar container since it is now in sidebar/top */}
 
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
                     <div className="overflow-x-auto">
@@ -325,7 +344,7 @@ export default function CoordinatorStudents() {
                                 ))}
                                 {students.length === 0 && (
                                     <tr>
-                                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                                        <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
                                             No students found matching your criteria
                                         </td>
                                     </tr>
