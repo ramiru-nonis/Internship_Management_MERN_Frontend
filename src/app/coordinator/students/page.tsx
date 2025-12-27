@@ -12,8 +12,8 @@ export default function CoordinatorStudents() {
     const [students, setStudents] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all');
-    const [degreeFilter, setDegreeFilter] = useState('all');
+    const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+    const [selectedDegrees, setSelectedDegrees] = useState<string[]>([]);
     const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
     const [downloading, setDownloading] = useState(false);
 
@@ -33,13 +33,13 @@ export default function CoordinatorStudents() {
         }
 
         fetchStudents();
-    }, [searchTerm, statusFilter, degreeFilter]);
+    }, [searchTerm, selectedStatuses, selectedDegrees]);
 
     const fetchStudents = async () => {
         try {
             const params: any = {};
-            if (statusFilter !== 'all') params.status = statusFilter;
-            if (degreeFilter !== 'all') params.degree = degreeFilter;
+            if (selectedStatuses.length > 0) params.status = selectedStatuses.join(',');
+            if (selectedDegrees.length > 0) params.degree = selectedDegrees.join(',');
             if (searchTerm) params.search = searchTerm;
 
             const res = await api.get('/coordinator/students', { params });
@@ -138,40 +138,50 @@ export default function CoordinatorStudents() {
                         Status
                     </h3>
                     <div className="space-y-2">
-                        {['all', 'non-intern', 'intern', 'Completed'].map((status) => (
+                        {['non-intern', 'intern', 'Completed'].map((status) => (
                             <label key={status} className="flex items-center cursor-pointer group">
                                 <input
-                                    type="radio"
-                                    name="status"
-                                    checked={statusFilter === status}
-                                    onChange={() => setStatusFilter(status)}
-                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-full"
+                                    type="checkbox"
+                                    checked={selectedStatuses.includes(status)}
+                                    onChange={() => {
+                                        if (selectedStatuses.includes(status)) {
+                                            setSelectedStatuses(selectedStatuses.filter(s => s !== status));
+                                        } else {
+                                            setSelectedStatuses([...selectedStatuses, status]);
+                                        }
+                                    }}
+                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                 />
-                                <span className={`ml-3 text-sm group-hover:text-blue-600 transition-colors ${statusFilter === status ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
-                                    {status === 'all' ? 'All Students' : status.charAt(0).toUpperCase() + status.slice(1)}
+                                <span className={`ml-3 text-sm group-hover:text-blue-600 transition-colors ${selectedStatuses.includes(status) ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
+                                    {status.charAt(0).toUpperCase() + status.slice(1)}
                                 </span>
                             </label>
                         ))}
                     </div>
                 </div>
 
-                {/* Degree Filter (New) - Mocked for now, can be dynamic */}
+                {/* Degree Filter */}
                 <div>
                     <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
                         Degree
                     </h3>
                     <div className="space-y-2">
-                        {['all', 'Computer Science', 'Information Technology', 'Software Engineering', 'Data Science'].map((degree) => (
+                        {['Computer Science', 'Information Technology', 'Software Engineering', 'Data Science'].map((degree) => (
                             <label key={degree} className="flex items-center cursor-pointer group">
                                 <input
-                                    type="radio"
-                                    name="degree"
-                                    checked={degreeFilter === degree}
-                                    onChange={() => setDegreeFilter(degree)}
-                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded-full"
+                                    type="checkbox"
+                                    checked={selectedDegrees.includes(degree)}
+                                    onChange={() => {
+                                        if (selectedDegrees.includes(degree)) {
+                                            setSelectedDegrees(selectedDegrees.filter(d => d !== degree));
+                                        } else {
+                                            setSelectedDegrees([...selectedDegrees, degree]);
+                                        }
+                                    }}
+                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                                 />
-                                <span className={`ml-3 text-sm group-hover:text-blue-600 transition-colors ${degreeFilter === degree ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
-                                    {degree === 'all' ? 'All Degrees' : degree}
+                                <span className={`ml-3 text-sm group-hover:text-blue-600 transition-colors ${selectedDegrees.includes(degree) ? 'text-gray-900 dark:text-white font-medium' : 'text-gray-600 dark:text-gray-400'}`}>
+                                    {degree}
                                 </span>
                             </label>
                         ))}
