@@ -93,6 +93,20 @@ export default function CoordinatorStudents() {
         }
     };
 
+    const handleViewPdf = async (url: string) => {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+            const blobUrl = window.URL.createObjectURL(pdfBlob);
+            window.open(blobUrl, '_blank');
+            setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
+        } catch (error) {
+            console.error('Error viewing PDF:', error);
+            window.open(url, '_blank'); // Fallback
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50">
@@ -284,15 +298,13 @@ export default function CoordinatorStudents() {
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {student.cv ? (
-                                                <a
-                                                    href={student.cv.startsWith('http') ? student.cv : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${student.cv}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="text-blue-600 hover:text-blue-900 flex items-center"
+                                                <button
+                                                    onClick={() => handleViewPdf(student.cv.startsWith('http') ? student.cv : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${student.cv}`)}
+                                                    className="text-blue-600 hover:text-blue-900 flex items-center bg-transparent border-0 cursor-pointer"
                                                 >
                                                     <FileText className="h-4 w-4 mr-1" />
                                                     View PDF
-                                                </a>
+                                                </button>
                                             ) : (
                                                 <span className="text-gray-400">No CV</span>
                                             )}

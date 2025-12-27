@@ -43,13 +43,22 @@ export default function CoordinatorSubmissionsPage() {
         return matchesFilter && matchesSearch;
     });
 
-    const handleView = (sub: Submission) => {
+    const handleView = async (sub: Submission) => {
         if (sub.type === 'Logbook') {
             alert(`View Logic for Logbook ${sub.id} (Open Detail Modal or Page)`);
         } else if (sub.fileUrl) {
-            // Construct full URL if needed, assuming API serves static files
             const url = sub.fileUrl.startsWith('http') ? sub.fileUrl : `${apiUrl}${sub.fileUrl}`;
-            window.open(url, '_blank');
+            try {
+                const response = await fetch(url);
+                const blob = await response.blob();
+                const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+                const blobUrl = window.URL.createObjectURL(pdfBlob);
+                window.open(blobUrl, '_blank');
+                setTimeout(() => window.URL.revokeObjectURL(blobUrl), 100);
+            } catch (error) {
+                console.error('Error viewing PDF:', error);
+                window.open(url, '_blank');
+            }
         }
     }
 
