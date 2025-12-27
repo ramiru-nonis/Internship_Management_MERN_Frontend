@@ -164,13 +164,12 @@ export default function CoordinatorSubmissionsPage() {
                                             <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white ${sub.type === 'Logbook' ? 'bg-purple-500' :
                                                 sub.type === 'Marksheet' ? 'bg-red-500' : 'bg-orange-500'
                                                 }`}>
-                                                {filter === 'Logbook' ? 'L' : sub.name.charAt(0)}
+                                                {sub.name.charAt(0)}
                                             </div>
                                         )}
                                         <div>
                                             <h3 className="font-bold text-gray-800 dark:text-white">
-                                                {filter === 'Logbook' ? 'Student Logbook' : `${sub.name} `}
-                                                {filter !== 'Logbook' && <span className="text-gray-400 dark:text-gray-500 font-normal text-sm">({sub.cbNumber})</span>}
+                                                <h3 className="font-bold text-gray-800 dark:text-white">{sub.name} <span className="text-gray-400 dark:text-gray-500 font-normal text-sm">({sub.cbNumber})</span></h3>
                                             </h3>
                                             <p className="text-sm text-gray-500 dark:text-gray-400">
                                                 {sub.type} {sub.month && `- ${sub.month}`}
