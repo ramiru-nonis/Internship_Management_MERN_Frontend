@@ -53,12 +53,12 @@ export default function StudentDashboard() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
 
                 <div className="flex items-center justify-center h-96">
                     <div className="text-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                        <p className="mt-4 text-gray-600">Loading...</p>
+                        <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
                     </div>
                 </div>
             </div>
@@ -66,16 +66,16 @@ export default function StudentDashboard() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
 
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Header */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
                         Welcome back, {student?.first_name}!
                     </h1>
-                    <p className="text-gray-600 mt-2">
+                    <p className="text-gray-600 mt-2 dark:text-gray-400">
                         Track your internship journey and manage your applications
                     </p>
                 </div>
@@ -95,11 +95,11 @@ export default function StudentDashboard() {
 
                 {/* Quick Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600 mb-1">Total Applications</p>
-                                <p className="text-3xl font-bold text-gray-900">{stats.totalApplications}</p>
+                                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total Applications</p>
+                                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalApplications}</p>
                             </div>
                             <div className="p-4 bg-blue-100 rounded-full">
                                 <FileText className="h-8 w-8 text-blue-600" />
@@ -107,11 +107,11 @@ export default function StudentDashboard() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600 mb-1">Active Applications</p>
-                                <p className="text-3xl font-bold text-gray-900">{stats.activeApplications}</p>
+                                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Active Applications</p>
+                                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.activeApplications}</p>
                             </div>
                             <div className="p-4 bg-green-100 rounded-full">
                                 <Briefcase className="h-8 w-8 text-green-600" />
@@ -119,11 +119,11 @@ export default function StudentDashboard() {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600 mb-1">Placement Form</p>
-                                <p className="text-lg font-bold text-gray-900">
+                                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Placement Form</p>
+                                <p className="text-lg font-bold text-gray-900 dark:text-white">
                                     {stats.placementSubmitted ? 'Submitted' : 'Not Submitted'}
                                 </p>
                             </div>
@@ -138,47 +138,47 @@ export default function StudentDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <Link
                         href="/student/internships"
-                        className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all group"
+                        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-all group"
                     >
                         <div className="flex items-center space-x-4">
                             <div className="p-3 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
                                 <Briefcase className="h-6 w-6 text-blue-600" />
                             </div>
                             <div>
-                                <p className="font-semibold text-gray-900">Browse Jobs</p>
-                                <p className="text-sm text-gray-600">Find internships</p>
+                                <p className="font-semibold text-gray-900 dark:text-white">Browse Jobs</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Find internships</p>
                             </div>
                         </div>
                     </Link>
 
                     <Link
                         href="/student/applications"
-                        className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all group"
+                        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-all group"
                     >
                         <div className="flex items-center space-x-4">
                             <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
                                 <FileText className="h-6 w-6 text-green-600" />
                             </div>
                             <div>
-                                <p className="font-semibold text-gray-900">My Applications</p>
-                                <p className="text-sm text-gray-600">Track status</p>
+                                <p className="font-semibold text-gray-900 dark:text-white">My Applications</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Track status</p>
                             </div>
                         </div>
                     </Link>
 
                     <Link
                         href="/student/placement"
-                        className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all group"
+                        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-all group"
                     >
                         <div className="flex items-center space-x-4">
                             <div className={`p-3 rounded-lg transition-colors ${stats.placementSubmitted ? 'bg-green-100 group-hover:bg-green-200' : 'bg-purple-100 group-hover:bg-purple-200'}`}>
                                 <ClipboardList className={`h-6 w-6 ${stats.placementSubmitted ? 'text-green-600' : 'text-purple-600'}`} />
                             </div>
                             <div>
-                                <p className="font-semibold text-gray-900">
+                                <p className="font-semibold text-gray-900 dark:text-white">
                                     {stats.placementSubmitted ? 'Placement Form' : 'Placement Form'}
                                 </p>
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
                                     {stats.placementSubmitted ? 'View details' : 'Submit details'}
                                 </p>
                             </div>
@@ -187,15 +187,15 @@ export default function StudentDashboard() {
 
                     <Link
                         href="/student/profile"
-                        className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all group"
+                        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-all group"
                     >
                         <div className="flex items-center space-x-4">
                             <div className="p-3 bg-orange-100 rounded-lg group-hover:bg-orange-200 transition-colors">
                                 <User className="h-6 w-6 text-orange-600" />
                             </div>
                             <div>
-                                <p className="font-semibold text-gray-900">My Profile</p>
-                                <p className="text-sm text-gray-600">Update info</p>
+                                <p className="font-semibold text-gray-900 dark:text-white">My Profile</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Update info</p>
                             </div>
                         </div>
                     </Link>
@@ -205,15 +205,15 @@ export default function StudentDashboard() {
                     {/* Logbook Quick Action */}
                     <Link
                         href="/student/logbook"
-                        className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all group"
+                        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-all group"
                     >
                         <div className="flex items-center space-x-4">
                             <div className="p-3 bg-indigo-100 rounded-lg group-hover:bg-indigo-200 transition-colors">
                                 <BookOpen className="h-6 w-6 text-indigo-600" />
                             </div>
                             <div>
-                                <p className="font-semibold text-gray-900">Logbook</p>
-                                <p className="text-sm text-gray-600">Weekly entries</p>
+                                <p className="font-semibold text-gray-900 dark:text-white">Logbook</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Weekly entries</p>
                             </div>
                         </div>
                     </Link>
@@ -221,15 +221,15 @@ export default function StudentDashboard() {
                     {/* Final Submission Quick Action */}
                     <Link
                         href="/student/final-submission"
-                        className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all group"
+                        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-all group"
                     >
                         <div className="flex items-center space-x-4">
                             <div className="p-3 bg-red-100 rounded-lg group-hover:bg-red-200 transition-colors">
                                 <TrendingUp className="h-6 w-6 text-red-600" />
                             </div>
                             <div>
-                                <p className="font-semibold text-gray-900">Final Submission</p>
-                                <p className="text-sm text-gray-600">Marksheet & PPT</p>
+                                <p className="font-semibold text-gray-900 dark:text-white">Final Submission</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">Marksheet & PPT</p>
                             </div>
                         </div>
                     </Link>
