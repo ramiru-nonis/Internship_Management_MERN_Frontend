@@ -11,10 +11,6 @@ interface Submission {
     status: string;
     date: string;
     fileUrl?: string; // For Marksheet/Presentation
-    month?: string;
-    status: string;
-    date: string;
-    fileUrl?: string; // For Marksheet/Presentation
     profilePicture?: string | null;
     logbookId?: string;
 }
