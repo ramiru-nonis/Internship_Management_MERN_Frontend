@@ -41,6 +41,7 @@ export default function LogbookPage() {
     const [saving, setSaving] = useState(false);
     const [sending, setSending] = useState(false);
     const [enhancing, setEnhancing] = useState(false);
+    const [aiStyle, setAiStyle] = useState("Professional");
 
     const handleAIEnhance = async () => {
         if (!formData.activities || formData.activities.length < 5) {
@@ -52,7 +53,8 @@ export default function LogbookPage() {
         try {
             const res = await api.post('/ai/enhance', {
                 text: formData.activities,
-                context: `Week ${activeWeek} of Internship`
+                context: `Week ${activeWeek} of Internship`,
+                style: aiStyle
             });
 
             // Typewriter or just set data
@@ -454,20 +456,33 @@ export default function LogbookPage() {
                                     </label>
 
                                     {isEditable && (
-                                        <button
-                                            onClick={handleAIEnhance}
-                                            disabled={enhancing}
-                                            className={`
-                                                flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold transition-all
-                                                ${enhancing
-                                                    ? "bg-purple-100 text-purple-400 cursor-wait"
-                                                    : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md hover:shadow-lg hover:from-purple-500 hover:to-indigo-500 transform hover:-translate-y-0.5"
-                                                }
-                                            `}
-                                        >
-                                            <FiZap className={enhancing ? "animate-pulse" : ""} />
-                                            {enhancing ? "Enhancing..." : "AI Enhance"}
-                                        </button>
+                                        <div className="flex gap-2 items-center">
+                                            <select
+                                                value={aiStyle}
+                                                onChange={(e) => setAiStyle(e.target.value)}
+                                                className="text-xs border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 focus:ring-2 focus:ring-purple-500 outline-none"
+                                            >
+                                                <option value="Professional">Professional</option>
+                                                <option value="Executive">Executive</option>
+                                                <option value="Technical">Technical</option>
+                                                <option value="Creative">Creative</option>
+                                            </select>
+
+                                            <button
+                                                onClick={handleAIEnhance}
+                                                disabled={enhancing}
+                                                className={`
+                                                    flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold transition-all
+                                                    ${enhancing
+                                                        ? "bg-purple-100 text-purple-400 cursor-wait"
+                                                        : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md hover:shadow-lg hover:from-purple-500 hover:to-indigo-500 transform hover:-translate-y-0.5"
+                                                    }
+                                                `}
+                                            >
+                                                <FiZap className={enhancing ? "animate-pulse" : ""} />
+                                                {enhancing ? "Enhancing..." : "AI Enhance"}
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
                                 <textarea
