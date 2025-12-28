@@ -101,10 +101,20 @@ export default function CoordinatorSubmissionsPage() {
                 // MS Viewer requires a public URL. It cannot access localhost.
                 if (url.includes('localhost') || url.includes('127.0.0.1')) {
                     alert("Online preview is NOT available on localhost because Microsoft servers cannot access your local computer.\n\nPlease deploy the site to view the presentation online.");
-                    // User requested strictly NO download, so we do nothing else here.
                 } else {
-                    // Open in MS Viewer
-                    window.open(`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`, '_blank');
+                    // Pre-check if file exists
+                    try {
+                        const response = await fetch(url, { method: 'HEAD' });
+                        if (response.ok) {
+                            window.open(`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`, '_blank');
+                        } else {
+                            alert("Unable to view presentation: The file could not be found on the server. Please try uploading it again.");
+                        }
+                    } catch (error) {
+                        // Fallback in case of CORS or network error (still try to open)
+                        console.warn("Could not verify file existence, attempting to open anyway...", error);
+                        window.open(`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`, '_blank');
+                    }
                 }
             } else {
                 // PDF (Marksheet) or other types open natively
