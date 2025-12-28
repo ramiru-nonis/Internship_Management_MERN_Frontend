@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import {
     FiCalendar, FiClock, FiCheckCircle, FiAlertCircle,
-    FiEdit3, FiLock, FiSend, FiChevronRight, FiChevronLeft
+    FiEdit3, FiLock, FiSend, FiChevronRight, FiChevronLeft, FiZap
 } from "react-icons/fi";
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -40,6 +40,36 @@ export default function LogbookPage() {
     });
     const [saving, setSaving] = useState(false);
     const [sending, setSending] = useState(false);
+    const [enhancing, setEnhancing] = useState(false);
+
+    const handleAIEnhance = async () => {
+        if (!formData.activities || formData.activities.length < 5) {
+            alert("Please type a few words about what you did first.");
+            return;
+        }
+
+        setEnhancing(true);
+        try {
+            const res = await api.post('/ai/enhance', {
+                text: formData.activities,
+                context: `Week ${activeWeek} of Internship`
+            });
+
+            // Typewriter or just set data
+            setFormData(prev => ({
+                ...prev,
+                activities: res.data.activities || prev.activities,
+                techSkills: res.data.techSkills || prev.techSkills,
+                softSkills: res.data.softSkills || prev.softSkills
+            }));
+
+        } catch (error) {
+            console.error("AI Error", error);
+            // Silent fail or toast
+        } finally {
+            setEnhancing(false);
+        }
+    };
 
     // --- Init ---
     useEffect(() => {
@@ -417,10 +447,29 @@ export default function LogbookPage() {
                         <div className="p-6 overflow-y-auto space-y-6">
 
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                    ACTIVITIES
-                                    <span className="text-xs font-normal text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Required</span>
-                                </label>
+                                <div className="flex justify-between items-center">
+                                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                                        ACTIVITIES
+                                        <span className="text-xs font-normal text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Required</span>
+                                    </label>
+
+                                    {isEditable && (
+                                        <button
+                                            onClick={handleAIEnhance}
+                                            disabled={enhancing}
+                                            className={`
+                                                flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold transition-all
+                                                ${enhancing
+                                                    ? "bg-purple-100 text-purple-400 cursor-wait"
+                                                    : "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md hover:shadow-lg hover:from-purple-500 hover:to-indigo-500 transform hover:-translate-y-0.5"
+                                                }
+                                            `}
+                                        >
+                                            <FiZap className={enhancing ? "animate-pulse" : ""} />
+                                            {enhancing ? "Enhancing..." : "AI Enhance"}
+                                        </button>
+                                    )}
+                                </div>
                                 <textarea
                                     className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 h-32 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all resize-none text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
                                     placeholder="Describe the tasks you worked on this week..."
