@@ -14,6 +14,7 @@ interface Submission {
     profilePicture?: string | null;
     logbookId?: string;
     studentId?: string;
+    scheduledDate?: string; // Add this
 }
 
 interface LogbookData {
@@ -37,6 +38,40 @@ export default function CoordinatorSubmissionsPage() {
     const [logbookHistory, setLogbookHistory] = useState<LogbookData[]>([]);
     const [loadingLogbook, setLoadingLogbook] = useState(false);
     const [loadingHistory, setLoadingHistory] = useState(false);
+
+    // Sorting State for Scheduled Date
+    const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+    const [selectedPresentationId, setSelectedPresentationId] = useState<string | null>(null);
+    const [scheduleDateTime, setScheduleDateTime] = useState("");
+
+    const openScheduleModal = (id: string, currentSchedule?: string) => {
+        setSelectedPresentationId(id);
+        // Format for input datetime-local: YYYY-MM-DDTHH:mm
+        if (currentSchedule) {
+            const date = new Date(currentSchedule);
+            const iso = date.toISOString().slice(0, 16); // Extract YYYY-MM-DDTHH:mm
+            setScheduleDateTime(iso);
+        } else {
+            setScheduleDateTime("");
+        }
+        setScheduleModalOpen(true);
+    };
+
+    const handleSaveSchedule = async () => {
+        if (!selectedPresentationId || !scheduleDateTime) return;
+
+        try {
+            await api.put(`/submissions/presentation/${selectedPresentationId}/schedule`, {
+                scheduledDate: scheduleDateTime
+            });
+            alert("Presentation scheduled successfully!");
+            setScheduleModalOpen(false);
+            fetchSubmissions(); // Refresh
+        } catch (error: any) {
+            console.error("Error scheduling", error);
+            alert("Failed to save schedule.");
+        }
+    };
 
     useEffect(() => {
         fetchSubmissions();
@@ -193,15 +228,32 @@ export default function CoordinatorSubmissionsPage() {
                                                     }`}>
                                                     {sub.status}
                                                 </span>
+                                                {/* Show Scheduled Date if exists */}
+                                                {sub.scheduledDate && (
+                                                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200">
+                                                        Scheduled: {new Date(sub.scheduledDate).toLocaleDateString()} {new Date(sub.scheduledDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                    </span>
+                                                )}
                                             </p>
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={() => handleView(sub)}
-                                        className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-all shadow-sm hover:shadow-md"
-                                    >
-                                        View
-                                    </button>
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() => handleView(sub)}
+                                            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-all shadow-sm hover:shadow-md"
+                                        >
+                                            View
+                                        </button>
+                                        {/* Schedule Button for Presentations */}
+                                        {sub.type === 'Exit Presentation' && (
+                                            <button
+                                                onClick={() => openScheduleModal(sub.id, sub.scheduledDate)}
+                                                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition-all shadow-sm hover:shadow-md"
+                                            >
+                                                {sub.scheduledDate ? 'Reschedule' : 'Schedule'}
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -304,6 +356,41 @@ export default function CoordinatorSubmissionsPage() {
                                     Close
                                 </button>
                             </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Schedule Presentation Modal */}
+            {scheduleModalOpen && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6">
+                        <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Schedule Presentation</h2>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Select Date and Time
+                            </label>
+                            <input
+                                type="datetime-local"
+                                value={scheduleDateTime}
+                                onChange={(e) => setScheduleDateTime(e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                onClick={() => setScheduleModalOpen(false)}
+                                className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveSchedule}
+                                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium disabled:opacity-50"
+                                disabled={!scheduleDateTime}
+                            >
+                                Save Schedule
+                            </button>
                         </div>
                     </div>
                 </div>
