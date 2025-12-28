@@ -74,6 +74,8 @@ export default function FinalSubmissionPage() {
         const confirmed = window.confirm("Are you sure you want to submit these files? This will count as one of your attempts.");
         if (!confirmed) return;
 
+        setLoading(true);
+
         try {
             // Upload Marksheet if new
             if (marksheet) {
@@ -96,7 +98,7 @@ export default function FinalSubmissionPage() {
 
             alert("Submission processed.");
             // Refresh
-            fetchExistingSubmissions(studentId);
+            fetchExistingSubmissions(studentId); // This will set loading to false in its finally block
             setMarksheet(null);
             setPresentation(null);
             setShowMarksheetUpload(false);
@@ -106,6 +108,7 @@ export default function FinalSubmissionPage() {
             console.error("Error submitting files", error);
             const msg = error.response?.data?.message || "Failed to submit files.";
             alert(`Submission failed: ${msg}`);
+            setLoading(false); // Ensure loading is reset on error
         }
     }
 
