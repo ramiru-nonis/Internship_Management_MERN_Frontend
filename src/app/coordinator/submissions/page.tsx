@@ -100,8 +100,8 @@ export default function CoordinatorSubmissionsPage() {
             if (sub.type === 'Exit Presentation') {
                 // MS Viewer requires a public URL. It cannot access localhost.
                 if (url.includes('localhost') || url.includes('127.0.0.1')) {
-                    alert("Document preview is not available on localhost. The file will be downloaded instead.");
-                    window.open(url, '_blank');
+                    alert("Online preview is NOT available on localhost because Microsoft servers cannot access your local computer.\n\nPlease deploy the site to view the presentation online.");
+                    // User requested strictly NO download, so we do nothing else here.
                 } else {
                     // Open in MS Viewer
                     window.open(`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`, '_blank');
