@@ -93,7 +93,7 @@ export default function CoordinatorSubmissionsPage() {
                 setLoadingHistory(false);
             }
 
-        } else if (sub.fileUrl) {
+        } else if ((sub.type === 'Marksheet' || sub.type === 'Exit Presentation') && sub.fileUrl) {
             const url = sub.fileUrl.startsWith('http') ? sub.fileUrl : `${apiUrl}${sub.fileUrl}`;
             window.open(url, '_blank');
         }
