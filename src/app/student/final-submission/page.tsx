@@ -71,6 +71,9 @@ export default function FinalSubmissionPage() {
     const handleSubmit = async () => {
         if (!studentId) return;
 
+        const confirmed = window.confirm("Are you sure you want to submit these files? This will count as one of your attempts.");
+        if (!confirmed) return;
+
         try {
             // Upload Marksheet if new
             if (marksheet) {
@@ -298,12 +301,21 @@ export default function FinalSubmissionPage() {
                             <button
                                 onClick={handleSubmit}
                                 disabled={!canSubmit}
-                                className={`px-12 py-4 rounded-xl font-bold text-lg shadow-xl dark:shadow-none transition-all w-full md:w-auto ${!canSubmit
-                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed shadow-none dark:bg-gray-700 dark:text-gray-500'
-                                    : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-200 transform hover:-translate-y-1'
+                                className={`px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all duration-300 w-full md:w-auto flex items-center justify-center transform ${!canSubmit
+                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed dark:bg-gray-800 dark:text-gray-600'
+                                    : 'bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white shadow-indigo-500/30 hover:shadow-indigo-500/50 hover:-translate-y-1'
                                     }`}
                             >
-                                Submit Selected Files
+                                <span className="flex items-center justify-center gap-2">
+                                    {loading ? (
+                                        "Processing..."
+                                    ) : (
+                                        <>
+                                            Submit Final Files
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                                        </>
+                                    )}
+                                </span>
                             </button>
                         </div>
                     </>
