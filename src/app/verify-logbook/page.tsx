@@ -11,10 +11,39 @@ function VerifyContent() {
     const id = searchParams.get('id');
     const status = searchParams.get('status');
 
-    const [loading, setLoading] = useState(false); // Not loading initially
+    const [loading, setLoading] = useState(true); // Loading initially for status check
     const [result, setResult] = useState<'success' | 'error' | null>(null);
     const [message, setMessage] = useState("");
     const [processed, setProcessed] = useState(false);
+    const [alreadyDone, setAlreadyDone] = useState(false);
+
+    useEffect(() => {
+        if (!id) {
+            setLoading(false);
+            return;
+        }
+
+        const checkStatus = async () => {
+            try {
+                const res = await api.get(`/logbooks/${id}`);
+                const logbook = res.data;
+
+                if (['Approved', 'Rejected'].includes(logbook.status)) {
+                    setAlreadyDone(true);
+                    setProcessed(true);
+                    setResult('success'); // Technically success as in "done"
+                    setMessage(`This logbook has already been ${logbook.status}.`);
+                }
+            } catch (error) {
+                console.error("Error checking status:", error);
+                // Fallback to allowing user to try (backend will block anyway)
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        checkStatus();
+    }, [id]);
 
     const handleConfirm = async () => {
         if (!id || !status) return;
@@ -56,20 +85,34 @@ function VerifyContent() {
         );
     }
 
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center py-8">
+                <Loader2 className="h-12 w-12 text-blue-600 animate-spin mb-4" />
+                <p className="text-gray-600 font-medium">Checking status...</p>
+            </div>
+        );
+    }
+
     if (processed) {
         if (result === 'success') {
             return (
                 <div className="flex flex-col items-center justify-center py-4">
-                    {status === 'Approved' ? (
-                        <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+                    {alreadyDone ? (
+                        <CheckCircle className="h-16 w-16 text-blue-500 mb-4" />
                     ) : (
-                        <XCircle className="h-16 w-16 text-red-500 mb-4" />
+                        status === 'Approved' ? (
+                            <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+                        ) : (
+                            <XCircle className="h-16 w-16 text-red-500 mb-4" />
+                        )
                     )}
-                    <h3 className={`text-xl font-bold mb-2 ${status === 'Approved' ? 'text-green-600' : 'text-red-600'}`}>
+
+                    <h3 className={`text-xl font-bold mb-2 ${alreadyDone ? 'text-blue-600' : (status === 'Approved' ? 'text-green-600' : 'text-red-600')}`}>
                         {message}
                     </h3>
                     <p className="text-gray-500 mb-4">
-                        The student has been notified of your decision.
+                        {alreadyDone ? "No further action is required." : "The student has been notified of your decision."}
                     </p>
                     <button disabled className="bg-gray-300 text-gray-500 px-6 py-2 rounded-lg cursor-not-allowed font-medium">
                         Action Completed
