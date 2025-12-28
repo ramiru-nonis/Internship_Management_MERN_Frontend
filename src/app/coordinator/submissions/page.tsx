@@ -95,7 +95,21 @@ export default function CoordinatorSubmissionsPage() {
 
         } else if ((sub.type === 'Marksheet' || sub.type === 'Exit Presentation') && sub.fileUrl) {
             const url = sub.fileUrl.startsWith('http') ? sub.fileUrl : `${apiUrl}${sub.fileUrl}`;
-            window.open(url, '_blank');
+
+            // Use Microsoft Office Viewer for PPTX files
+            if (sub.type === 'Exit Presentation') {
+                // MS Viewer requires a public URL. It cannot access localhost.
+                if (url.includes('localhost') || url.includes('127.0.0.1')) {
+                    alert("Document preview is not available on localhost. The file will be downloaded instead.");
+                    window.open(url, '_blank');
+                } else {
+                    // Open in MS Viewer
+                    window.open(`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`, '_blank');
+                }
+            } else {
+                // PDF (Marksheet) or other types open natively
+                window.open(url, '_blank');
+            }
         }
     }
 
