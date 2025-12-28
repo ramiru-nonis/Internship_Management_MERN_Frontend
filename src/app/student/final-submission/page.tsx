@@ -235,8 +235,10 @@ export default function FinalSubmissionPage() {
                                 {isFullySubmitted && !marksheet && !presentation ? 'Everything Submitted' : 'Submit Everything'}
                             </button>
                         </div>
+                    </>
+                ) : null}
 
-                    </div>
             </div>
-            );
+        </div>
+    );
 }
