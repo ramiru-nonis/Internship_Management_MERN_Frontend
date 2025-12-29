@@ -190,7 +190,7 @@ export default function CoordinatorDashboard() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {students.map(student => (
+                                {students.slice(0, 5).map(student => (
                                     <tr key={student._id} className="hover:bg-gray-50">
                                         <td className="px-4 py-4 whitespace-nowrap">
                                             <div>
