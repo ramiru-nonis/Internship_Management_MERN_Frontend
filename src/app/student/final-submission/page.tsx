@@ -20,7 +20,7 @@ export default function FinalSubmissionPage() {
     const [showPresentationUpload, setShowPresentationUpload] = useState(false);
 
     const [loading, setLoading] = useState(true);
-    const [logbookStatus, setLogbookStatus] = useState({ complete: false, total: 0, approved: 0 });
+    const [logbookStatus, setLogbookStatus] = useState({ complete: false, total: 0, submitted: 0 });
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
@@ -131,9 +131,9 @@ export default function FinalSubmissionPage() {
                             </div>
                             <div className="ml-3">
                                 <p className="text-sm text-yellow-700 dark:text-yellow-200">
-                                    You cannot make a final submission yet. All your logbooks must be <strong>Approved</strong>.
+                                    You cannot make a final submission yet. All your logbooks must be <strong>Submitted</strong>.
                                     <br />
-                                    <span className="text-xs mt-1 block">Current Status: {logbookStatus.approved} / {logbookStatus.total} Approved</span>
+                                    <span className="text-xs mt-1 block">Current Status: {logbookStatus.submitted} / {logbookStatus.total} Submitted</span>
                                 </p>
                             </div>
                         </div>
