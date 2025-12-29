@@ -109,9 +109,10 @@ export default function LogbookPage() {
             // Default to first month or last active
             // We'll trust refreshHistory to set unlocked logic, but we default view to 1
         } catch (error) {
-            console.error(error);
-            // alert("Access Denied: Please fill placement form first.");
-            // router.push('/student/dashboard');
+            console.error("Access Denied: Placement data missing or error.", error);
+            // Don't crash, just redirect or show alert
+            alert("Please complete your placement form first.");
+            router.push('/student/dashboard');
         } finally {
             setInitializing(false);
         }
