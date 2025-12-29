@@ -130,12 +130,19 @@ export default function CoordinatorSubmissionsPage() {
 
         } else if ((sub.type === 'Marksheet' || sub.type === 'Exit Presentation') && sub.fileUrl) {
             const url = sub.fileUrl.startsWith('http') ? sub.fileUrl : `${apiUrl}${sub.fileUrl}`;
+            const isPdf = sub.fileUrl.toLowerCase().endsWith('.pdf');
 
-            // Use Microsoft Office Viewer for PPTX files
+            // If it's a PDF, open natively (works for both Marksheet and Presentation)
+            if (isPdf) {
+                window.open(url, '_blank');
+                return;
+            }
+
+            // Use Microsoft Office Viewer ONLY for non-PDF Presentations (PPTX, DOCX)
             if (sub.type === 'Exit Presentation') {
                 // MS Viewer requires a public URL. It cannot access localhost.
                 if (url.includes('localhost') || url.includes('127.0.0.1')) {
-                    alert("Online preview is NOT available on localhost because Microsoft servers cannot access your local computer.\n\nPlease deploy the site to view the presentation online.");
+                    alert("Online preview for PPTX files is NOT available on localhost because Microsoft servers cannot access your local computer.\n\nPlease deploy the site to view the presentation online, or upload a PDF version.");
                 } else {
                     // Pre-check if file exists
                     try {
@@ -146,13 +153,12 @@ export default function CoordinatorSubmissionsPage() {
                             alert("Unable to view presentation: The file could not be found on the server. Please try uploading it again.");
                         }
                     } catch (error) {
-                        // Fallback in case of CORS or network error (still try to open)
                         console.warn("Could not verify file existence, attempting to open anyway...", error);
                         window.open(`https://view.officeapps.live.com/op/view.aspx?src=${encodeURIComponent(url)}`, '_blank');
                     }
                 }
             } else {
-                // PDF (Marksheet) or other types open natively
+                // Fallback for others
                 window.open(url, '_blank');
             }
         }
