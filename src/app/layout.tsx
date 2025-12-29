@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 export const metadata: Metadata = {
     title: "NextStep",
     description: "Launch Your Career with NextStep",
+    icons: {
+        icon: '/images/logo.jpg',
+    },
 };
 
 export default function RootLayout({
