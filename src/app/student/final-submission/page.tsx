@@ -57,12 +57,8 @@ export default function FinalSubmissionPage() {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'marksheet' | 'presentation') => {
         if (e.target.files && e.target.files[0]) {
             const file = e.target.files[0];
-            if (type === 'marksheet' && file.type !== 'application/pdf') {
-                alert("Marksheet must be a PDF");
-                return;
-            }
-            if (type === 'presentation' && !file.name.endsWith('.pptx')) {
-                alert("Presentation must be a PPTX");
+            if ((type === 'marksheet' || type === 'presentation') && file.type !== 'application/pdf') {
+                alert(`${type === 'marksheet' ? 'Marksheet' : 'Presentation'} must be a PDF`);
                 return;
             }
 
@@ -123,7 +119,7 @@ export default function FinalSubmissionPage() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
             <div className="max-w-4xl mx-auto">
                 <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Final Submission</h1>
-                <p className="text-gray-500 mb-8">Upload your Marksheet and Exit Presentation to complete your internship.</p>
+                <p className="text-gray-500 mb-8">Upload your Marksheet and Exit Presentation (PDF only) to complete your internship.</p>
 
                 {/* STRICT LOCK: If logbooks are not strictly complete, BLOCK EVERYTHING */}
                 {!loading && !logbookStatus.complete && (
@@ -298,7 +294,7 @@ export default function FinalSubmissionPage() {
                                         ) : (
                                             <>
                                                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">
-                                                    {existingPresentation ? "Upload new version (PPTX)" : "Upload your exit presentation (PPTX)"}
+                                                    {existingPresentation ? "Upload new version (PDF)" : "Upload your exit presentation (PDF)"}
                                                 </p>
                                                 {showPresentationUpload && existingPresentation && (
                                                     <button onClick={() => { setShowPresentationUpload(false); setPresentation(null); }} className="text-xs text-gray-400 mb-2 hover:text-gray-600 dark:hover:text-gray-200">Cancel</button>
@@ -306,7 +302,7 @@ export default function FinalSubmissionPage() {
                                                 <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer relative">
                                                     <input
                                                         type="file"
-                                                        accept=".pptx"
+                                                        accept=".pdf"
                                                         onChange={(e) => handleFileChange(e, 'presentation')}
                                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                                     />
@@ -315,7 +311,7 @@ export default function FinalSubmissionPage() {
                                                     ) : (
                                                         <div className="text-gray-400 dark:text-gray-500">
                                                             <span className="block text-2xl mb-2">+</span>
-                                                            Drop PPTX here or click to upload
+                                                            Drop PDF here or click to upload
                                                         </div>
                                                     )}
                                                 </div>
