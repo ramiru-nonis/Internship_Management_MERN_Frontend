@@ -338,6 +338,22 @@ export default function LogbookPage() {
                 </div>
             </div>
 
+            {logbookData?.status === 'Rejected' && logbookData?.rejectionReason && (
+                <div className="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 max-w-7xl mx-auto mt-6 mx-4 sm:mx-6 lg:mx-8">
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <FiAlertCircle className="h-5 w-5 text-red-500" />
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-red-700 dark:text-red-200 font-bold"> Logbook Rejected </p>
+                            <p className="text-sm text-red-600 dark:text-red-300 mt-1">
+                                Reason: <span className="italic">"{logbookData.rejectionReason}"</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
                 {/* Month Navigation */}
@@ -439,7 +455,17 @@ export default function LogbookPage() {
                         <div className="max-w-7xl w-full mx-auto px-4 flex justify-between items-center">
                             <div className="text-sm text-gray-500 dark:text-gray-400">
                                 {logbookData?.status === 'Draft' ? "Draft - Not Submitted" :
-                                    logbookData?.status === 'Pending' ? "Submitted for Review" : ""}
+                                    logbookData?.status === 'Pending' ? "Submitted for Review" :
+                                        logbookData?.status === 'Rejected' ? (
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-red-500 font-bold">Rejected</span>
+                                                {logbookData.rejectionReason && (
+                                                    <span className="text-xs text-red-400 max-w-xs text-right truncate" title={logbookData.rejectionReason}>
+                                                        "{logbookData.rejectionReason}"
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ) : "Approved"}
                             </div>
                             <button
                                 onClick={handleSubmitApproval}
