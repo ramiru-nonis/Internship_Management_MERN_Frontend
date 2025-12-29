@@ -160,7 +160,7 @@ export default function CoordinatorStudents() {
                         Status
                     </h3>
                     <div className="space-y-2">
-                        {['non-intern', 'intern', 'Completed'].map((status) => (
+                        {['non-intern', 'intern', 'approved', 'hired', 'not hired', 'Completed'].map((status) => (
                             <label key={status} className="flex items-center cursor-pointer group">
                                 <input
                                     type="checkbox"
@@ -345,6 +345,9 @@ export default function CoordinatorStudents() {
                                             >
                                                 <option value="non-intern">Non-Intern</option>
                                                 <option value="intern">Intern</option>
+                                                <option value="approved">Approved</option>
+                                                <option value="hired">Hired</option>
+                                                <option value="not hired">Not Hired</option>
                                                 <option value="Completed">Completed</option>
                                             </select>
                                         </td>

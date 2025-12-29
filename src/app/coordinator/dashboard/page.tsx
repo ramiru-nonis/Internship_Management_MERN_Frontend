@@ -111,7 +111,7 @@ export default function CoordinatorDashboard() {
                 {/* Status Breakdown */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
                     <h2 className="text-lg font-bold text-gray-900 mb-4">Student Status Breakdown</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                         <div className="text-center p-4 bg-gray-50 rounded-lg">
                             <p className="text-2xl font-bold text-gray-900">{stats?.statusBreakdown?.nonIntern || 0}</p>
                             <p className="text-sm text-gray-600 mt-1">Non-Intern</p>
@@ -123,6 +123,18 @@ export default function CoordinatorDashboard() {
                         <div className="text-center p-4 bg-green-50 rounded-lg">
                             <p className="text-2xl font-bold text-green-600">{stats?.statusBreakdown?.completed || 0}</p>
                             <p className="text-sm text-gray-600 mt-1">Completed</p>
+                        </div>
+                        <div className="text-center p-4 bg-purple-50 rounded-lg">
+                            <p className="text-2xl font-bold text-purple-600">{stats?.statusBreakdown?.approved || 0}</p>
+                            <p className="text-sm text-gray-600 mt-1">Approved</p>
+                        </div>
+                        <div className="text-center p-4 bg-indigo-50 rounded-lg">
+                            <p className="text-2xl font-bold text-indigo-600">{stats?.statusBreakdown?.hired || 0}</p>
+                            <p className="text-sm text-gray-600 mt-1">Hired</p>
+                        </div>
+                        <div className="text-center p-4 bg-red-50 rounded-lg">
+                            <p className="text-2xl font-bold text-red-600">{stats?.statusBreakdown?.notHired || 0}</p>
+                            <p className="text-sm text-gray-600 mt-1">Not Hired</p>
                         </div>
                     </div>
                 </div>
@@ -162,6 +174,9 @@ export default function CoordinatorDashboard() {
                                 <option value="all">All Statuses</option>
                                 <option value="non-intern">Non-Intern</option>
                                 <option value="intern">Intern</option>
+                                <option value="approved">Approved</option>
+                                <option value="hired">Hired</option>
+                                <option value="not hired">Not Hired</option>
                                 <option value="Completed">Completed</option>
                             </select>
                         </div>
@@ -187,7 +202,7 @@ export default function CoordinatorDashboard() {
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {students.slice(0, 10).map(student => (
+                                {students.map(student => (
                                     <tr key={student._id} className="hover:bg-gray-50">
                                         <td className="px-4 py-4 whitespace-nowrap">
                                             <div>
