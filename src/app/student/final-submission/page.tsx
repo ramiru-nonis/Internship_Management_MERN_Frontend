@@ -1,8 +1,11 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import api from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { FiLock } from "react-icons/fi";
 
 export default function FinalSubmissionPage() {
+    const router = useRouter();
     const [marksheet, setMarksheet] = useState<File | null>(null);
     const [presentation, setPresentation] = useState<File | null>(null);
     const [studentId, setStudentId] = useState<string | null>(null);
@@ -119,24 +122,47 @@ export default function FinalSubmissionPage() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
             <div className="max-w-4xl mx-auto">
-                <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">Final Submission</h1>
+                <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Final Submission</h1>
+                <p className="text-gray-500 mb-8">Upload your Marksheet and Exit Presentation to complete your internship.</p>
 
+                {/* STRICT LOCK: If logbooks are not strictly complete, BLOCK EVERYTHING */}
                 {!loading && !logbookStatus.complete && (
-                    <div className="bg-yellow-50 dark:bg-yellow-900/30 border-l-4 border-yellow-400 p-4 mb-8">
-                        <div className="flex">
-                            <div className="flex-shrink-0">
-                                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                                </svg>
+                    <div className="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-3xl p-12 shadow-xl border border-gray-200 dark:border-gray-700 text-center space-y-6">
+                        <div className="bg-red-50 dark:bg-red-900/30 p-6 rounded-full">
+                            <FiLock className="text-5xl text-red-500 dark:text-red-400" />
+                        </div>
+
+                        <div className="space-y-2">
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Submission Locked</h2>
+                            <p className="text-gray-500 dark:text-gray-400 max-w-lg mx-auto">
+                                To unlock this page, you must have an <strong>Approved Logbook</strong> for every month of your placement duration.
+                            </p>
+                        </div>
+
+                        <div className="w-full max-w-md bg-gray-100 dark:bg-gray-700 rounded-full h-4 overflow-hidden">
+                            <div
+                                className="bg-red-500 h-full transition-all duration-1000"
+                                style={{ width: `${(logbookStatus.approved / Math.max(logbookStatus.total, 1)) * 100}%` }}
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-8 text-left max-w-xs mx-auto w-full">
+                            <div>
+                                <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">Approved</p>
+                                <p className="text-3xl font-bold text-red-600 dark:text-red-400">{logbookStatus.approved}</p>
                             </div>
-                            <div className="ml-3">
-                                <p className="text-sm text-yellow-700 dark:text-yellow-200">
-                                    You cannot make a final submission yet. All your logbooks must be <strong>Approved</strong>.
-                                    <br />
-                                    <span className="text-xs mt-1 block">Current Status: {logbookStatus.approved} / {logbookStatus.total} Approved</span>
-                                </p>
+                            <div className="text-right">
+                                <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">Required</p>
+                                <p className="text-3xl font-bold text-gray-800 dark:text-white">{logbookStatus.total}</p>
                             </div>
                         </div>
+
+                        <button
+                            onClick={() => router.push('/student/logbook')}
+                            className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-red-200 dark:shadow-none transition-all mt-4"
+                        >
+                            Go to Logbook
+                        </button>
                     </div>
                 )}
 
