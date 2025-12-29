@@ -25,6 +25,9 @@ export default function LogbookPage() {
     const [unlockedMonth, setUnlockedMonth] = useState<number>(1); // The furthest month valid to edit
     const [submissionHistory, setSubmissionHistory] = useState<any[]>([]);
 
+    // Missing Data State
+    const [missingPlacement, setMissingPlacement] = useState(false);
+
     // Data
     const [logbookData, setLogbookData] = useState<any>(null); // Full doc
     const [loading, setLoading] = useState(false);
@@ -91,7 +94,12 @@ export default function LogbookPage() {
             const placementRes = await api.get('/placement');
             const pData = placementRes.data;
 
-            if (!pData) throw new Error("No placement data");
+            if (!pData) {
+                console.warn("No placement data found.");
+                setMissingPlacement(true);
+                setInitializing(false);
+                return;
+            }
 
             setMentorEmail(pData.mentor_email || "");
 
@@ -109,10 +117,9 @@ export default function LogbookPage() {
             // Default to first month or last active
             // We'll trust refreshHistory to set unlocked logic, but we default view to 1
         } catch (error) {
-            console.error("Access Denied: Placement data missing or error.", error);
-            // Don't crash, just redirect or show alert
-            alert("Please complete your placement form first.");
-            router.push('/student/dashboard');
+            console.error("Error loading logbook data:", error);
+            // If API fails (500 etc), we might also want to show missing placement or generic error
+            setMissingPlacement(true);
         } finally {
             setInitializing(false);
         }
@@ -263,6 +270,34 @@ export default function LogbookPage() {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+        );
+    }
+
+    if (missingPlacement) {
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-md w-full text-center space-y-4">
+                    <div className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <FiAlertCircle className="text-3xl" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Setup Required</h2>
+                    <p className="text-gray-500 dark:text-gray-400">
+                        You need to complete your <strong>Placement Form</strong> before you can start filling out your logbooks. This sets up your timeline and mentor details.
+                    </p>
+                    <button
+                        onClick={() => router.push('/student/dashboard')}
+                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-200"
+                    >
+                        Go to Dashboard
+                    </button>
+                    <button
+                        onClick={() => router.push('/student/profile')}
+                        className="block w-full text-sm text-gray-400 hover:text-gray-600 mt-2"
+                    >
+                        Check Profile
+                    </button>
+                </div>
             </div>
         );
     }
