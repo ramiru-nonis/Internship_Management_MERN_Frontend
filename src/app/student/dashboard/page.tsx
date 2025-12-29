@@ -36,7 +36,7 @@ export default function StudentDashboard() {
             ]);
 
             setStudent(profileRes.data);
-            const placementStatuses = ['approved', 'hired', 'Hired', 'Completed'];
+            const placementStatuses = ['approved', 'hired', 'Hired', 'Completed', 'intern'];
             setStats({
                 totalApplications: applicationsRes.data.length,
                 activeApplications: applicationsRes.data.filter((app: any) =>
