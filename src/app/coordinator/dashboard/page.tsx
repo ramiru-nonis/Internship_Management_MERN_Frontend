@@ -47,7 +47,10 @@ export default function CoordinatorDashboard() {
             ]);
 
             setStats(statsRes.data);
-            setStudents(studentsRes.data);
+            // Filter out staff (Coordinator/Admin) from the dashboard view
+            setStudents(studentsRes.data.filter((s: any) =>
+                !['Coordinator', 'Admin'].includes(s.status)
+            ));
         } catch (error) {
             console.error('Error fetching dashboard data:', error);
         } finally {
@@ -182,6 +185,7 @@ export default function CoordinatorDashboard() {
                                 <option value="hired">Hired</option>
                                 <option value="not hired">Not Hired</option>
                                 <option value="Completed">Completed</option>
+                                <option value="Incomplete">Incomplete Profile</option>
                             </select>
                         </div>
                     </div>
