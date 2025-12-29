@@ -111,7 +111,7 @@ export default function CoordinatorDashboard() {
                 {/* Status Breakdown */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
                     <h2 className="text-lg font-bold text-gray-900 mb-4">Student Status Breakdown</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
                         <div className="text-center p-4 bg-gray-50 rounded-lg">
                             <p className="text-2xl font-bold text-gray-900">{stats?.statusBreakdown?.nonIntern || 0}</p>
                             <p className="text-sm text-gray-600 mt-1">Non-Intern</p>
@@ -135,6 +135,10 @@ export default function CoordinatorDashboard() {
                         <div className="text-center p-4 bg-red-50 rounded-lg">
                             <p className="text-2xl font-bold text-red-600">{stats?.statusBreakdown?.notHired || 0}</p>
                             <p className="text-sm text-gray-600 mt-1">Not Hired</p>
+                        </div>
+                        <div className="text-center p-4 bg-gray-100 rounded-lg">
+                            <p className="text-2xl font-bold text-gray-600">{stats?.statusBreakdown?.incomplete || 0}</p>
+                            <p className="text-sm text-gray-600 mt-1">Incomplete</p>
                         </div>
                     </div>
                 </div>
