@@ -546,9 +546,7 @@ export default function LogbookPage() {
                         )}
                     </div>
                 </div>
-            </div>
-    )
-}
-    </div >
+            )}
+        </div>
     );
 }
