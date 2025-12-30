@@ -528,9 +528,7 @@ export default function LogbookPage() {
                             />
                         </div>
                     </div>
-
-                    {/* Modal Footer */}
-                    <div className="p-6 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3 bg-gray-50/50 dark:bg-gray-700/30">
+                    <div className="flex justify-end gap-3 mt-6 pb-2">
                         <button
                             onClick={() => setShowModal(false)}
                             className="px-6 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium rounded-lg"
@@ -548,7 +546,9 @@ export default function LogbookPage() {
                         )}
                     </div>
                 </div>
-            )}
-        </div>
+            </div>
+    )
+}
+    </div >
     );
 }
