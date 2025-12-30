@@ -466,7 +466,7 @@ export default function LogbookPage() {
             {/* Modal */}
             {
                 showModal && (
-                    <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+                    <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-7xl p-0 overflow-hidden flex flex-col max-h-[100vh]">
                             {/* Modal Header */}
                             <div className="p-8 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/30">
@@ -477,9 +477,9 @@ export default function LogbookPage() {
                             </div>
 
                             {/* Modal Body */}
-                            <div className="p-8 overflow-y-auto space-y-6">
+                            <div className="p-10 md:p-12 overflow-y-auto space-y-6">
 
-                                <div className="space-y-2">
+                                <div className="space-y-6">
                                     <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                                         ACTIVITIES
                                         <span className="text-xs font-normal text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Required</span>
@@ -498,7 +498,7 @@ export default function LogbookPage() {
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">TECHNICAL SKILLS</label>
                                     <textarea
-                                        className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 h-24 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all resize-none text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
+                                        className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-6 h-24 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all resize-none text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
                                         placeholder="React, Node.js, etc."
                                         value={formData.techSkills}
                                         onChange={e => setFormData({ ...formData, techSkills: e.target.value })}
@@ -508,7 +508,7 @@ export default function LogbookPage() {
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">SOFT SKILLS</label>
                                     <textarea
-                                        className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 h-24 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all resize-none text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
+                                        className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-6 h-24 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all resize-none text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
                                         placeholder="Communication, Teamwork..."
                                         value={formData.softSkills}
                                         onChange={e => setFormData({ ...formData, softSkills: e.target.value })}
@@ -518,10 +518,10 @@ export default function LogbookPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">TRAININGS RECEIVED</label>
+                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">TRAININGS RECEIVED (Recieved by Company)</label>
                                 <input
                                     type="text"
-                                    className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
+                                    className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-6 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
                                     placeholder="Any workshops or mentorship sessions?"
                                     value={formData.trainings}
                                     onChange={e => setFormData({ ...formData, trainings: e.target.value })}
