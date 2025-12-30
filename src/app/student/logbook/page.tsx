@@ -469,7 +469,7 @@ export default function LogbookPage() {
                     <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-3xl p-0 overflow-hidden flex flex-col max-h-[90vh]">
                             {/* Modal Header */}
-                            <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/30">
+                            <div className="p-8 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/30">
                                 <h2 className="text-xl font-bold text-gray-800 dark:text-white">
                                     Week {activeWeek} <span className="text-gray-400 dark:text-gray-500 font-normal text-base ml-2">Log Entry</span>
                                 </h2>
@@ -477,7 +477,7 @@ export default function LogbookPage() {
                             </div>
 
                             {/* Modal Body */}
-                            <div className="p-6 overflow-y-auto space-y-6">
+                            <div className="p-8 overflow-y-auto space-y-6">
 
                                 <div className="space-y-2">
                                     <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
