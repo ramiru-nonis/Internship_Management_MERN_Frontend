@@ -320,232 +320,234 @@ export default function LogbookPage() {
                         </div>
                     </div>
                 </div>
-            )}
+                </div>
+    )
+}
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+<main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-                {/* Month Navigation */}
-                <div className="space-y-2">
-                    <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Timeline</h2>
-                    <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
-                        {Array.from({ length: totalMonths }, (_, i) => i + 1).map(m => {
-                            const isLocked = m > unlockedMonth && m > 1; // Always allow M1? No, locked if strict.
-                            const isActive = currentMonth === m;
-                            return (
-                                <button
-                                    key={m}
-                                    onClick={() => !isLocked && handleMonthChange(m)}
-                                    disabled={isLocked}
-                                    className={`
+    {/* Month Navigation */}
+    <div className="space-y-2">
+        <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Timeline</h2>
+        <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
+            {Array.from({ length: totalMonths }, (_, i) => i + 1).map(m => {
+                const isLocked = m > unlockedMonth && m > 1; // Always allow M1? No, locked if strict.
+                const isActive = currentMonth === m;
+                return (
+                    <button
+                        key={m}
+                        onClick={() => !isLocked && handleMonthChange(m)}
+                        disabled={isLocked}
+                        className={`
                                         relative group flex-shrink-0 w-32 h-24 rounded-2xl border transition-all duration-300 flex flex-col items-center justify-center gap-1
                                         ${isActive
-                                            ? "bg-gradient-to-br from-blue-600 to-indigo-700 text-white border-transparent shadow-lg shadow-blue-200 dark:shadow-none scale-105"
-                                            : isLocked
-                                                ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 border-gray-200 dark:border-gray-700 cursor-not-allowed opacity-70"
-                                                : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md dark:hover:shadow-none"
-                                        }
+                                ? "bg-gradient-to-br from-blue-600 to-indigo-700 text-white border-transparent shadow-lg shadow-blue-200 dark:shadow-none scale-105"
+                                : isLocked
+                                    ? "bg-gray-100 dark:bg-gray-800 text-gray-400 dark:text-gray-600 border-gray-200 dark:border-gray-700 cursor-not-allowed opacity-70"
+                                    : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-500 hover:shadow-md dark:hover:shadow-none"
+                            }
                                     `}
-                                >
-                                    <span className="text-2xl font-bold">{m}</span>
-                                    <span className="text-xs font-medium opacity-80">Month</span>
-                                    {isLocked && <FiLock className="absolute top-3 right-3 text-gray-400" />}
-                                </button>
-                            )
-                        })}
-                    </div>
-                </div>
+                    >
+                        <span className="text-2xl font-bold">{m}</span>
+                        <span className="text-xs font-medium opacity-80">Month</span>
+                        {isLocked && <FiLock className="absolute top-3 right-3 text-gray-400" />}
+                    </button>
+                )
+            })}
+        </div>
+    </div>
 
-                {/* Content Area */}
-                {isLockedMonth ? (
-                    <div className="flex flex-col items-center justify-center h-64 bg-white dark:bg-gray-800 rounded-3xl border border-dashed border-gray-300 dark:border-gray-700">
-                        <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-full mb-4">
-                            <FiLock className="text-gray-400 dark:text-gray-500 text-3xl" />
+    {/* Content Area */}
+    {isLockedMonth ? (
+        <div className="flex flex-col items-center justify-center h-64 bg-white dark:bg-gray-800 rounded-3xl border border-dashed border-gray-300 dark:border-gray-700">
+            <div className="bg-gray-100 dark:bg-gray-700 p-4 rounded-full mb-4">
+                <FiLock className="text-gray-400 dark:text-gray-500 text-3xl" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Month Locked</h3>
+            <p className="text-gray-500 dark:text-gray-400 max-w-md text-center">
+                Please submit your previous month's logbook to unlock this month.
+            </p>
+        </div>
+    ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {weeksToRender.map((week: number) => {
+                const wData = logbookData?.weeks?.find((w: any) => w.weekNumber === week);
+                const hasData = !!wData;
+                return (
+                    <div key={week} className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md dark:hover:shadow-none transition-shadow duration-300 overflow-hidden flex flex-col">
+                        <div className="p-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/30 flex justify-between items-center">
+                            <h3 className="font-bold text-gray-800 dark:text-white">Week {week}</h3>
+                            {hasData ? (
+                                <FiCheckCircle className="text-green-500" />
+                            ) : (
+                                <div className="w-2 h-2 rounded-full bg-gray-300" />
+                            )}
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Month Locked</h3>
-                        <p className="text-gray-500 dark:text-gray-400 max-w-md text-center">
-                            Please submit your previous month's logbook to unlock this month.
-                        </p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {weeksToRender.map((week: number) => {
-                            const wData = logbookData?.weeks?.find((w: any) => w.weekNumber === week);
-                            const hasData = !!wData;
-                            return (
-                                <div key={week} className="bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md dark:hover:shadow-none transition-shadow duration-300 overflow-hidden flex flex-col">
-                                    <div className="p-5 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/30 flex justify-between items-center">
-                                        <h3 className="font-bold text-gray-800 dark:text-white">Week {week}</h3>
-                                        {hasData ? (
-                                            <FiCheckCircle className="text-green-500" />
-                                        ) : (
-                                            <div className="w-2 h-2 rounded-full bg-gray-300" />
-                                        )}
-                                    </div>
-                                    <div className="p-5 flex-1 space-y-3">
-                                        {hasData ? (
-                                            <>
-                                                <div className="text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold tracking-wide">Activities</div>
-                                                <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-3 leading-relaxed">
-                                                    {wData.activities}
-                                                </p>
-                                                {/* More details truncated visually */}
-                                            </>
-                                        ) : (
-                                            <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2 opacity-60">
-                                                <FiEdit3 className="text-2xl" />
-                                                <span className="text-sm">No Entry</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="p-4 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-100 dark:border-gray-700">
-                                        <button
-                                            onClick={() => openModal(week)}
-                                            // disabled={!isEditable} // View Only allowed
-                                            className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${isEditable
-                                                ? "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 shadow-sm dark:shadow-none"
-                                                // View Only Style
-                                                : "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50"
-                                                }`}
-                                        >
-                                            <FiEdit3 />
-                                            {isEditable ? (hasData ? "Edit Entry" : "Add Entry") : "View Only"}
-                                        </button>
-                                    </div>
+                        <div className="p-5 flex-1 space-y-3">
+                            {hasData ? (
+                                <>
+                                    <div className="text-xs text-gray-500 dark:text-gray-400 uppercase font-semibold tracking-wide">Activities</div>
+                                    <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-3 leading-relaxed">
+                                        {wData.activities}
+                                    </p>
+                                    {/* More details truncated visually */}
+                                </>
+                            ) : (
+                                <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2 opacity-60">
+                                    <FiEdit3 className="text-2xl" />
+                                    <span className="text-sm">No Entry</span>
                                 </div>
-                            );
-                        })}
-                    </div>
-                )}
-
-                {/* Submit Action Area */}
-                {!isLockedMonth && (
-                    <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 flex justify-end items-center z-20">
-                        <div className="max-w-7xl w-full mx-auto px-4 flex justify-between items-center">
-                            <div className="text-sm text-gray-500 dark:text-gray-400">
-                                {logbookData?.status === 'Draft' ? "Draft - Not Submitted" :
-                                    logbookData?.status === 'Pending' ? "Submitted for Review" :
-                                        logbookData?.status === 'Rejected' ? (
-                                            <div className="flex flex-col items-end">
-                                                <span className="text-red-500 font-bold">Rejected</span>
-                                                {logbookData.rejectionReason && (
-                                                    <span className="text-xs text-red-400 max-w-xs text-right truncate" title={logbookData.rejectionReason}>
-                                                        "{logbookData.rejectionReason}"
-                                                    </span>
-                                                )}
-                                            </div>
-                                        ) : "Approved"}
-                            </div>
+                            )}
+                        </div>
+                        <div className="p-4 bg-gray-50 dark:bg-gray-700/30 border-t border-gray-100 dark:border-gray-700">
                             <button
-                                onClick={handleSubmitApproval}
-                                disabled={!isEditable || sending}
-                                className={`
+                                onClick={() => openModal(week)}
+                                // disabled={!isEditable} // View Only allowed
+                                className={`w-full py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${isEditable
+                                    ? "bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 shadow-sm dark:shadow-none"
+                                    // View Only Style
+                                    : "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50"
+                                    }`}
+                            >
+                                <FiEdit3 />
+                                {isEditable ? (hasData ? "Edit Entry" : "Add Entry") : "View Only"}
+                            </button>
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    )}
+
+    {/* Submit Action Area */}
+    {!isLockedMonth && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 flex justify-end items-center z-20">
+            <div className="max-w-7xl w-full mx-auto px-4 flex justify-between items-center">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                    {logbookData?.status === 'Draft' ? "Draft - Not Submitted" :
+                        logbookData?.status === 'Pending' ? "Submitted for Review" :
+                            logbookData?.status === 'Rejected' ? (
+                                <div className="flex flex-col items-end">
+                                    <span className="text-red-500 font-bold">Rejected</span>
+                                    {logbookData.rejectionReason && (
+                                        <span className="text-xs text-red-400 max-w-xs text-right truncate" title={logbookData.rejectionReason}>
+                                            "{logbookData.rejectionReason}"
+                                        </span>
+                                    )}
+                                </div>
+                            ) : "Approved"}
+                </div>
+                <button
+                    onClick={handleSubmitApproval}
+                    disabled={!isEditable || sending}
+                    className={`
                                     px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-all flex items-center gap-3 transform active:scale-95
                                     ${!isEditable || sending
-                                        ? "bg-gray-400 cursor-not-allowed shadow-none"
-                                        : "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 hover:shadow-green-200"
-                                    }
+                            ? "bg-gray-400 cursor-not-allowed shadow-none"
+                            : "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 hover:shadow-green-200"
+                        }
                                 `}
-                            >
-                                {sending ? (
-                                    <>
-                                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                        Sending...
-                                    </>
-                                ) : (
-                                    <>
-                                        <FiSend />
-                                        Get Approval
-                                    </>
-                                )}
-                            </button>
-                        </div>
+                >
+                    {sending ? (
+                        <>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Sending...
+                        </>
+                    ) : (
+                        <>
+                            <FiSend />
+                            Get Approval
+                        </>
+                    )}
+                </button>
+            </div>
+        </div>
+    )}
+</main>
+
+{/* Modal */ }
+{
+    showModal && (
+        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl p-0 overflow-hidden flex flex-col max-h-[90vh]">
+                {/* Modal Header */}
+                <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/30">
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-white">
+                        Week {activeWeek} <span className="text-gray-400 dark:text-gray-500 font-normal text-base ml-2">Log Entry</span>
+                    </h2>
+                    <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                </div>
+
+                {/* Modal Body */}
+                <div className="p-6 overflow-y-auto space-y-6">
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                            ACTIVITIES
+                            <span className="text-xs font-normal text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Required</span>
+                        </label>
                     </div>
-                )}
-            </main>
+                    <textarea
+                        className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 h-32 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all resize-none text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
+                        placeholder="Describe the tasks you worked on this week..."
+                        value={formData.activities}
+                        onChange={e => setFormData({ ...formData, activities: e.target.value })}
+                        readOnly={!isEditable}
+                    />
+                </div>
 
-            {/* Modal */}
-            {showModal && (
-                <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl p-0 overflow-hidden flex flex-col max-h-[90vh]">
-                        {/* Modal Header */}
-                        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/30">
-                            <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-                                Week {activeWeek} <span className="text-gray-400 dark:text-gray-500 font-normal text-base ml-2">Log Entry</span>
-                            </h2>
-                            <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-                        </div>
-
-                        {/* Modal Body */}
-                        <div className="p-6 overflow-y-auto space-y-6">
-
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                                    ACTIVITIES
-                                    <span className="text-xs font-normal text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">Required</span>
-                                </label>
-                            </div>
-                            <textarea
-                                className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 h-32 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all resize-none text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
-                                placeholder="Describe the tasks you worked on this week..."
-                                value={formData.activities}
-                                onChange={e => setFormData({ ...formData, activities: e.target.value })}
-                                readOnly={!isEditable}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">TECHNICAL SKILLS</label>
-                                <textarea
-                                    className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 h-24 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all resize-none text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
-                                    placeholder="React, Node.js, etc."
-                                    value={formData.techSkills}
-                                    onChange={e => setFormData({ ...formData, techSkills: e.target.value })}
-                                    readOnly={!isEditable}
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">SOFT SKILLS</label>
-                                <textarea
-                                    className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 h-24 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all resize-none text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
-                                    placeholder="Communication, Teamwork..."
-                                    value={formData.softSkills}
-                                    onChange={e => setFormData({ ...formData, softSkills: e.target.value })}
-                                    readOnly={!isEditable}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">TRAININGS RECEIVED</label>
-                            <input
-                                type="text"
-                                className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
-                                placeholder="Any workshops or mentorship sessions?"
-                                value={formData.trainings}
-                                onChange={e => setFormData({ ...formData, trainings: e.target.value })}
-                                readOnly={!isEditable}
-                            />
-                        </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">TECHNICAL SKILLS</label>
+                        <textarea
+                            className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 h-24 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all resize-none text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
+                            placeholder="React, Node.js, etc."
+                            value={formData.techSkills}
+                            onChange={e => setFormData({ ...formData, techSkills: e.target.value })}
+                            readOnly={!isEditable}
+                        />
                     </div>
-                    <div className="flex justify-end gap-3 mt-6 pb-2">
-                        <button
-                            onClick={() => setShowModal(false)}
-                            className="px-6 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium rounded-lg"
-                        >
-                            {isEditable ? "Cancel" : "Close"}
-                        </button>
-                        {isEditable && (
-                            <button
-                                onClick={handleSaveDraft}
-                                disabled={saving}
-                                className="px-8 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-md shadow-blue-200 hover:shadow-lg transition-all disabled:opacity-70 disabled:shadow-none"
-                            >
-                                {saving ? "Saving..." : "Save Entry"}
-                            </button>
-                        )}
+                    <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">SOFT SKILLS</label>
+                        <textarea
+                            className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 h-24 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all resize-none text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
+                            placeholder="Communication, Teamwork..."
+                            value={formData.softSkills}
+                            onChange={e => setFormData({ ...formData, softSkills: e.target.value })}
+                            readOnly={!isEditable}
+                        />
                     </div>
                 </div>
+
+                <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">TRAININGS RECEIVED</label>
+                    <input
+                        type="text"
+                        className="w-full border border-gray-200 dark:border-gray-600 rounded-xl p-4 focus:ring-4 focus:ring-blue-50 dark:focus:ring-blue-900/30 focus:border-blue-500 outline-none transition-all text-gray-700 dark:text-gray-200 bg-gray-50/30 dark:bg-gray-700/30 focus:bg-white dark:focus:bg-gray-800"
+                        placeholder="Any workshops or mentorship sessions?"
+                        value={formData.trainings}
+                        onChange={e => setFormData({ ...formData, trainings: e.target.value })}
+                        readOnly={!isEditable}
+                    />
+                </div>
+                <div className="flex justify-end gap-3 mt-6 pb-2">
+                    <button
+                        onClick={() => setShowModal(false)}
+                        className="px-6 py-2.5 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium rounded-lg"
+                    >
+                        {isEditable ? "Cancel" : "Close"}
+                    </button>
+                    {isEditable && (
+                        <button
+                            onClick={handleSaveDraft}
+                            disabled={saving}
+                            className="px-8 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-md shadow-blue-200 hover:shadow-lg transition-all disabled:opacity-70 disabled:shadow-none"
+                        >
+                            {saving ? "Saving..." : "Save Entry"}
+                        </button>
+                    )}
+                </div>
+            </div>
             )}
         </div>
     );
