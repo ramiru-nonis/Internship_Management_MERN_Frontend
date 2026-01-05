@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import StatusBadge from '@/components/StatusBadge';
 import api from '@/lib/api';
@@ -9,6 +9,7 @@ import { Search, Filter, Mail, Phone, FileText, User } from 'lucide-react';
 
 export default function CoordinatorStudents() {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [students, setStudents] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
@@ -16,6 +17,13 @@ export default function CoordinatorStudents() {
     const [selectedDegrees, setSelectedDegrees] = useState<string[]>([]);
     const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
     const [downloading, setDownloading] = useState(false);
+
+    useEffect(() => {
+        const statusParam = searchParams.get('status');
+        if (statusParam) {
+            setSelectedStatuses(statusParam.split(','));
+        }
+    }, [searchParams]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');

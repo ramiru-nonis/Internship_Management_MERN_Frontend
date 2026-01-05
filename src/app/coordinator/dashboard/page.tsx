@@ -58,6 +58,14 @@ export default function CoordinatorDashboard() {
         }
     };
 
+    const handleCardClick = (status?: string) => {
+        if (status) {
+            router.push(`/coordinator/students?status=${status}`);
+        } else {
+            router.push('/coordinator/students');
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -85,45 +93,62 @@ export default function CoordinatorDashboard() {
 
                 {/* Stats Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <StatsCard
-                        title="Total Students"
-                        value={stats?.totalStudents || 0}
-                        icon={Users}
-                        color="blue"
-                    />
-                    <StatsCard
-                        title="Students with Internships"
-                        value={stats?.studentsWithInternships || 0}
-                        icon={TrendingUp}
-                        color="green"
-                    />
-                    <StatsCard
-                        title="Active Job Posts"
-                        value={stats?.totalJobs || 0}
-                        icon={Briefcase}
-                        color="purple"
-                    />
-                    <StatsCard
-                        title="Expired Posts"
-                        value={stats?.expiredPosts || 0}
-                        icon={FileText}
-                        color="orange"
-                    />
+                    <div onClick={() => handleCardClick()} className="cursor-pointer transition-transform hover:scale-[1.02] active:scale-[0.98]">
+                        <StatsCard
+                            title="Total Students"
+                            value={stats?.totalStudents || 0}
+                            icon={Users}
+                            color="blue"
+                        />
+                    </div>
+                    <div onClick={() => handleCardClick('intern')} className="cursor-pointer transition-transform hover:scale-[1.02] active:scale-[0.98]">
+                        <StatsCard
+                            title="Students with Internships"
+                            value={stats?.studentsWithInternships || 0}
+                            icon={TrendingUp}
+                            color="green"
+                        />
+                    </div>
+                    <Link href="/coordinator/jobs" className="transition-transform hover:scale-[1.02] active:scale-[0.98]">
+                        <StatsCard
+                            title="Active Job Posts"
+                            value={stats?.totalJobs || 0}
+                            icon={Briefcase}
+                            color="purple"
+                        />
+                    </Link>
+                    <Link href="/coordinator/jobs" className="transition-transform hover:scale-[1.02] active:scale-[0.98]">
+                        <StatsCard
+                            title="Expired Posts"
+                            value={stats?.expiredPosts || 0}
+                            icon={FileText}
+                            color="orange"
+                        />
+                    </Link>
                 </div>
 
                 {/* Status Breakdown */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
                     <h2 className="text-lg font-bold text-gray-900 mb-4">Student Status Breakdown</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="text-center p-4 bg-gray-50 rounded-lg">
+                        <div
+                            onClick={() => handleCardClick('non-intern')}
+                            className="text-center p-4 bg-gray-50 rounded-lg cursor-pointer transition-all hover:bg-gray-100 hover:scale-[1.02] active:scale-[0.98]"
+                        >
                             <p className="text-2xl font-bold text-gray-900">{stats?.statusBreakdown?.nonIntern || 0}</p>
                             <p className="text-sm text-gray-600 mt-1">Non-Intern</p>
                         </div>
-                        <div className="text-center p-4 bg-blue-50 rounded-lg">
+                        <div
+                            onClick={() => handleCardClick('intern')}
+                            className="text-center p-4 bg-blue-50 rounded-lg cursor-pointer transition-all hover:bg-blue-100 hover:scale-[1.02] active:scale-[0.98]"
+                        >
                             <p className="text-2xl font-bold text-blue-600">{stats?.statusBreakdown?.intern || 0}</p>
                             <p className="text-sm text-gray-600 mt-1">Intern</p>
                         </div>
-                        <div className="text-center p-4 bg-green-50 rounded-lg">
+                        <div
+                            onClick={() => handleCardClick('Completed')}
+                            className="text-center p-4 bg-green-50 rounded-lg cursor-pointer transition-all hover:bg-green-100 hover:scale-[1.02] active:scale-[0.98]"
+                        >
                             <p className="text-2xl font-bold text-green-600">{stats?.statusBreakdown?.completed || 0}</p>
                             <p className="text-sm text-gray-600 mt-1">Completed</p>
                         </div>

@@ -38,7 +38,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 bg-[url('/images/loginPic.jpg')] bg-cover bg-center bg-fixed relative">
+        <div className="min-h-screen flex flex-col items-center justify-center bg-gray-800 bg-[url('/images/loginPic.jpg')] bg-cover bg-center bg-fixed relative">
             <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
 
             <div className="relative z-10 w-full max-w-md p-8 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl">
