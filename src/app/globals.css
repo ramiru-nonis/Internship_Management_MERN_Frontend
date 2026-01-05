@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-white text-gray-900 transition-colors duration-200 ease-in-out;
+  }
+
+  .dark body {
+    @apply bg-gray-900 text-white;
+  }
+
+  /* Global Form Elements Default */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    @apply dark:bg-gray-800 dark:text-white dark:border-gray-700 focus:dark:border-blue-500 transition-colors duration-200;
+  }
+
+  /* Specific fix for select options */
+  option {
+    @apply bg-white text-gray-900 dark:bg-gray-800 dark:text-gray-100;
+  }
+}
