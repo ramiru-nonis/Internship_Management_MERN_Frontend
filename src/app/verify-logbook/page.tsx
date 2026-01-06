@@ -9,13 +9,23 @@ import Link from 'next/link';
 function VerifyContent() {
     const searchParams = useSearchParams();
     const id = searchParams.get('id');
-    const status = searchParams.get('status');
+    const action = searchParams.get('action'); // 'approve' or 'reject'
+    const statusParam = searchParams.get('status');
+
+    // Normalize status
+    let status = statusParam;
+    if (!status && action) {
+        if (action === 'approve') status = 'Approved';
+        if (action === 'reject') status = 'Rejected';
+    }
 
     const [loading, setLoading] = useState(true); // Loading initially for status check
     const [result, setResult] = useState<'success' | 'error' | null>(null);
     const [message, setMessage] = useState("");
     const [processed, setProcessed] = useState(false);
     const [alreadyDone, setAlreadyDone] = useState(false);
+
+    const [feedback, setFeedback] = useState("");
 
     useEffect(() => {
         if (!id) {
@@ -51,7 +61,11 @@ function VerifyContent() {
         setLoading(true);
         try {
             // Call the backend action endpoint
-            await api.get(`/logbooks/action/${id}/${status}`);
+            await api.post(`/logbooks/verify/${id}`, {
+                status,
+                feedback,
+                rejectionReason: status === 'Rejected' ? feedback : "" // Map feedback to rejectionReason if rejected, for backward compatibility/clarity
+            });
 
             setResult('success');
             setMessage(status === 'Approved'
@@ -135,16 +149,29 @@ function VerifyContent() {
 
     // Initial Confirmation Screen
     return (
-        <div className="flex flex-col items-center justify-center py-4 text-center">
+        <div className="flex flex-col items-center justify-center py-4 text-center w-full max-w-md mx-auto">
             <h3 className="text-xl font-bold text-gray-900 mb-2">Confirm Action</h3>
-            <p className="text-gray-600 mb-8">
+            <p className="text-gray-600 mb-6">
                 Are you sure you want to <strong>{status}</strong> this logbook?
             </p>
+
+            <div className="w-full text-left mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Mentor Comment (Optional)
+                </label>
+                <textarea
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    placeholder={status === 'Rejected' ? "Reason for rejection..." : "Add a comment..."}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-900"
+                    rows={4}
+                />
+            </div>
 
             <button
                 onClick={handleConfirm}
                 disabled={loading}
-                className={`flex items-center justify-center px-8 py-3 rounded-lg font-bold text-white transition-all transform hover:-translate-y-0.5 ${loading ? 'opacity-70 cursor-wait' : ''
+                className={`flex items-center justify-center px-8 py-3 rounded-lg font-bold text-white transition-all transform hover:-translate-y-0.5 w-full ${loading ? 'opacity-70 cursor-wait' : ''
                     } ${status === 'Approved'
                         ? 'bg-green-600 hover:bg-green-700 shadow-green-200 shadow-lg'
                         : 'bg-red-600 hover:bg-red-700 shadow-red-200 shadow-lg'

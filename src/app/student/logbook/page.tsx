@@ -306,7 +306,7 @@ export default function LogbookPage() {
                 </div>
             </div>
 
-            {logbookData?.status === 'Rejected' && logbookData?.rejectionReason && (
+            {logbookData?.status === 'Rejected' && (
                 <div className="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 max-w-7xl mx-auto mt-6 mx-4 sm:mx-6 lg:mx-8">
                     <div className="flex">
                         <div className="flex-shrink-0">
@@ -314,8 +314,25 @@ export default function LogbookPage() {
                         </div>
                         <div className="ml-3">
                             <p className="text-sm text-red-700 dark:text-red-200 font-bold"> Logbook Rejected </p>
+                            {/* Prioritize Rejection Reason, fallback to mentorComments if reason missing, or generic message */}
                             <p className="text-sm text-red-600 dark:text-red-300 mt-1">
-                                Reason: <span className="italic">"{logbookData.rejectionReason}"</span>
+                                Reason: <span className="italic">"{logbookData.rejectionReason || logbookData.mentorComments || "No reason provided."}"</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {logbookData?.status !== 'Rejected' && logbookData?.mentorComments && (
+                <div className="bg-blue-50 dark:bg-blue-900/30 border-l-4 border-blue-500 p-4 max-w-7xl mx-auto mt-6 mx-4 sm:mx-6 lg:mx-8">
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <FiAlertCircle className="h-5 w-5 text-blue-500" />
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-blue-700 dark:text-blue-200 font-bold"> Mentor Feedback </p>
+                            <p className="text-sm text-blue-600 dark:text-blue-300 mt-1">
+                                <span className="italic">"{logbookData.mentorComments}"</span>
                             </p>
                         </div>
                     </div>

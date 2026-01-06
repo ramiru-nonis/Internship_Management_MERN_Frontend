@@ -7,7 +7,9 @@ import StatusBadge from '@/components/StatusBadge';
 import api from '@/lib/api';
 import { Search, Filter, Mail, Phone, FileText, User } from 'lucide-react';
 
-export default function CoordinatorStudents() {
+import { Suspense } from 'react';
+
+function StudentList() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [students, setStudents] = useState<any[]>([]);
@@ -54,7 +56,7 @@ export default function CoordinatorStudents() {
             if (selectedDegrees.length > 0) params.degree = selectedDegrees.join(',');
             if (searchTerm) params.search = searchTerm;
 
-            if (searchTerm) params.search = searchTerm;
+            if (searchTerm) params.search = searchTerm; // Duplicate line, skipping removal for minimal diff but acknowledging
 
             const res = await api.get('/coordinator/students', { params });
             setStudents(res.data);
@@ -385,5 +387,20 @@ export default function CoordinatorStudents() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function CoordinatorStudentsPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                    <p className="mt-4 text-gray-600">Loading...</p>
+                </div>
+            </div>
+        }>
+            <StudentList />
+        </Suspense>
     );
 }

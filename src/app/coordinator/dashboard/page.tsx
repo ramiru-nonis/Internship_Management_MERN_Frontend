@@ -23,7 +23,7 @@ export default function CoordinatorDashboard() {
 
         if (!token || !user) {
             router.push('/login');
-            return;
+            return; // loging out if no token or user
         }
 
         const userData = JSON.parse(user);
