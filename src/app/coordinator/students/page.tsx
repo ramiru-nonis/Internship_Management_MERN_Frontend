@@ -312,7 +312,7 @@ export default function CoordinatorStudents() {
                                                     )}
                                                 </div>
                                                 <div className="ml-4">
-                                                    <div className="text-sm font-medium text-gray-900 dark:text-white">
+                                                    <div className="text-sm font-medium text-gray-900 dark:text-white hover:text-blue-600 cursor-pointer" onClick={() => router.push(`/coordinator/students/${student._id}`)}>
                                                         {student.first_name} {student.last_name}
                                                     </div>
                                                     <div className="text-sm text-gray-500 dark:text-gray-400">{student.cb_number}</div>
