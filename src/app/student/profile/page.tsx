@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 
 import api from '@/lib/api';
-import { User, FileText, Mail, Phone, Book, Calendar, Upload, Loader2, CheckCircle, AlertCircle, Download } from 'lucide-react';
+import { User, FileText, Mail, Phone, Book, Calendar, Upload, Loader2, CheckCircle, AlertCircle, Download, Trash2 } from 'lucide-react';
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -125,6 +125,32 @@ export default function ProfilePage() {
             setMessage({ type: 'error', text: error.response?.data?.message || 'Failed to upload profile picture' });
         } finally {
             setUploadingPic(false);
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (!window.confirm("WARNING: Are you sure you want to delete your account? This action is IRREVERSIBLE and will delete all your data including logbooks, applications, and placement forms.")) {
+            return;
+        }
+
+        const confirmation = window.prompt("To confirm deletion, please type 'DELETE' in the box below:");
+        if (confirmation !== 'DELETE') {
+            alert("Deletion cancelled. You must type 'DELETE' to confirm.");
+            return;
+        }
+
+        try {
+            setSaving(true);
+            await api.delete('/students/profile');
+            alert("Your account has been successfully deleted.");
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            router.push('/login');
+        } catch (error: any) {
+            console.error('Failed to delete account:', error);
+            setMessage({ type: 'error', text: error.response?.data?.message || 'Failed to delete account' });
+        } finally {
+            setSaving(false);
         }
     };
 
@@ -414,6 +440,25 @@ export default function ProfilePage() {
                                     </button>
                                 </div>
                             </form>
+
+                            {/* Danger Zone */}
+                            <div className="mt-12 pt-8 border-t border-red-100">
+                                <h3 className="text-lg font-bold text-red-600 mb-2 flex items-center gap-2">
+                                    <Trash2 className="w-5 h-5" />
+                                    Danger Zone
+                                </h3>
+                                <p className="text-sm text-gray-500 mb-6">
+                                    Once you delete your account, there is no going back. Please be certain.
+                                </p>
+                                <button
+                                    onClick={handleDeleteAccount}
+                                    disabled={saving}
+                                    className="px-6 py-2 border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white font-bold rounded-lg transition-all flex items-center gap-2 disabled:opacity-50"
+                                >
+                                    <Trash2 className="w-4 h-4" />
+                                    Delete My Account
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
