@@ -199,10 +199,13 @@ export default function CoordinatorJobs() {
                                 <div className="flex gap-2">
                                     <Link
                                         href={`/coordinator/jobs/${job._id}/applications`}
-                                        className="p-2 text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                                        className="p-2 text-gray-400 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors flex items-center gap-1"
                                         title="View Applications"
                                     >
                                         <User className="h-5 w-5" />
+                                        {job.applicationCount > 0 && (
+                                            <span className="text-sm font-bold">{job.applicationCount}</span>
+                                        )}
                                     </Link>
                                     <button
                                         onClick={() => handleEdit(job)}
