@@ -139,9 +139,15 @@ export default function ProfilePage() {
             return;
         }
 
+        const password = window.prompt("FINAL SECURITY CHECK: Please enter your account password to authorize deletion:");
+        if (!password) {
+            alert("Deletion cancelled. Password is required.");
+            return;
+        }
+
         try {
             setSaving(true);
-            await api.delete('/students/profile');
+            await api.delete('/students/profile', { data: { password } });
             alert("Your account has been successfully deleted.");
             localStorage.removeItem('token');
             localStorage.removeItem('user');
