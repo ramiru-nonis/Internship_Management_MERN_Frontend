@@ -14,7 +14,8 @@ interface Submission {
     profilePicture?: string | null;
     logbookId?: string;
     studentId?: string;
-    scheduledDate?: string; // Add this
+    scheduledDate?: string;
+    meetLink?: string;
 }
 
 interface LogbookData {
@@ -43,8 +44,9 @@ export default function CoordinatorSubmissionsPage() {
     const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
     const [selectedPresentationId, setSelectedPresentationId] = useState<string | null>(null);
     const [scheduleDateTime, setScheduleDateTime] = useState("");
+    const [meetLink, setMeetLink] = useState("");
 
-    const openScheduleModal = (id: string, currentSchedule?: string) => {
+    const openScheduleModal = (id: string, currentSchedule?: string, currentLink?: string) => {
         setSelectedPresentationId(id);
         // Format for input datetime-local: YYYY-MM-DDTHH:mm
         if (currentSchedule) {
@@ -54,6 +56,7 @@ export default function CoordinatorSubmissionsPage() {
         } else {
             setScheduleDateTime("");
         }
+        setMeetLink(currentLink || "");
         setScheduleModalOpen(true);
     };
 
@@ -62,9 +65,10 @@ export default function CoordinatorSubmissionsPage() {
 
         try {
             await api.put(`/submissions/presentation/${selectedPresentationId}/schedule`, {
-                scheduledDate: scheduleDateTime
+                scheduledDate: scheduleDateTime,
+                meetLink: meetLink
             });
-            alert("Presentation scheduled successfully!");
+            alert("Presentation scheduled and invitation sent!");
             setScheduleModalOpen(false);
             fetchSubmissions(); // Refresh
         } catch (error: any) {
@@ -226,7 +230,7 @@ export default function CoordinatorSubmissionsPage() {
                                         {/* Schedule Button for Presentations */}
                                         {sub.type === 'Exit Presentation' && (
                                             <button
-                                                onClick={() => openScheduleModal(sub.id, sub.scheduledDate)}
+                                                onClick={() => openScheduleModal(sub.id, sub.scheduledDate, sub.meetLink)}
                                                 className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition-all shadow-sm hover:shadow-md"
                                             >
                                                 {sub.scheduledDate ? 'Reschedule' : 'Schedule'}
@@ -380,6 +384,18 @@ export default function CoordinatorSubmissionsPage() {
                                 type="datetime-local"
                                 value={scheduleDateTime}
                                 onChange={(e) => setScheduleDateTime(e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Online Meeting Link
+                            </label>
+                            <input
+                                type="url"
+                                placeholder="e.g. https://meet.google.com/xxx-xxxx-xxx"
+                                value={meetLink}
+                                onChange={(e) => setMeetLink(e.target.value)}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
