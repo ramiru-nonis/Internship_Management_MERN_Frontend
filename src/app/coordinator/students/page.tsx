@@ -15,6 +15,7 @@ function StudentList() {
     const [students, setStudents] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [batchFilter, setBatchFilter] = useState('');
     const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
     const [selectedDegrees, setSelectedDegrees] = useState<string[]>([]);
     const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
@@ -47,7 +48,7 @@ function StudentList() {
         }, 500);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [searchTerm, selectedStatuses, selectedDegrees]);
+    }, [searchTerm, batchFilter, selectedStatuses, selectedDegrees]);
 
     const fetchStudents = async () => {
         try {
@@ -55,8 +56,7 @@ function StudentList() {
             if (selectedStatuses.length > 0) params.status = selectedStatuses.join(',');
             if (selectedDegrees.length > 0) params.degree = selectedDegrees.join(',');
             if (searchTerm) params.search = searchTerm;
-
-            if (searchTerm) params.search = searchTerm; // Duplicate line, skipping removal for minimal diff but acknowledging
+            if (batchFilter) params.batch = batchFilter;
 
             const res = await api.get('/coordinator/students', { params });
             setStudents(res.data);
@@ -71,6 +71,7 @@ function StudentList() {
         setSelectedStatuses([]);
         setSelectedDegrees([]);
         setSearchTerm('');
+        setBatchFilter('');
     };
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -154,7 +155,8 @@ function StudentList() {
                         <Filter className="w-5 h-5 mr-2" />
                         Filters
                     </h2>
-                    {(selectedStatuses.length > 0 || selectedDegrees.length > 0 || searchTerm) && (
+                    {/* (selectedStatuses.length > 0 || selectedDegrees.length > 0 || searchTerm) && ( */}
+                    {(selectedStatuses.length > 0 || selectedDegrees.length > 0 || searchTerm || batchFilter) && (
                         <button
                             onClick={handleClearFilters}
                             className="text-xs font-semibold text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 bg-red-50 dark:bg-red-900/20 px-2 py-1 rounded transition-colors"
@@ -189,6 +191,22 @@ function StudentList() {
                                 </span>
                             </label>
                         ))}
+                    </div>
+                </div>
+
+                {/* Batch Filter */}
+                <div className="mb-8">
+                    <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                        Batch / Year
+                    </h3>
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="e.g. 2024"
+                            value={batchFilter}
+                            onChange={(e) => setBatchFilter(e.target.value)}
+                            className="w-full pl-3 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 text-sm"
+                        />
                     </div>
                 </div>
 

@@ -139,6 +139,12 @@ export default function StudentProfile() {
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Availability</p>
                                     <p className="font-medium">{student.availability}</p>
                                 </div>
+                                {student.batch && (
+                                    <div>
+                                        <p className="text-sm text-gray-500 dark:text-gray-400">Batch</p>
+                                        <p className="font-medium">{student.batch}</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -286,9 +292,9 @@ export default function StudentProfile() {
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${app.status === 'Accepted' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300' :
-                                                                app.status === 'Rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
-                                                                    app.status === 'Applied' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
-                                                                        'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                                                            app.status === 'Rejected' ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300' :
+                                                                app.status === 'Applied' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300' :
+                                                                    'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
                                                             }`}>
                                                             {app.status}
                                                         </span>

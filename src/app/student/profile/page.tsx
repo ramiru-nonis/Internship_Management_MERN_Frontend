@@ -40,6 +40,7 @@ export default function ProfilePage() {
             setValue('degree_level', res.data.degree_level);
             setValue('availability', res.data.availability);
             setValue('status', res.data.status);
+            setValue('batch', res.data.batch || '');
 
             if (res.data.preferences && res.data.preferences.length > 0) {
                 setValue('preference1', res.data.preferences[0]);
@@ -181,8 +182,15 @@ export default function ProfilePage() {
                             <div className="pt-20 pb-6 px-6 text-center">
                                 <h2 className="text-xl font-bold text-gray-900">{student?.first_name} {student?.last_name}</h2>
                                 <p className="text-sm text-gray-500 mt-1">{student?.cb_number}</p>
-                                <div className="mt-4 inline-block px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
-                                    {student?.status}
+                                <div className="mt-4 inline-flex flex-col gap-1">
+                                    <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                                        {student?.status}
+                                    </div>
+                                    {student?.batch && (
+                                        <div className="text-xs text-gray-500 font-medium">
+                                            Batch: {student.batch}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -332,6 +340,14 @@ export default function ProfilePage() {
                                             <option value="not hired">Not Hired</option>
                                         </select>
                                         <p className="text-xs text-gray-500 mt-1">Set to "Hired" to stop applying.</p>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Batch / Year</label>
+                                        <input
+                                            {...register('batch')}
+                                            placeholder="e.g. 2024"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
                                     </div>
                                 </div>
 
