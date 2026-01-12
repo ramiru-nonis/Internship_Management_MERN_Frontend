@@ -206,38 +206,8 @@ export default function MentorVerifyPage() {
                     </div>
                 </div>
 
-                {/* Weeks Grid - Hidden if Rejecting */}
-                {action !== 'reject' && (
-                    <div className="grid gap-6">
-                        {logbook?.weeks?.map((week: any) => (
-                            <div key={week.weekNumber} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                                <div className="bg-gray-50/50 p-4 border-b border-gray-100 flex justify-between items-center">
-                                    <h3 className="font-bold text-gray-700 flex items-center gap-2">
-                                        <FiBookOpen className="text-blue-500" />
-                                        Week {week.weekNumber}
-                                    </h3>
-                                    <span className="text-xs text-gray-400 font-mono">ID: {week._id?.slice(-4)}</span>
-                                </div>
-                                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Activities</label>
-                                        <p className="text-gray-700 text-sm leading-relaxed">{week.activities || "No entry"}</p>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Tech Skills</label>
-                                            <p className="text-gray-600 text-sm">{week.techSkills || "-"}</p>
-                                        </div>
-                                        <div>
-                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Soft Skills</label>
-                                            <p className="text-gray-600 text-sm">{week.softSkills || "-"}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                {/* Logbook content removed per requirements */}
+
 
                 {/* Action Footer */}
                 <div className="bg-white p-8 rounded-2xl shadow-lg border-t-4 border-blue-600 sticky bottom-4">

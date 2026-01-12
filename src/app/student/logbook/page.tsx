@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import {
     FiCalendar, FiClock, FiCheckCircle, FiAlertCircle,
-    FiEdit3, FiLock, FiSend, FiChevronRight, FiChevronLeft
+    FiEdit3, FiLock, FiSend, FiChevronRight, FiChevronLeft,
+    FiBookOpen
 } from "react-icons/fi";
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -43,6 +44,7 @@ export default function LogbookPage() {
     });
     const [saving, setSaving] = useState(false);
     const [sending, setSending] = useState(false);
+    const [showTableModal, setShowTableModal] = useState(false);
 
     // --- Init ---
     useEffect(() => {
@@ -280,46 +282,114 @@ export default function LogbookPage() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-gray-800 dark:text-white pb-20">
 
             {/* Header / Top Bar */}
-            <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    {/* Header / Top Bar */}
-                    <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shadow-sm">
-                        <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-600">
-                            Monthly Logbook
-                        </h1>
-                    </div>
-                    {/* Status Pill */}
-                    {logbookData && (
-                        <div className={`px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2 border ${logbookData.status === 'Approved' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/50 dark:text-green-200 dark:border-green-800' :
-                            logbookData.status === 'Rejected' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/50 dark:text-red-200 dark:border-red-800' :
-                                logbookData.status === 'Pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-200 dark:border-yellow-800' :
-                                    'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
-                            }`}>
-                            <span className={`w-2 h-2 rounded-full ${logbookData.status === 'Approved' ? 'bg-green-500' :
-                                logbookData.status === 'Rejected' ? 'bg-red-500' :
-                                    logbookData.status === 'Pending' ? 'bg-yellow-500' :
-                                        'bg-gray-400'
-                                }`} />
-                            {logbookData.status.toUpperCase()}
-                        </div>
-                    )}
+                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-600">
+                        Monthly Logbook
+                    </h1>
 
-                    {/* NEW: View Signed Logbook Button */}
-                    {logbookData?.signedPDFPath && (
-                        <a
-                            href={logbookData.signedPDFPath.startsWith('http')
-                                ? logbookData.signedPDFPath
-                                : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/${logbookData.signedPDFPath}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-full transition-all shadow-md shadow-blue-100"
-                        >
-                            <FiCheckCircle className="text-white" />
-                            View Signed Logbook
-                        </a>
-                    )}
+                    <div className="flex items-center gap-4">
+                        {/* View Logbook Button */}
+                        {logbookData && (
+                            <button
+                                onClick={() => setShowTableModal(true)}
+                                className="flex items-center gap-2 px-4 py-1.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 text-sm font-bold rounded-full transition-all"
+                            >
+                                <FiBookOpen />
+                                View Logbook
+                            </button>
+                        )}
+
+                        {/* Status Pill */}
+                        {logbookData && (
+                            <div className={`px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2 border ${logbookData.status === 'Approved' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/50 dark:text-green-200 dark:border-green-800' :
+                                logbookData.status === 'Rejected' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/50 dark:text-red-200 dark:border-red-800' :
+                                    logbookData.status === 'Pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-200 dark:border-yellow-800' :
+                                        'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
+                                }`}>
+                                <span className={`w-2 h-2 rounded-full ${logbookData.status === 'Approved' ? 'bg-green-500' :
+                                    logbookData.status === 'Rejected' ? 'bg-red-500' :
+                                        logbookData.status === 'Pending' ? 'bg-yellow-500' :
+                                            'bg-gray-400'
+                                    }`} />
+                                {logbookData.status.toUpperCase()}
+                            </div>
+                        )}
+
+                        {/* View Signed Logbook Button */}
+                        {logbookData?.signedPDFPath && (
+                            <a
+                                href={logbookData.signedPDFPath.startsWith('http')
+                                    ? logbookData.signedPDFPath
+                                    : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/${logbookData.signedPDFPath}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-full transition-all shadow-md shadow-blue-100"
+                            >
+                                <FiCheckCircle className="text-white" />
+                                View Signed Logbook
+                            </a>
+                        )}
+                    </div>
                 </div>
             </div>
+
+            {/* ... (rest of the component) ... */}
+
+            {/* Logbook Table Modal */}
+            {showTableModal && (
+                <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+                    <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl w-full max-w-5xl overflow-hidden flex flex-col max-h-[90vh]">
+                        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                            <h2 className="text-xl font-bold flex items-center gap-2">
+                                <FiBookOpen className="text-blue-600" />
+                                Logbook Content - {MONTH_NAMES[currentMonth - 1]}
+                            </h2>
+                            <button onClick={() => setShowTableModal(false)} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                        </div>
+
+                        <div className="p-6 overflow-auto">
+                            <table className="w-full border-collapse border border-gray-200 dark:border-gray-700">
+                                <thead className="bg-gray-50 dark:bg-gray-700/50">
+                                    <tr>
+                                        <th className="border border-gray-200 dark:border-gray-700 p-3 text-left font-bold text-gray-700 dark:text-gray-200">Week</th>
+                                        <th className="border border-gray-200 dark:border-gray-700 p-3 text-left font-bold text-gray-700 dark:text-gray-200">Activities</th>
+                                        <th className="border border-gray-200 dark:border-gray-700 p-3 text-left font-bold text-gray-700 dark:text-gray-200">Tech Skills</th>
+                                        <th className="border border-gray-200 dark:border-gray-700 p-3 text-left font-bold text-gray-700 dark:text-gray-200">Soft Skills</th>
+                                        <th className="border border-gray-200 dark:border-gray-700 p-3 text-left font-bold text-gray-700 dark:text-gray-200">Trainings</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {(logbookData?.weeks || []).sort((a: any, b: any) => a.weekNumber - b.weekNumber).map((week: any) => (
+                                        <tr key={week.weekNumber} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                                            <td className="border border-gray-200 dark:border-gray-700 p-3 font-bold text-gray-900 dark:text-white">Week {week.weekNumber}</td>
+                                            <td className="border border-gray-200 dark:border-gray-700 p-3 text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{week.activities || 'N/A'}</td>
+                                            <td className="border border-gray-200 dark:border-gray-700 p-3 text-sm text-gray-600 dark:text-gray-400">{week.techSkills || 'N/A'}</td>
+                                            <td className="border border-gray-200 dark:border-gray-700 p-3 text-sm text-gray-600 dark:text-gray-400">{week.softSkills || 'N/A'}</td>
+                                            <td className="border border-gray-200 dark:border-gray-700 p-3 text-sm text-gray-600 dark:text-gray-400">{week.trainings || 'N/A'}</td>
+                                        </tr>
+                                    ))}
+                                    {(!logbookData?.weeks || logbookData.weeks.length === 0) && (
+                                        <tr>
+                                            <td colSpan={5} className="p-10 text-center text-gray-400 border border-gray-200 dark:border-gray-700">No entries recorded for this month.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div className="p-6 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                            <button
+                                onClick={() => setShowTableModal(false)}
+                                className="px-6 py-2 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
 
             {logbookData?.status === 'Rejected' && (
                 <div className="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 max-w-7xl mx-auto mt-6 mx-4 sm:mx-6 lg:mx-8">
