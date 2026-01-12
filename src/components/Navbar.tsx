@@ -35,10 +35,10 @@ export default function Navbar() {
         return false;
     });
 
-    const hiddenPaths = ['/', '/login', '/register', '/verify-logbook'];
+    const hiddenPaths = ['/', '/login', '/register'];
 
     useEffect(() => {
-        if (hiddenPaths.includes(pathname)) return;
+        if (hiddenPaths.includes(pathname) || pathname.startsWith('/verify-logbook')) return;
 
         if (typeof window !== 'undefined') {
             const userData = localStorage.getItem('user');

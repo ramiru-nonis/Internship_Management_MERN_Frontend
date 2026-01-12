@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import api from "@/lib/api";
-import { FiCheckCircle, FiXCircle, FiAlertTriangle, FiBookOpen, FiUser } from "react-icons/fi";
+import { FiCheckCircle, FiXCircle, FiAlertTriangle, FiBookOpen, FiUser, FiDownload, FiUpload, FiFileText } from "react-icons/fi";
 
 // NOTE: This page is public/unauthenticated (mostly) or uses ID for fetch
 // Since mentors don't login, we just use the ID. 
@@ -27,6 +27,11 @@ export default function MentorVerifyPage() {
     const [action, setAction] = useState<'approve' | 'reject' | null>(initialAction === 'approve' ? 'approve' : initialAction === 'reject' ? 'reject' : null);
     const [rejectionReason, setRejectionReason] = useState("");
     const [processing, setProcessing] = useState(false);
+
+    // PDF Upload State
+    const [signedFile, setSignedFile] = useState<File | null>(null);
+    const [uploadingPDF, setUploadingPDF] = useState(false);
+    const [pdfUploaded, setPdfUploaded] = useState(false);
 
     useEffect(() => {
         if (logbookId) {
@@ -55,10 +60,61 @@ export default function MentorVerifyPage() {
         }
     };
 
+    const handleDownloadPDF = async () => {
+        try {
+            const response = await api.get(`/logbooks/${logbookId}/download`, {
+                responseType: 'blob'
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Logbook_${logbook?.month}_${logbook?.year}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (err) {
+            console.error("Error downloading PDF", err);
+            alert("Failed to download PDF.");
+        }
+    };
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (file.type !== 'application/pdf') {
+            alert("Please upload a PDF file.");
+            return;
+        }
+
+        setSignedFile(file);
+        setUploadingPDF(true);
+
+        const formData = new FormData();
+        formData.append('signed_logbook', file);
+
+        try {
+            await api.post(`/logbooks/upload-signed/${logbookId}`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            setPdfUploaded(true);
+            alert("Signed logbook uploaded successfully!");
+        } catch (err) {
+            console.error("Upload failed", err);
+            alert("Failed to upload the signed logbook.");
+        } finally {
+            setUploadingPDF(false);
+        }
+    };
+
     const handleConfirm = async () => {
         if (!action) return;
         if (action === 'reject' && !rejectionReason.trim()) {
             alert("Please provide a reason for rejection.");
+            return;
+        }
+        if (action === 'approve' && !pdfUploaded) {
+            alert("Please upload the signed logbook before confirming approval.");
             return;
         }
 
@@ -150,36 +206,38 @@ export default function MentorVerifyPage() {
                     </div>
                 </div>
 
-                {/* Weeks Grid */}
-                <div className="grid gap-6">
-                    {logbook?.weeks?.map((week: any) => (
-                        <div key={week.weekNumber} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                            <div className="bg-gray-50/50 p-4 border-b border-gray-100 flex justify-between items-center">
-                                <h3 className="font-bold text-gray-700 flex items-center gap-2">
-                                    <FiBookOpen className="text-blue-500" />
-                                    Week {week.weekNumber}
-                                </h3>
-                                <span className="text-xs text-gray-400 font-mono">ID: {week._id?.slice(-4)}</span>
-                            </div>
-                            <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Activities</label>
-                                    <p className="text-gray-700 text-sm leading-relaxed">{week.activities || "No entry"}</p>
+                {/* Weeks Grid - Hidden if Rejecting */}
+                {action !== 'reject' && (
+                    <div className="grid gap-6">
+                        {logbook?.weeks?.map((week: any) => (
+                            <div key={week.weekNumber} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                                <div className="bg-gray-50/50 p-4 border-b border-gray-100 flex justify-between items-center">
+                                    <h3 className="font-bold text-gray-700 flex items-center gap-2">
+                                        <FiBookOpen className="text-blue-500" />
+                                        Week {week.weekNumber}
+                                    </h3>
+                                    <span className="text-xs text-gray-400 font-mono">ID: {week._id?.slice(-4)}</span>
                                 </div>
-                                <div className="space-y-4">
+                                <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Tech Skills</label>
-                                        <p className="text-gray-600 text-sm">{week.techSkills || "-"}</p>
+                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">Activities</label>
+                                        <p className="text-gray-700 text-sm leading-relaxed">{week.activities || "No entry"}</p>
                                     </div>
-                                    <div>
-                                        <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Soft Skills</label>
-                                        <p className="text-gray-600 text-sm">{week.softSkills || "-"}</p>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Tech Skills</label>
+                                            <p className="text-gray-600 text-sm">{week.techSkills || "-"}</p>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-1">Soft Skills</label>
+                                            <p className="text-gray-600 text-sm">{week.softSkills || "-"}</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </div>
+                )}
 
                 {/* Action Footer */}
                 <div className="bg-white p-8 rounded-2xl shadow-lg border-t-4 border-blue-600 sticky bottom-4">
@@ -188,23 +246,82 @@ export default function MentorVerifyPage() {
                     <div className="flex gap-4 mb-6">
                         <button
                             onClick={() => setAction('approve')}
+                            disabled={initialAction === 'reject'}
                             className={`flex-1 py-3 rounded-xl font-bold transition-all border-2 ${action === 'approve'
                                 ? 'bg-green-50 border-green-500 text-green-700 shadow-md transform scale-105'
-                                : 'bg-white border-gray-200 text-gray-500 hover:border-green-300 hover:bg-green-50/50'
+                                : initialAction === 'reject' ? 'hidden' : 'bg-white border-gray-200 text-gray-500 hover:border-green-300 hover:bg-green-50/50'
                                 }`}
                         >
                             <span className="flex items-center justify-center gap-2"><FiCheckCircle /> Approve</span>
                         </button>
                         <button
                             onClick={() => setAction('reject')}
+                            disabled={initialAction === 'approve'}
                             className={`flex-1 py-3 rounded-xl font-bold transition-all border-2 ${action === 'reject'
                                 ? 'bg-red-50 border-red-500 text-red-700 shadow-md transform scale-105'
-                                : 'bg-white border-gray-200 text-gray-500 hover:border-red-300 hover:bg-red-50/50'
+                                : initialAction === 'approve' ? 'hidden' : 'bg-white border-gray-200 text-gray-500 hover:border-red-300 hover:bg-red-50/50'
                                 }`}
                         >
                             <span className="flex items-center justify-center gap-2"><FiXCircle /> Reject</span>
                         </button>
                     </div>
+
+                    {action === 'approve' && (
+                        <div className="animate-fadeIn space-y-6 mb-8 border-b border-gray-100 pb-8">
+                            <div className="bg-blue-50 p-4 rounded-xl flex items-start gap-3">
+                                <FiAlertTriangle className="text-blue-600 mt-1 flex-shrink-0" />
+                                <p className="text-sm text-blue-800">
+                                    To approve this logbook, please download the PDF, sign it, and upload the scanned copy below.
+                                </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700">1. Download Logbook</label>
+                                    <button
+                                        onClick={handleDownloadPDF}
+                                        className="w-full flex items-center justify-center gap-2 py-3 bg-white border-2 border-blue-600 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition-colors"
+                                    >
+                                        <FiDownload /> Download PDF
+                                    </button>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-sm font-bold text-gray-700">2. Upload Signed Copy</label>
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            onChange={handleFileUpload}
+                                            accept=".pdf"
+                                            className="hidden"
+                                            id="pdf-upload"
+                                            disabled={uploadingPDF}
+                                        />
+                                        <label
+                                            htmlFor="pdf-upload"
+                                            className={`w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed rounded-xl cursor-pointer transition-all ${pdfUploaded
+                                                ? 'bg-green-50 border-green-500 text-green-700'
+                                                : 'bg-gray-50 border-gray-300 text-gray-500 hover:border-blue-400 hover:bg-blue-50'
+                                                }`}
+                                        >
+                                            {uploadingPDF ? (
+                                                <div className="animate-spin h-5 w-5 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                                            ) : pdfUploaded ? (
+                                                <><FiCheckCircle /> Signed Logbook Uploaded</>
+                                            ) : (
+                                                <><FiUpload /> Upload Signed PDF</>
+                                            )}
+                                        </label>
+                                    </div>
+                                    {signedFile && (
+                                        <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                                            <FiFileText /> {signedFile.name}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {action === 'reject' && (
                         <div className="animate-fadeIn mb-6">
@@ -220,10 +337,10 @@ export default function MentorVerifyPage() {
 
                     <button
                         onClick={handleConfirm}
-                        disabled={processing || !action || (action === 'reject' && !rejectionReason.trim())}
+                        disabled={processing || !action || (action === 'reject' && !rejectionReason.trim()) || (action === 'approve' && !pdfUploaded)}
                         className={`w-full py-4 rounded-xl font-bold text-white text-lg shadow-lg transition-transform active:scale-95 ${processing ? 'bg-gray-400 cursor-wait' :
-                            action === 'approve' ? 'bg-green-600 hover:bg-green-700 shadow-green-200' :
-                                action === 'reject' ? 'bg-red-600 hover:bg-red-700 shadow-red-200' :
+                            action === 'approve' ? (pdfUploaded ? 'bg-green-600 hover:bg-green-700 shadow-green-200' : 'bg-gray-300 cursor-not-allowed') :
+                                action === 'reject' ? (rejectionReason.trim() ? 'bg-red-600 hover:bg-red-700 shadow-red-200' : 'bg-gray-300 cursor-not-allowed') :
                                     'bg-gray-300 text-gray-500 cursor-not-allowed'
                             }`}
                     >
