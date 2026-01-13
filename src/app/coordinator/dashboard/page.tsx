@@ -117,14 +117,6 @@ export default function CoordinatorDashboard() {
                             color="purple"
                         />
                     </Link>
-                    <Link href="/coordinator/mentors" className="transition-transform hover:scale-[1.02] active:scale-[0.98]">
-                        <StatsCard
-                            title="Academic Mentors"
-                            value="Manage"
-                            icon={Users}
-                            color="purple"
-                        />
-                    </Link>
                     <Link href="/coordinator/jobs" className="transition-transform hover:scale-[1.02] active:scale-[0.98]">
                         <StatsCard
                             title="Expired Posts"
