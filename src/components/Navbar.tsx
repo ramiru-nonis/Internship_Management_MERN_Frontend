@@ -124,7 +124,12 @@ export default function Navbar() {
         { href: '/coordinator/mentors', label: 'Academic Mentors', icon: User },
     ];
 
-    const links = user.role === 'student' ? studentLinks : coordinatorLinks;
+    const mentorLinks = [
+        { href: '/mentor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    ];
+
+    const links = user.role === 'student' ? studentLinks :
+        user.role === 'academic_mentor' ? mentorLinks : coordinatorLinks;
 
     return (
         <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
@@ -132,7 +137,11 @@ export default function Navbar() {
                 <div className="flex justify-between h-16">
                     {/* Logo */}
                     <div className="flex items-center">
-                        <Link href={user.role === 'student' ? '/student/dashboard' : '/coordinator/dashboard'} className="flex items-center gap-3">
+                        <Link href={
+                            user.role === 'student' ? '/student/dashboard' :
+                                user.role === 'academic_mentor' ? '/mentor/dashboard' :
+                                    '/coordinator/dashboard'
+                        } className="flex items-center gap-3">
                             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xl px-4 py-2 rounded-lg shadow-sm">
                                 <div className="flex flex-col items-center leading-none">
                                     <span>NextStep</span>

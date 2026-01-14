@@ -29,6 +29,8 @@ export default function LoginPage() {
                 router.push('/coordinator/dashboard');
             } else if (res.data.role === 'admin') {
                 router.push('/admin/dashboard');
+            } else if (res.data.role === 'academic_mentor') {
+                router.push('/mentor/dashboard');
             }
         } catch (err: any) {
             setError(err.response?.data?.message || 'Login failed');
