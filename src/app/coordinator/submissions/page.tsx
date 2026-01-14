@@ -16,6 +16,20 @@ interface Submission {
     studentId?: string;
     scheduledDate?: string;
     meetLink?: string;
+    placement?: {
+        company_name: string;
+        position: string;
+        start_date: string;
+        end_date: string;
+        mentor_name: string;
+        mentor_email: string;
+        mentor_phone: string;
+        company_address: string;
+        description: string;
+        placement_job_title?: string;
+        contact_number?: string;
+        email?: string;
+    };
 }
 
 interface LogbookData {
@@ -27,7 +41,7 @@ interface LogbookData {
 }
 
 export default function CoordinatorSubmissionsPage() {
-    const [filter, setFilter] = useState<"Logbook" | "Marksheet" | "Exit Presentation">("Logbook");
+    const [filter, setFilter] = useState<"Logbook" | "Marksheet" | "Exit Presentation" | "Placement">("Logbook");
     const [searchTerm, setSearchTerm] = useState("");
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
@@ -45,6 +59,10 @@ export default function CoordinatorSubmissionsPage() {
     const [selectedPresentationId, setSelectedPresentationId] = useState<string | null>(null);
     const [scheduleDateTime, setScheduleDateTime] = useState("");
     const [meetLink, setMeetLink] = useState("");
+
+    // Placement Modal State
+    const [showPlacementModal, setShowPlacementModal] = useState(false);
+    const [selectedPlacement, setSelectedPlacement] = useState<any>(null);
 
     const openScheduleModal = (id: string, currentSchedule?: string, currentLink?: string) => {
         setSelectedPresentationId(id);
@@ -132,6 +150,9 @@ export default function CoordinatorSubmissionsPage() {
                 setLoadingHistory(false);
             }
 
+        } else if (sub.type === 'Placement') {
+            setSelectedPlacement(sub.placement);
+            setShowPlacementModal(true);
         } else if ((sub.type === 'Marksheet' || sub.type === 'Exit Presentation') && sub.fileUrl) {
             const url = sub.fileUrl.startsWith('http') ? sub.fileUrl : `${apiUrl}${sub.fileUrl}`;
 
@@ -162,7 +183,7 @@ export default function CoordinatorSubmissionsPage() {
 
                     {/* Filters */}
                     <div className="flex bg-white dark:bg-gray-800 rounded-lg p-1 shadow-sm border border-gray-100 dark:border-gray-700">
-                        {["Logbook", "Marksheet", "Exit Presentation"].map((f) => (
+                        {["Logbook", "Placement", "Marksheet", "Exit Presentation"].map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setFilter(f as any)}
@@ -194,7 +215,8 @@ export default function CoordinatorSubmissionsPage() {
                                             />
                                         ) : (
                                             <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white ${sub.type === 'Logbook' ? 'bg-purple-500' :
-                                                sub.type === 'Marksheet' ? 'bg-red-500' : 'bg-orange-500'
+                                                sub.type === 'Marksheet' ? 'bg-red-500' :
+                                                    sub.type === 'Placement' ? 'bg-blue-500' : 'bg-orange-500'
                                                 }`}>
                                                 {sub.name.charAt(0)}
                                             </div>
@@ -412,6 +434,103 @@ export default function CoordinatorSubmissionsPage() {
                                 disabled={!scheduleDateTime}
                             >
                                 Save Schedule
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {/* Placement Detail Modal */}
+            {showPlacementModal && selectedPlacement && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-gray-200 dark:border-gray-700">
+                        <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white">Placement Details</h2>
+                            <button
+                                onClick={() => setShowPlacementModal(false)}
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                        <div className="p-6 space-y-6">
+                            {/* Student Info */}
+                            <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                <div className="h-12 w-12 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold text-lg">
+                                    {selectedPlacement.first_name?.[0]}
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="font-bold text-gray-900 dark:text-white text-lg">
+                                        {filteredSubmissions.find(s => s.placement === selectedPlacement)?.name}
+                                    </h3>
+                                    <p className="text-gray-600 dark:text-gray-400">
+                                        {filteredSubmissions.find(s => s.placement === selectedPlacement)?.cbNumber} | {selectedPlacement.contact_number}
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">{selectedPlacement.email}</p>
+                                </div>
+                            </div>
+
+                            {/* Internship Details */}
+                            <div>
+                                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Internship Information</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">Company</p>
+                                        <p className="font-medium text-gray-900 dark:text-white">{selectedPlacement.company_name}</p>
+                                    </div>
+                                    <div className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">Job Title/Role</p>
+                                        <p className="font-medium text-gray-900 dark:text-white">{selectedPlacement.placement_job_title || selectedPlacement.position}</p>
+                                    </div>
+                                    <div className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">Start Date</p>
+                                        <p className="font-medium text-gray-900 dark:text-white">{new Date(selectedPlacement.start_date).toLocaleDateString()}</p>
+                                    </div>
+                                    <div className="p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">End Date</p>
+                                        <p className="font-medium text-gray-900 dark:text-white">{new Date(selectedPlacement.end_date).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Company & Mentor Details */}
+                            <div>
+                                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Supervisor / Mentor</h3>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <span className="text-gray-600 dark:text-gray-400">Name</span>
+                                        <span className="font-medium text-gray-900 dark:text-white">{selectedPlacement.mentor_name}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <span className="text-gray-600 dark:text-gray-400">Email</span>
+                                        <span className="font-medium text-gray-900 dark:text-white">{selectedPlacement.mentor_email}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <span className="text-gray-600 dark:text-gray-400">Phone</span>
+                                        <span className="font-medium text-gray-900 dark:text-white">{selectedPlacement.mentor_phone}</span>
+                                    </div>
+                                    <div className="flex justify-between items-start p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                        <span className="text-gray-600 dark:text-gray-400 whitespace-nowrap mr-4">Address</span>
+                                        <span className="font-medium text-gray-900 dark:text-white text-right">{selectedPlacement.company_address}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            {selectedPlacement.description && (
+                                <div>
+                                    <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Description / Plan</h3>
+                                    <p className="text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg text-sm leading-relaxed">
+                                        {selectedPlacement.description}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-6 border-t border-gray-100 dark:border-gray-700 flex justify-end">
+                            <button
+                                onClick={() => setShowPlacementModal(false)}
+                                className="px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-800 dark:text-white font-semibold rounded-lg transition-colors"
+                            >
+                                Close
                             </button>
                         </div>
                     </div>

@@ -121,7 +121,7 @@ export default function Navbar() {
         { href: '/coordinator/jobs', label: 'Job Posts', icon: Briefcase },
         { href: '/coordinator/applications', label: 'Applications', icon: FileText },
         { href: '/coordinator/submissions', label: 'Submissions', icon: Check },
-        { href: '/coordinator/placements', label: 'Placements', icon: ClipboardList },
+        { href: '/coordinator/mentors', label: 'Academic Mentors', icon: User },
     ];
 
     const links = user.role === 'student' ? studentLinks : coordinatorLinks;
