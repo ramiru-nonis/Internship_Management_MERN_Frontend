@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { FaUserPlus, FaUserTie, FaArrowLeft, FaEdit, FaUserSlash, FaUserCheck } from 'react-icons/fa';
+import { FaUserPlus, FaUserTie, FaArrowLeft, FaEdit, FaUserSlash, FaUserCheck, FaTrash } from 'react-icons/fa';
 import api from '@/lib/api';
 
 interface Mentor {
@@ -76,6 +76,19 @@ export default function MentorManagement() {
             fetchMentors();
         } catch (error) {
             alert('Failed to update status');
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (window.confirm('Are you sure you want to PERMANENTLY delete this mentor and their login account? This action cannot be undone.')) {
+            try {
+                await api.delete(`/coordinator/mentors/${id}`);
+                alert('Mentor deleted successfully');
+                fetchMentors();
+            } catch (error) {
+                console.error(error);
+                alert('Failed to delete mentor');
+            }
         }
     };
 
@@ -155,6 +168,13 @@ export default function MentorManagement() {
                                 className={`p-2 rounded-lg transition-colors ${mentor.status === 'active' ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-green-50 text-green-600 hover:bg-green-100'}`}
                             >
                                 {mentor.status === 'active' ? <FaUserSlash /> : <FaUserCheck />}
+                            </button>
+                            <button
+                                onClick={() => handleDelete(mentor._id)}
+                                title="Delete Mentor"
+                                className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all"
+                            >
+                                <FaTrash />
                             </button>
                         </div>
                     </div>

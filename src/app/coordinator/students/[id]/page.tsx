@@ -16,10 +16,22 @@ export default function StudentProfile() {
     const [data, setData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [mentors, setMentors] = useState<any[]>([]);
+    const [assigning, setAssigning] = useState(false);
 
     useEffect(() => {
         fetchStudentProfile();
+        fetchMentors();
     }, [id]);
+
+    const fetchMentors = async () => {
+        try {
+            const res = await api.get('/coordinator/mentors');
+            setMentors(res.data);
+        } catch (err) {
+            console.error('Error fetching mentors:', err);
+        }
+    };
 
     const fetchStudentProfile = async () => {
         try {
@@ -30,6 +42,20 @@ export default function StudentProfile() {
             setError(err.response?.data?.message || 'Failed to load student profile');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleAssignMentor = async (mentorId: string) => {
+        setAssigning(true);
+        try {
+            await api.put(`/coordinator/students/${id}/assign-mentor`, { mentorId });
+            alert('Mentor assigned successfully');
+            fetchStudentProfile();
+        } catch (err) {
+            console.error('Error assigning mentor:', err);
+            alert('Failed to assign mentor');
+        } finally {
+            setAssigning(false);
         }
     };
 
@@ -148,7 +174,38 @@ export default function StudentProfile() {
                             </div>
                         </div>
 
-                        {/* Internship Preferences */}
+                        {/* Academic Mentor Assignment */}
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 text-gray-900 dark:text-gray-100">
+                            <h2 className="text-lg font-bold mb-4 flex items-center">
+                                <User className="w-5 h-5 mr-2 text-purple-600" />
+                                Academic Mentor
+                            </h2>
+                            <div className="space-y-4">
+                                <select
+                                    disabled={assigning}
+                                    value={student.academic_mentor?._id || ''}
+                                    onChange={(e) => handleAssignMentor(e.target.value)}
+                                    className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                >
+                                    <option value="">Not Assigned</option>
+                                    {mentors.map((mentor) => (
+                                        <option key={mentor._id} value={mentor._id}>
+                                            {mentor.first_name} {mentor.last_name}
+                                        </option>
+                                    ))}
+                                </select>
+                                {student.academic_mentor && (
+                                    <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-100 dark:border-purple-800/50">
+                                        <p className="text-sm font-semibold text-purple-900 dark:text-purple-100">
+                                            {student.academic_mentor.first_name} {student.academic_mentor.last_name}
+                                        </p>
+                                        <p className="text-xs text-purple-600 dark:text-purple-400">
+                                            {student.academic_mentor.email}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 text-gray-900 dark:text-gray-100">
                             <h2 className="text-lg font-bold mb-4 flex items-center">
                                 <Briefcase className="w-5 h-5 mr-2 text-indigo-600" />
