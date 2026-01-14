@@ -4,7 +4,7 @@ import api from "@/lib/api";
 
 interface Submission {
     id: string;
-    type: "Logbook" | "Marksheet" | "Exit Presentation";
+    type: "Logbook" | "Marksheet" | "Exit Presentation" | "Placement";
     name: string;
     cbNumber: string;
     month?: string;
