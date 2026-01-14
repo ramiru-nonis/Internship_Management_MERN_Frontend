@@ -4,7 +4,7 @@ import api from "@/lib/api";
 
 interface Submission {
     id: string;
-    type: "Logbook" | "Marksheet" | "Exit Presentation" | "Placement";
+    type: "Logbook" | "Marksheet" | "Exit Presentation" | "Placements";
     name: string;
     cbNumber: string;
     month?: string;
@@ -41,7 +41,7 @@ interface LogbookData {
 }
 
 export default function CoordinatorSubmissionsPage() {
-    const [filter, setFilter] = useState<"Logbook" | "Marksheet" | "Exit Presentation" | "Placement">("Logbook");
+    const [filter, setFilter] = useState<"Logbook" | "Marksheet" | "Exit Presentation" | "Placements">("Logbook");
     const [searchTerm, setSearchTerm] = useState("");
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
@@ -150,7 +150,7 @@ export default function CoordinatorSubmissionsPage() {
                 setLoadingHistory(false);
             }
 
-        } else if (sub.type === 'Placement') {
+        } else if (sub.type === 'Placements') {
             setSelectedPlacement(sub.placement);
             setShowPlacementModal(true);
         } else if ((sub.type === 'Marksheet' || sub.type === 'Exit Presentation') && sub.fileUrl) {
@@ -183,7 +183,7 @@ export default function CoordinatorSubmissionsPage() {
 
                     {/* Filters */}
                     <div className="flex bg-white dark:bg-gray-800 rounded-lg p-1 shadow-sm border border-gray-100 dark:border-gray-700">
-                        {["Logbook", "Placement", "Marksheet", "Exit Presentation"].map((f) => (
+                        {["Logbook", "Placements", "Marksheet", "Exit Presentation"].map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setFilter(f as any)}
@@ -216,7 +216,7 @@ export default function CoordinatorSubmissionsPage() {
                                         ) : (
                                             <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold text-white ${sub.type === 'Logbook' ? 'bg-purple-500' :
                                                 sub.type === 'Marksheet' ? 'bg-red-500' :
-                                                    sub.type === 'Placement' ? 'bg-blue-500' : 'bg-orange-500'
+                                                    sub.type === 'Placements' ? 'bg-blue-500' : 'bg-orange-500'
                                                 }`}>
                                                 {sub.name.charAt(0)}
                                             </div>
