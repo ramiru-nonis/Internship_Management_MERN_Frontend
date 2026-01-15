@@ -50,13 +50,14 @@ export default function LogbookHistoryPage() {
                                 <th className="p-5 border-b">Year</th>
                                 <th className="p-5 border-b">Submitted Date</th>
                                 <th className="p-5 border-b">Status</th>
+                                <th className="p-5 border-b">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                             {loading ? (
-                                <tr><td colSpan={4} className="p-6 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
+                                <tr><td colSpan={5} className="p-6 text-center text-gray-500 dark:text-gray-400">Loading...</td></tr>
                             ) : history.length === 0 ? (
-                                <tr><td colSpan={4} className="p-6 text-center text-gray-500 dark:text-gray-400">No submissions found.</td></tr>
+                                <tr><td colSpan={5} className="p-6 text-center text-gray-500 dark:text-gray-400">No submissions found.</td></tr>
                             ) : (
                                 history.map((item) => (
                                     <tr key={item._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
@@ -70,6 +71,22 @@ export default function LogbookHistoryPage() {
                                                 }`}>
                                                 {item.status}
                                             </span>
+                                        </td>
+                                        <td className="p-5">
+                                            {item.status === 'Approved' && item.signedPDFPath ? (
+                                                <a
+                                                    href={item.signedPDFPath.startsWith('http')
+                                                        ? item.signedPDFPath
+                                                        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/${item.signedPDFPath.replace(/^\//, '')}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-blue-600 hover:underline text-sm font-semibold"
+                                                >
+                                                    View Signed Logbook
+                                                </a>
+                                            ) : (
+                                                <span className="text-gray-400 text-sm">N/A</span>
+                                            )}
                                         </td>
                                     </tr>
                                 ))

@@ -10,6 +10,7 @@ interface LogbookData {
     year: number;
     status: string;
     weeks: any[];
+    signedPDFPath?: string;
 }
 
 interface LogbookModalProps {
@@ -117,8 +118,8 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                                     <div className="flex justify-between items-center">
                                         <span>{MONTH_NAMES[lb.month - 1]} {lb.year}</span>
                                         <span className={`text-[10px] px-1.5 py-0.5 rounded ${lb.status === 'Approved' ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-200' :
-                                                lb.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-200' :
-                                                    'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                                            lb.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-200' :
+                                                'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
                                             }`}>
                                             {lb.status}
                                         </span>
@@ -142,13 +143,28 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                         </div>
                         <div className="flex items-center gap-4">
                             {selectedLogbook && (
-                                <button
-                                    onClick={handleDownloadPdf}
-                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all shadow-sm flex items-center gap-2 text-sm"
-                                >
-                                    <Download className="w-4 h-4" />
-                                    Download PDF
-                                </button>
+                                <div className="flex items-center gap-2">
+                                    {selectedLogbook.signedPDFPath && (
+                                        <a
+                                            href={selectedLogbook.signedPDFPath.startsWith('http')
+                                                ? selectedLogbook.signedPDFPath
+                                                : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/${selectedLogbook.signedPDFPath}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-all shadow-sm flex items-center gap-2 text-sm"
+                                        >
+                                            <ExternalLink className="w-4 h-4" />
+                                            View Signed
+                                        </a>
+                                    )}
+                                    <button
+                                        onClick={handleDownloadPdf}
+                                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all shadow-sm flex items-center gap-2 text-sm"
+                                    >
+                                        <Download className="w-4 h-4" />
+                                        Download PDF
+                                    </button>
+                                </div>
                             )}
                             <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                                 <X className="w-6 h-6" />
