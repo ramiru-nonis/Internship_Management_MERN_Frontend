@@ -43,6 +43,7 @@ export default function LogbookPage() {
     });
     const [saving, setSaving] = useState(false);
     const [sending, setSending] = useState(false);
+    const [showPdfModal, setShowPdfModal] = useState(false);
 
     // --- Init ---
     useEffect(() => {
@@ -344,17 +345,13 @@ export default function LogbookPage() {
 
                         {/* View Signed Logbook Button */}
                         {logbookData?.status === 'Approved' && logbookData?.signedPDFPath && (
-                            <a
-                                href={logbookData.signedPDFPath.startsWith('http')
-                                    ? logbookData.signedPDFPath
-                                    : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/${logbookData.signedPDFPath}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <button
+                                onClick={() => setShowPdfModal(true)}
                                 className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-full transition-all shadow-md shadow-blue-100"
                             >
                                 <FiCheckCircle className="text-white" />
                                 View Signed Logbook
-                            </a>
+                            </button>
                         )}
                     </div>
                 </div>
@@ -631,6 +628,53 @@ export default function LogbookPage() {
                         </div>
                     </div>
                 )}
+
+            {/* Signed PDF Viewer Modal */}
+            {showPdfModal && logbookData?.signedPDFPath && (
+                <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-6xl h-[90vh] flex flex-col overflow-hidden">
+                        <div className="p-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/30">
+                            <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                                <FiCheckCircle className="text-green-500" />
+                                Signed Logbook - {MONTH_NAMES[logbookData.month - 1]} {logbookData.year}
+                            </h2>
+                            <button
+                                onClick={() => setShowPdfModal(false)}
+                                className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                            >
+                                <span className="text-2xl text-gray-500">&times;</span>
+                            </button>
+                        </div>
+                        <div className="flex-1 bg-gray-100 dark:bg-gray-900 relative">
+                            <iframe
+                                src={logbookData.signedPDFPath.startsWith('http')
+                                    ? logbookData.signedPDFPath
+                                    : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/${logbookData.signedPDFPath}`}
+                                className="w-full h-full"
+                                title="Signed Logbook PDF"
+                            />
+                        </div>
+                        <div className="p-4 border-t border-gray-100 dark:border-gray-700 flex justify-end bg-white dark:bg-gray-800">
+                            <a
+                                href={logbookData.signedPDFPath.startsWith('http')
+                                    ? logbookData.signedPDFPath
+                                    : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/${logbookData.signedPDFPath}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-4 py-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg text-sm font-medium mr-2"
+                            >
+                                Open in New Tab
+                            </a>
+                            <button
+                                onClick={() => setShowPdfModal(false)}
+                                className="px-6 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg text-sm font-medium"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
