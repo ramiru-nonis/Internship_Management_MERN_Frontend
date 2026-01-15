@@ -44,6 +44,9 @@ export default function LogbookPage() {
     const [saving, setSaving] = useState(false);
     const [sending, setSending] = useState(false);
     const [showPdfModal, setShowPdfModal] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const [pdfLoading, setPdfLoading] = useState(false);
+    const [pdfError, setPdfError] = useState(false);
 
     // --- Init ---
     useEffect(() => {
@@ -179,6 +182,47 @@ export default function LogbookPage() {
             setLoading(false);
         }
     };
+
+    // --- PDF Helper ---
+    useEffect(() => {
+        if (showPdfModal && logbookData?.signedPDFPath) {
+            const fetchPdf = async () => {
+                // If it's a full URL (e.g., Cloudinary), use it directly
+                if (logbookData.signedPDFPath.startsWith('http')) {
+                    setPdfUrl(logbookData.signedPDFPath);
+                    return;
+                }
+
+                // If local path, fetch via dedicated download endpoint with auth
+                setPdfLoading(true);
+                setPdfError(false);
+                try {
+                    // Use the dedicated download endpoint which handles path logic secure serving
+                    const response = await api.get(`/logbooks/${logbookData._id}/download`, {
+                        responseType: 'blob'
+                    });
+
+                    const blobUrl = URL.createObjectURL(response.data);
+                    setPdfUrl(blobUrl);
+                } catch (error) {
+                    console.error("Error loading PDF:", error);
+                    setPdfError(true);
+                } finally {
+                    setPdfLoading(false);
+                }
+            };
+
+            fetchPdf();
+        } else {
+            // Cleanup
+            if (pdfUrl && !pdfUrl.startsWith('http')) {
+                URL.revokeObjectURL(pdfUrl);
+            }
+            setPdfUrl(null);
+            setPdfLoading(false);
+            setPdfError(false);
+        }
+    }, [showPdfModal, logbookData]);
 
     // --- Actions ---
     const handleMonthChange = (m: number) => {
@@ -645,23 +689,33 @@ export default function LogbookPage() {
                                 <span className="text-2xl text-gray-500">&times;</span>
                             </button>
                         </div>
-                        <div className="flex-1 bg-gray-100 dark:bg-gray-900 relative">
-                            <iframe
-                                src={logbookData.signedPDFPath.startsWith('http')
-                                    ? logbookData.signedPDFPath
-                                    : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/${logbookData.signedPDFPath}`}
-                                className="w-full h-full"
-                                title="Signed Logbook PDF"
-                            />
+                        <div className="flex-1 bg-gray-100 dark:bg-gray-900 relative flex items-center justify-center">
+                            {pdfLoading && (
+                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                            )}
+
+                            {pdfError && (
+                                <div className="text-center p-8">
+                                    <FiAlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+                                    <p className="text-gray-600 dark:text-gray-300">Failed to load document.</p>
+                                    <p className="text-sm text-gray-500 mt-2">Try downloading it instead.</p>
+                                </div>
+                            )}
+
+                            {!pdfLoading && !pdfError && pdfUrl && (
+                                <iframe
+                                    src={pdfUrl}
+                                    className="w-full h-full"
+                                    title="Signed Logbook PDF"
+                                />
+                            )}
                         </div>
                         <div className="p-4 border-t border-gray-100 dark:border-gray-700 flex justify-end bg-white dark:bg-gray-800">
                             <a
-                                href={logbookData.signedPDFPath.startsWith('http')
-                                    ? logbookData.signedPDFPath
-                                    : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/${logbookData.signedPDFPath}`}
+                                href={pdfUrl || '#'}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="px-4 py-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg text-sm font-medium mr-2"
+                                className={`px-4 py-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg text-sm font-medium mr-2 ${!pdfUrl ? 'pointer-events-none opacity-50' : ''}`}
                             >
                                 Open in New Tab
                             </a>
