@@ -197,7 +197,8 @@ export default function LogbookPage() {
                         responseType: 'blob'
                     });
 
-                    const blobUrl = URL.createObjectURL(response.data);
+                    const blob = new Blob([response.data], { type: 'application/pdf' });
+                    const blobUrl = URL.createObjectURL(blob);
                     setPdfUrl(blobUrl);
                 } catch (error) {
                     console.error("Error loading PDF:", error);
@@ -353,6 +354,11 @@ export default function LogbookPage() {
     const weeksToRender = isSubmitted
         ? (logbookData?.weeks || []).map((w: any) => w.weekNumber).sort((a: number, b: number) => a - b)
         : [1, 2, 3, 4];
+
+    // Construct Direct Download URL
+    const directDownloadUrl = logbookData?._id
+        ? `${api.defaults.baseURL || 'http://localhost:5000/api'}/logbooks/${logbookData._id}/download`
+        : '#';
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-gray-800 dark:text-white pb-20">
@@ -707,10 +713,10 @@ export default function LogbookPage() {
                         </div>
                         <div className="p-4 border-t border-gray-100 dark:border-gray-700 flex justify-end bg-white dark:bg-gray-800">
                             <a
-                                href={pdfUrl || '#'}
+                                href={directDownloadUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`px-4 py-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg text-sm font-medium mr-2 ${!pdfUrl ? 'pointer-events-none opacity-50' : ''}`}
+                                className="px-4 py-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg text-sm font-medium mr-2"
                             >
                                 Open in New Tab
                             </a>
