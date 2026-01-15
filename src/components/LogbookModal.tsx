@@ -40,12 +40,11 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
             // Fetch History
             const histRes = await api.get(`/logbooks/history/${studentId}`);
             const history = histRes.data || [];
-            // Filter only Approved logbooks as per requirement "Approved Logbooks button"
-            const approvedHistory = history.filter((lb: any) => lb.status === 'Approved');
-            setLogbookHistory(approvedHistory);
+            // Show ALL logbooks in history for "Current Logbook" context
+            setLogbookHistory(history);
 
             // Fetch specific logbook
-            const targetId = initialLogbookId || (approvedHistory.length > 0 ? approvedHistory[approvedHistory.length - 1]._id : null);
+            const targetId = initialLogbookId || (history.length > 0 ? history[history.length - 1]._id : null);
 
             if (targetId) {
                 setLoadingLogbook(true);
@@ -117,7 +116,10 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                                 >
                                     <div className="flex justify-between items-center">
                                         <span>{MONTH_NAMES[lb.month - 1]} {lb.year}</span>
-                                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-200">
+                                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${lb.status === 'Approved' ? 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-200' :
+                                                lb.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-200' :
+                                                    'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                                            }`}>
                                             {lb.status}
                                         </span>
                                     </div>

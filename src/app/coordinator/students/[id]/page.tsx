@@ -270,9 +270,9 @@ export default function StudentProfile() {
                                     </button>
                                 )}
                                 <button
-                                    onClick={() => (submissions.logbooks.latestApprovedId || student.status === 'Completed') && setShowLogbookModal(true)}
-                                    disabled={!submissions.logbooks.latestApprovedId && student.status !== 'Completed'}
-                                    className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all group ${(submissions.logbooks.latestApprovedId || student.status === 'Completed')
+                                    onClick={() => (submissions.logbooks.currentLogbookId || student.status === 'Completed') && setShowLogbookModal(true)}
+                                    disabled={!submissions.logbooks.currentLogbookId && student.status !== 'Completed'}
+                                    className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all group ${(submissions.logbooks.currentLogbookId || student.status === 'Completed')
                                         ? 'border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10'
                                         : 'border-gray-100 dark:border-gray-800 opacity-60 cursor-not-allowed'
                                         }`}
@@ -285,7 +285,7 @@ export default function StudentProfile() {
                                         <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
                                             {submissions.logbooks.approved} / {submissions.logbooks.total}
                                         </span>
-                                        {(submissions.logbooks.latestApprovedId || student.status === 'Completed') && (
+                                        {(submissions.logbooks.currentLogbookId || student.status === 'Completed') && (
                                             <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />
                                         )}
                                     </div>
@@ -389,7 +389,7 @@ export default function StudentProfile() {
             <LogbookModal
                 isOpen={showLogbookModal}
                 onClose={() => setShowLogbookModal(false)}
-                initialLogbookId={submissions.logbooks.latestApprovedId}
+                initialLogbookId={submissions.logbooks.currentLogbookId}
                 studentId={student.user?._id || student.user}
                 studentName={`${student.first_name} ${student.last_name}`}
             />
