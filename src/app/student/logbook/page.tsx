@@ -16,8 +16,8 @@ export default function LogbookPage() {
     const [studentId, setStudentId] = useState<string | null>(null);
     const [mentorEmail, setMentorEmail] = useState<string>("");
 
-    // Dates & Tabs
     const [currentMonth, setCurrentMonth] = useState<number>(1);
+    const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
     const [totalMonths, setTotalMonths] = useState<number>(0);
     const [initializing, setInitializing] = useState(true);
 
@@ -123,19 +123,52 @@ export default function LogbookPage() {
 
             setUnlockedMonth(maxUnlocked);
 
+            // 4. Default View Logic (Latest Approved)
+            const approvedHistory = history
+                .filter((l: any) => l.status === 'Approved')
+                .sort((a: any, b: any) => {
+                    if (a.year !== b.year) return b.year - a.year;
+                    return b.month - a.month;
+                });
+
+            let targetMonth = currentMonth;
+            let targetYear = currentYear;
+
+            if (approvedHistory.length > 0) {
+                targetMonth = approvedHistory[0].month;
+                targetYear = approvedHistory[0].year;
+                setCurrentMonth(targetMonth);
+                setCurrentYear(targetYear);
+            } else if (history.length > 0) {
+                // If no approved, maybe show last entry? 
+                // Let's decide if we stick to Month 1 or last created.
+                // User specifically asked for "last month approved".
+                // If none approved, staying on default (1) is probably fine, 
+                // OR show the unlocked month.
+                // Let's default to maxUnlocked if no approved.
+                const lastEntry = history.sort((a: any, b: any) => {
+                    if (a.year !== b.year) return b.year - a.year;
+                    return b.month - a.month;
+                })[0];
+                targetMonth = lastEntry.month;
+                targetYear = lastEntry.year;
+                setCurrentMonth(targetMonth);
+                setCurrentYear(targetYear);
+            }
+
             // Load current selected month data
-            fetchLogbook(id, currentMonth);
+            fetchLogbook(id, targetMonth, targetYear);
 
         } catch (e) {
             console.error("History fetch failed", e);
         }
     };
 
-    const fetchLogbook = async (id: string, month: number) => {
+    const fetchLogbook = async (id: string, month: number, year: number) => {
         setLoading(true);
         try {
             const res = await api.get('/logbooks', {
-                params: { studentId: id, month, year: new Date().getFullYear() }
+                params: { studentId: id, month, year }
             });
             if (res.data.exists) setLogbookData(res.data.logbook);
             else setLogbookData(null);
@@ -149,11 +182,16 @@ export default function LogbookPage() {
     // --- Actions ---
     const handleMonthChange = (m: number) => {
         if (m > unlockedMonth && m > 1) {
-            // Prevent clicking future locked months (optional, UI disables it anyway)
             return;
         }
+
+        // Find year for this month in history
+        const histEntry = submissionHistory.find(h => h.month === m);
+        const yearToFetch = histEntry ? histEntry.year : currentYear;
+
         setCurrentMonth(m);
-        if (studentId) fetchLogbook(studentId, m);
+        setCurrentYear(yearToFetch);
+        if (studentId) fetchLogbook(studentId, m, yearToFetch);
     };
 
     const openModal = (week: number) => {
@@ -181,7 +219,7 @@ export default function LogbookPage() {
             const res = await api.post('/logbooks/entry', {
                 studentId,
                 month: currentMonth,
-                year: new Date().getFullYear(),
+                year: currentYear,
                 weekNumber: activeWeek,
                 data: formData,
                 mentorEmail
@@ -219,7 +257,7 @@ export default function LogbookPage() {
             // Refresh everything so Unlocked Logic updates immediately
             if (studentId) {
                 await refreshHistory(studentId);
-                fetchLogbook(studentId, currentMonth); // Refresh current view
+                // fetchLogbook is now called inside refreshHistory which determines latest state
             }
 
         } catch (error: any) {
