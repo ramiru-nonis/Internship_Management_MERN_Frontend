@@ -309,7 +309,7 @@ export default function LogbookPage() {
                             <a
                                 href={logbookData.signedPDFPath.startsWith('http')
                                     ? logbookData.signedPDFPath
-                                    : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/uploads/${logbookData.signedPDFPath}`}
+                                    : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/uploads/${logbookData.signedPDFPath.split(/[/\\]/).filter(p => p !== 'uploads').join('/')}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-full transition-all shadow-md shadow-blue-100"

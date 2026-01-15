@@ -62,17 +62,16 @@ export default function StudentProfile() {
     const handleViewPdf = async (url: string) => {
         if (!url) return;
         try {
-            let baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
-            const isLocal = !url.startsWith('http');
+            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+            const isExternal = url.startsWith('http');
 
-            if (isLocal) {
-                // If the path already has 'uploads', we need to be careful not to double it
-                // But normally we serve from /api/uploads
-                const cleanUrl = url.startsWith('uploads/') ? url.replace('uploads/', '') : url;
-                const fullUrl = `${baseUrl}/uploads/${cleanUrl}`;
-                window.open(fullUrl, '_blank');
-            } else {
+            if (isExternal) {
                 window.open(url, '_blank');
+            } else {
+                // Ensure no double 'uploads' and clean separators
+                const cleanPath = url.split(/[/\\]/).filter(p => p !== 'uploads').join('/');
+                const fullUrl = `${baseUrl}/uploads/${cleanPath}`;
+                window.open(fullUrl, '_blank');
             }
         } catch (error) {
             console.error('Error viewing PDF:', error);
@@ -129,7 +128,7 @@ export default function StudentProfile() {
                                 <img
                                     src={student.profile_picture.startsWith('http')
                                         ? student.profile_picture
-                                        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/uploads/${student.profile_picture.replace('uploads/', '')}`}
+                                        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/uploads/${student.profile_picture.split(/[/\\]/).filter(p => p !== 'uploads').join('/')}`}
                                     alt=""
                                     className="h-full w-full object-cover"
                                 />
