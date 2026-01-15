@@ -22,11 +22,31 @@ function StudentList() {
     const [downloading, setDownloading] = useState(false);
 
     useEffect(() => {
+        // Load persist filters from localStorage
+        const persistedSearch = localStorage.getItem('coord_student_search');
+        const persistedBatch = localStorage.getItem('coord_student_batch');
+        const persistedStatuses = localStorage.getItem('coord_student_statuses');
+        const persistedDegrees = localStorage.getItem('coord_student_degrees');
+
+        if (persistedSearch) setSearchTerm(persistedSearch);
+        if (persistedBatch) setBatchFilter(persistedBatch);
+        if (persistedStatuses) setSelectedStatuses(JSON.parse(persistedStatuses));
+        if (persistedDegrees) setSelectedDegrees(JSON.parse(persistedDegrees));
+
+        // URL param overrides persistence if present
         const statusParam = searchParams.get('status');
         if (statusParam) {
             setSelectedStatuses(statusParam.split(','));
         }
-    }, [searchParams]);
+    }, []);
+
+    // Effect to save filters to localStorage
+    useEffect(() => {
+        localStorage.setItem('coord_student_search', searchTerm);
+        localStorage.setItem('coord_student_batch', batchFilter);
+        localStorage.setItem('coord_student_statuses', JSON.stringify(selectedStatuses));
+        localStorage.setItem('coord_student_degrees', JSON.stringify(selectedDegrees));
+    }, [searchTerm, batchFilter, selectedStatuses, selectedDegrees]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -72,6 +92,10 @@ function StudentList() {
         setSelectedDegrees([]);
         setSearchTerm('');
         setBatchFilter('');
+        localStorage.removeItem('coord_student_search');
+        localStorage.removeItem('coord_student_batch');
+        localStorage.removeItem('coord_student_statuses');
+        localStorage.removeItem('coord_student_degrees');
     };
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {

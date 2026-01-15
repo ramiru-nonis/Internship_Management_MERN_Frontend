@@ -267,17 +267,27 @@ export default function StudentProfile() {
                                         <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />
                                     </button>
                                 )}
-                                <div className="p-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center">
-                                            <Clock className="w-5 h-5 mr-3 text-orange-500" />
-                                            <span className="font-medium text-sm">Approved Logbooks</span>
-                                        </div>
+                                <button
+                                    onClick={() => submissions.logbooks.latestApprovedUrl && handleViewPdf(submissions.logbooks.latestApprovedUrl)}
+                                    disabled={!submissions.logbooks.latestApprovedUrl}
+                                    className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all group ${submissions.logbooks.latestApprovedUrl
+                                        ? 'border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10'
+                                        : 'border-gray-100 dark:border-gray-800 opacity-60 cursor-not-allowed'
+                                        }`}
+                                >
+                                    <div className="flex items-center">
+                                        <Clock className="w-5 h-5 mr-3 text-orange-500" />
+                                        <span className="font-medium text-sm">Approved Logbooks</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
                                         <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
                                             {submissions.logbooks.approved} / {submissions.logbooks.total}
                                         </span>
+                                        {submissions.logbooks.latestApprovedUrl && (
+                                            <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />
+                                        )}
                                     </div>
-                                </div>
+                                </button>
                             </div>
                         </div>
                     </div>
