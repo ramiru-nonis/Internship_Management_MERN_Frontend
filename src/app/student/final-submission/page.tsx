@@ -13,6 +13,7 @@ export default function FinalSubmissionPage() {
     // New State for existing submissions
     const [existingMarksheet, setExistingMarksheet] = useState<any>(null);
     const [existingPresentation, setExistingPresentation] = useState<any>(null);
+    const [combinedLogbookUrl, setCombinedLogbookUrl] = useState<string | null>(null);
 
     // Attempt Counts
     const [marksheetCount, setMarksheetCount] = useState<number>(0);
@@ -43,6 +44,7 @@ export default function FinalSubmissionPage() {
             setExistingPresentation(res.data.presentation);
             setMarksheetCount(res.data.marksheetCount || 0);
             setPresentationCount(res.data.presentationCount || 0);
+            setCombinedLogbookUrl(res.data.combinedLogbookUrl);
 
             if (res.data.logbookStatus) {
                 setLogbookStatus(res.data.logbookStatus);
@@ -93,7 +95,10 @@ export default function FinalSubmissionPage() {
             }
 
             // Notify Coordinator - Only if both parts exist NOW (whether just uploaded or existing)
-            await api.post('/submissions/notify', { studentId });
+            await api.post('/submissions/notify', {
+                studentId,
+                combinedLogbookUrl // Include this in notification logic if needed, or backend can fetch it
+            });
 
             alert("Submission processed.");
             // Refresh
@@ -166,7 +171,48 @@ export default function FinalSubmissionPage() {
 
                 {(!loading && logbookStatus.complete) ? (
                     <>
-                        <div className="grid md:grid-cols-2 gap-8 mb-8">
+                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+                            {/* Combined Logbook Card (NEW) */}
+                            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow flex flex-col justify-between">
+                                <div>
+                                    <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
+                                        <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 p-2 rounded-lg mr-3">
+                                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        </span>
+                                        Combined Logbook
+                                    </h2>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">
+                                        Your monthly logbooks have been automatically combined into a single document.
+                                    </p>
+                                </div>
+                                {combinedLogbookUrl ? (
+                                    <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4">
+                                        <p className="text-green-700 dark:text-green-300 font-semibold flex items-center mb-1 text-sm">
+                                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                            Generated
+                                        </p>
+                                        <a
+                                            href={combinedLogbookUrl.startsWith('http') ? combinedLogbookUrl : `${apiUrl}${combinedLogbookUrl}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline break-all"
+                                        >
+                                            View Combined PDF
+                                        </a>
+                                    </div>
+                                ) : (
+                                    <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+                                        <p className="text-yellow-700 dark:text-yellow-300 font-semibold flex items-center mb-1 text-sm">
+                                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            Processing
+                                        </p>
+                                        <p className="text-xs text-yellow-600 dark:text-yellow-400">
+                                            Generating combined file... Please refresh in a moment.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Marksheet Card */}
                             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow">
                                 <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center justify-between">
