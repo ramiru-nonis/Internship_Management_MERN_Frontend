@@ -187,13 +187,8 @@ export default function LogbookPage() {
     useEffect(() => {
         if (showPdfModal && logbookData?.signedPDFPath) {
             const fetchPdf = async () => {
-                // If it's a full URL (e.g., Cloudinary), use it directly
-                if (logbookData.signedPDFPath.startsWith('http')) {
-                    setPdfUrl(logbookData.signedPDFPath);
-                    return;
-                }
-
-                // If local path, fetch via dedicated download endpoint with auth
+                // ALWAYS fetch via dedicated download endpoint
+                // This ensures we go through the backend proxy which handles Cloudinary auth/headers
                 setPdfLoading(true);
                 setPdfError(false);
                 try {
