@@ -62,8 +62,18 @@ export default function StudentProfile() {
     const handleViewPdf = async (url: string) => {
         if (!url) return;
         try {
-            const fullUrl = url.startsWith('http') ? url : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${url}`;
-            window.open(fullUrl, '_blank');
+            let baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+            const isLocal = !url.startsWith('http');
+
+            if (isLocal) {
+                // If the path already has 'uploads', we need to be careful not to double it
+                // But normally we serve from /api/uploads
+                const cleanUrl = url.startsWith('uploads/') ? url.replace('uploads/', '') : url;
+                const fullUrl = `${baseUrl}/uploads/${cleanUrl}`;
+                window.open(fullUrl, '_blank');
+            } else {
+                window.open(url, '_blank');
+            }
         } catch (error) {
             console.error('Error viewing PDF:', error);
         }
@@ -117,7 +127,9 @@ export default function StudentProfile() {
                         <div className="h-24 w-24 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden border-4 border-white dark:border-gray-800 shadow-md">
                             {student.profile_picture ? (
                                 <img
-                                    src={student.profile_picture.startsWith('http') ? student.profile_picture : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${student.profile_picture}`}
+                                    src={student.profile_picture.startsWith('http')
+                                        ? student.profile_picture
+                                        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/uploads/${student.profile_picture.replace('uploads/', '')}`}
                                     alt=""
                                     className="h-full w-full object-cover"
                                 />
