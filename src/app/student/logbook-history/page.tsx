@@ -75,9 +75,7 @@ export default function LogbookHistoryPage() {
                                         <td className="p-5">
                                             {item.status === 'Approved' && item.signedPDFPath ? (
                                                 <a
-                                                    href={item.signedPDFPath.startsWith('http')
-                                                        ? item.signedPDFPath
-                                                        : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/${item.signedPDFPath.replace(/^\//, '')}`}
+                                                    href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}/logbooks/${item._id}/download`}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                     className="text-blue-600 hover:underline text-sm font-semibold"
