@@ -9,6 +9,7 @@ import {
     FileText, CheckCircle, Clock, ChevronLeft,
     Download, ExternalLink, GraduationCap, Award
 } from 'lucide-react';
+import LogbookModal from '@/components/LogbookModal';
 
 export default function StudentProfile() {
     const { id } = useParams();
@@ -18,6 +19,7 @@ export default function StudentProfile() {
     const [error, setError] = useState<string | null>(null);
     const [mentors, setMentors] = useState<any[]>([]);
     const [assigning, setAssigning] = useState(false);
+    const [showLogbookModal, setShowLogbookModal] = useState(false);
 
     useEffect(() => {
         fetchStudentProfile();
@@ -268,9 +270,9 @@ export default function StudentProfile() {
                                     </button>
                                 )}
                                 <button
-                                    onClick={() => submissions.logbooks.latestApprovedUrl && handleViewPdf(submissions.logbooks.latestApprovedUrl)}
-                                    disabled={!submissions.logbooks.latestApprovedUrl}
-                                    className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all group ${submissions.logbooks.latestApprovedUrl
+                                    onClick={() => (submissions.logbooks.latestApprovedId || student.status === 'Completed') && setShowLogbookModal(true)}
+                                    disabled={!submissions.logbooks.latestApprovedId && student.status !== 'Completed'}
+                                    className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all group ${(submissions.logbooks.latestApprovedId || student.status === 'Completed')
                                         ? 'border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10'
                                         : 'border-gray-100 dark:border-gray-800 opacity-60 cursor-not-allowed'
                                         }`}
@@ -283,7 +285,7 @@ export default function StudentProfile() {
                                         <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
                                             {submissions.logbooks.approved} / {submissions.logbooks.total}
                                         </span>
-                                        {submissions.logbooks.latestApprovedUrl && (
+                                        {(submissions.logbooks.latestApprovedId || student.status === 'Completed') && (
                                             <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />
                                         )}
                                     </div>
@@ -382,6 +384,15 @@ export default function StudentProfile() {
                     </div>
                 </div>
             </div>
+
+            {/* Logbook Modal */}
+            <LogbookModal
+                isOpen={showLogbookModal}
+                onClose={() => setShowLogbookModal(false)}
+                initialLogbookId={submissions.logbooks.latestApprovedId}
+                studentId={student.user?._id || student.user}
+                studentName={`${student.first_name} ${student.last_name}`}
+            />
         </div>
     );
 }
