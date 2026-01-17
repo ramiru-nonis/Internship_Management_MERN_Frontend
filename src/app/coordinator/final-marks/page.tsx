@@ -1,341 +1,353 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+import StatusBadge from '@/components/StatusBadge';
 import api from '@/lib/api';
-import { Check, AlertCircle, Send, FileText } from 'lucide-react';
-
-interface Student {
-    _id: string;
-    first_name: string;
-    last_name: string;
-    email: string;
-    status: string;
-    user: {
-        _id: string;
-        email: string;
-    };
-}
-
-interface StudentMarks {
-    _id: string;
-    studentId: string;
-    studentName: string;
-    academicMentorName: string;
-    academicMentorMarks: number;
-    academicMentorBreakdown: {
-        technical: number;
-        softSkills: number;
-        presentation: number;
-    };
-    academicMentorComments: any;
-    marksheetDetails: {
-        fileUrl: string;
-        submittedDate: string;
-        mentorId: string;
-    };
-    industryMentorMarks: number | null;
-    industryMentorComments: string | null;
-    finalMarks: number | null;
-    finalMarkStatus: string;
-    finalMarksSubmittedDate?: string;
-}
+import { Search, Mail, Phone, FileText, User, Save, AlertCircle } from 'lucide-react';
 
 export default function FinalMarksPage() {
-    const [students, setStudents] = useState<Student[]>([]);
-    const [selectedStudent, setSelectedStudent] = useState<StudentMarks | null>(null);
-    const [industryMarks, setIndustryMarks] = useState<number | null>(null);
-    const [industryComments, setIndustryComments] = useState('');
+    const router = useRouter();
+    const [students, setStudents] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [submitting, setSubmitting] = useState(false);
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const [expandedStudentId, setExpandedStudentId] = useState<string | null>(null);
+    const [marks, setMarks] = useState<{ [key: string]: any }>({});
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        fetchCompletedStudents();
-    }, []);
+        const token = localStorage.getItem('token');
+        const user = localStorage.getItem('user');
+
+        if (!token || !user) {
+            router.push('/login');
+            return;
+        }
+
+        const userData = JSON.parse(user);
+        if (userData.role !== 'coordinator' && userData.role !== 'admin') {
+            router.push('/login');
+            return;
+        }
+
+        const delayDebounceFn = setTimeout(() => {
+            fetchCompletedStudents();
+        }, 500);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchTerm]);
 
     const fetchCompletedStudents = async () => {
         try {
             setLoading(true);
-            const response = await api.get('/coordinator/final-marks/students');
-            setStudents(response.data);
-            setError('');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to load students');
+            const params: any = {};
+            if (searchTerm) params.search = searchTerm;
+
+            const res = await api.get('/coordinator/final-marks', { params });
+            setStudents(res.data);
+            
+            // Initialize marks state with existing data
+            const initialMarks: { [key: string]: any } = {};
+            res.data.forEach((student: any) => {
+                if (student.marksheet?.marks) {
+                    initialMarks[student._id] = {
+                        technical: student.marksheet.marks.technical || 0,
+                        softSkills: student.marksheet.marks.softSkills || 0,
+                        presentation: student.marksheet.marks.presentation || 0,
+                        comments: student.marksheet.comments || {}
+                    };
+                } else {
+                    initialMarks[student._id] = {
+                        technical: 0,
+                        softSkills: 0,
+                        presentation: 0,
+                        comments: {}
+                    };
+                }
+            });
+            setMarks(initialMarks);
+        } catch (error) {
+            console.error('Error fetching completed students:', error);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleStudentSelect = async (student: Student) => {
-        try {
-            setError('');
-            const response = await api.get(`/coordinator/final-marks/student/${student.user._id}`);
-            const markData = response.data;
-            setSelectedStudent(markData);
-            setIndustryMarks(markData.industryMentorMarks || null);
-            setIndustryComments(markData.industryMentorComments || '');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to load student marks');
-        }
+    const handleMarkChange = (studentId: string, field: string, value: any) => {
+        setMarks(prev => ({
+            ...prev,
+            [studentId]: {
+                ...prev[studentId],
+                [field]: value
+            }
+        }));
     };
 
-    const handleSubmitMarks = async () => {
-        if (!selectedStudent || industryMarks === null) {
-            setError('Please enter industry mentor marks');
-            return;
-        }
+    const handleCommentChange = (studentId: string, field: string, value: string) => {
+        setMarks(prev => ({
+            ...prev,
+            [studentId]: {
+                ...prev[studentId],
+                comments: {
+                    ...(prev[studentId]?.comments || {}),
+                    [field]: value
+                }
+            }
+        }));
+    };
 
-        if (industryMarks < 0 || industryMarks > 40) {
-            setError('Industry marks must be between 0 and 40');
-            return;
-        }
-
+    const handleSaveMarks = async (studentId: string) => {
         try {
-            setSubmitting(true);
-            setError('');
-            await api.post(`/coordinator/final-marks/submit/${selectedStudent.studentId}`, {
-                industryMentorMarks: industryMarks,
-                industryMentorComments: industryComments
+            setSaving(true);
+            const studentMarks = marks[studentId];
+
+            const response = await api.post(`/coordinator/final-marks/${studentId}`, {
+                technical: parseInt(studentMarks.technical) || 0,
+                softSkills: parseInt(studentMarks.softSkills) || 0,
+                presentation: parseInt(studentMarks.presentation) || 0,
+                comments: studentMarks.comments
             });
-            setSuccess('Final marks submitted successfully!');
-            setTimeout(() => setSuccess(''), 3000);
-            
-            // Refresh student data
-            const response = await api.get(`/coordinator/final-marks/student/${selectedStudent.studentId}`);
-            setSelectedStudent(response.data);
-            setIndustryMarks(response.data.industryMentorMarks);
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Failed to submit marks');
+
+            // Update student data with new marksheet
+            setStudents(prev => prev.map(s =>
+                s._id === studentId
+                    ? { ...s, marksheet: response.data.marksheet }
+                    : s
+            ));
+
+            alert('Final marks saved successfully!');
+        } catch (error: any) {
+            console.error('Error saving marks:', error);
+            alert(error.response?.data?.message || 'Failed to save marks');
         } finally {
-            setSubmitting(false);
+            setSaving(false);
         }
-    };
-
-    const filteredStudents = students.filter(student =>
-        `${student.first_name} ${student.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    const calculateFinalMarks = () => {
-        if (selectedStudent && industryMarks !== null) {
-            return selectedStudent.academicMentorMarks + industryMarks;
-        }
-        return null;
     };
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen">
-                <div className="text-lg text-gray-500">Loading students...</div>
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+                <div className="flex items-center justify-center h-96">
+                    <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                        <p className="mt-4 text-gray-600 dark:text-gray-400">Loading completed students...</p>
+                    </div>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
-            <div className="max-w-7xl mx-auto">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Final Marks Assignment</h1>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">Assign industry mentor marks and combine with academic mentor marks</p>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Header */}
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Final Marks Assignment</h1>
+                    <p className="text-gray-600 mt-2 dark:text-gray-400">
+                        Assign final marks to completed students. Only students with 'Completed' status are shown.
+                    </p>
+                </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Students List */}
-                    <div className="lg:col-span-1 bg-white dark:bg-slate-800 rounded-lg shadow">
-                        <div className="p-6 border-b border-gray-200 dark:border-slate-700">
-                            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Completed Students</h2>
-                            <input
-                                type="text"
-                                placeholder="Search students..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 outline-none"
-                            />
-                        </div>
-                        <div className="divide-y divide-gray-200 dark:divide-slate-700 max-h-[600px] overflow-y-auto">
-                            {filteredStudents.length === 0 ? (
-                                <div className="p-6 text-center text-gray-500 dark:text-gray-400">No completed students found</div>
-                            ) : (
-                                filteredStudents.map(student => (
-                                    <button
-                                        key={student._id}
-                                        onClick={() => handleStudentSelect(student)}
-                                        className={`w-full text-left p-4 hover:bg-gray-50 dark:hover:bg-slate-700 transition ${
-                                            selectedStudent?.studentId === student.user._id ? 'bg-blue-50 dark:bg-blue-900' : ''
-                                        }`}
-                                    >
-                                        <div className="flex items-start justify-between">
-                                            <div>
-                                                <p className="font-semibold text-gray-900 dark:text-white">
-                                                    {student.first_name} {student.last_name}
-                                                </p>
-                                                <p className="text-sm text-gray-500 dark:text-gray-400">{student.email}</p>
-                                            </div>
-                                            {selectedStudent?.studentId === student.user._id && selectedStudent.finalMarkStatus === 'submitted' && (
-                                                <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
-                                            )}
-                                        </div>
-                                    </button>
-                                ))
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Marks Form */}
-                    <div className="lg:col-span-2 bg-white dark:bg-slate-800 rounded-lg shadow p-6">
-                        {selectedStudent ? (
-                            <div className="space-y-6">
-                                <div>
-                                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                                        {selectedStudent.studentName}
-                                    </h2>
-                                    <p className="text-gray-500 dark:text-gray-400">Academic Mentor: {selectedStudent.academicMentorName}</p>
-                                </div>
-
-                                {error && (
-                                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 p-4 rounded-lg flex items-start gap-3">
-                                        <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
-                                        <span>{error}</span>
-                                    </div>
-                                )}
-
-                                {success && (
-                                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 p-4 rounded-lg flex items-center gap-3">
-                                        <Check className="w-5 h-5" />
-                                        <span>{success}</span>
-                                    </div>
-                                )}
-
-                                {/* Marksheet Details */}
-                                <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-6">
-                                    <div className="flex items-center gap-2 mb-4">
-                                        <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                                        <h3 className="font-semibold text-gray-900 dark:text-white">Academic Mentor Marksheet</h3>
-                                    </div>
-                                    <div className="space-y-3 text-sm">
-                                        <p className="text-gray-700 dark:text-gray-300">
-                                            <span className="font-medium">Submitted:</span> {new Date(selectedStudent.marksheetDetails.submittedDate).toLocaleDateString()}
-                                        </p>
-                                        {selectedStudent.marksheetDetails.fileUrl && (
-                                            <p className="text-gray-700 dark:text-gray-300">
-                                                <span className="font-medium">File:</span> <span className="text-purple-600 dark:text-purple-400 break-all">{selectedStudent.marksheetDetails.fileUrl}</span>
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Academic Mentor Marks (Read-only) */}
-                                <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-6">
-                                    <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Academic Mentor Marks Breakdown</h3>
-                                    <div className="grid grid-cols-4 gap-3">
-                                        <div className="bg-white dark:bg-slate-700 p-3 rounded-lg text-center">
-                                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Technical</p>
-                                            <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{selectedStudent.academicMentorBreakdown.technical}</p>
-                                        </div>
-                                        <div className="bg-white dark:bg-slate-700 p-3 rounded-lg text-center">
-                                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Soft Skills</p>
-                                            <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{selectedStudent.academicMentorBreakdown.softSkills}</p>
-                                        </div>
-                                        <div className="bg-white dark:bg-slate-700 p-3 rounded-lg text-center">
-                                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Presentation</p>
-                                            <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{selectedStudent.academicMentorBreakdown.presentation}</p>
-                                        </div>
-                                        <div className="bg-blue-200 dark:bg-blue-800 p-3 rounded-lg text-center border-2 border-blue-600">
-                                            <p className="text-xs text-gray-700 dark:text-gray-300 mb-1 font-semibold">Total</p>
-                                            <p className="text-xl font-bold text-blue-700 dark:text-blue-300">{selectedStudent.academicMentorMarks}/60</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Industry Mentor Marks (Editable) */}
-                                <div className="bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 rounded-lg p-6">
-                                    <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Industry Mentor Marks</h3>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label htmlFor="industryMarks" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                Marks (out of 40)
-                                            </label>
-                                            <input
-                                                id="industryMarks"
-                                                type="number"
-                                                min="0"
-                                                max="40"
-                                                value={industryMarks ?? ''}
-                                                onChange={(e) => setIndustryMarks(e.target.value ? Number(e.target.value) : null)}
-                                                disabled={selectedStudent.finalMarkStatus === 'submitted'}
-                                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-amber-500 outline-none"
-                                                placeholder="Enter marks (0-40)"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="industryComments" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                Comments (Optional)
-                                            </label>
-                                            <textarea
-                                                id="industryComments"
-                                                value={industryComments}
-                                                onChange={(e) => setIndustryComments(e.target.value)}
-                                                disabled={selectedStudent.finalMarkStatus === 'submitted'}
-                                                rows={3}
-                                                className="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-amber-500 outline-none resize-none"
-                                                placeholder="Add any comments about the performance..."
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Final Marks Summary */}
-                                {industryMarks !== null && (
-                                    <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-lg p-6">
-                                        <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Final Marks Summary</h3>
-                                        <div className="grid grid-cols-3 gap-4">
-                                            <div className="bg-white dark:bg-slate-700 p-4 rounded-lg text-center">
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Academic Mentor</p>
-                                                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{selectedStudent.academicMentorMarks}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">/60</p>
-                                            </div>
-                                            <div className="bg-white dark:bg-slate-700 p-4 rounded-lg text-center">
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Industry Mentor</p>
-                                                <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">{industryMarks}</p>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">/40</p>
-                                            </div>
-                                            <div className="bg-green-500 dark:bg-green-600 p-4 rounded-lg text-center text-white border-2 border-green-600 dark:border-green-500">
-                                                <p className="text-sm font-semibold mb-2">Final Total</p>
-                                                <p className="text-3xl font-bold">{calculateFinalMarks()}</p>
-                                                <p className="text-xs mt-1">/100</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                                {/* Submission Button */}
-                                {selectedStudent.finalMarkStatus !== 'submitted' ? (
-                                    <button
-                                        onClick={handleSubmitMarks}
-                                        disabled={submitting || industryMarks === null}
-                                        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2"
-                                    >
-                                        <Send className="w-5 h-5" />
-                                        {submitting ? 'Submitting...' : 'Submit Final Marks'}
-                                    </button>
-                                ) : (
-                                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 p-4 rounded-lg flex items-center gap-3">
-                                        <Check className="w-5 h-5" />
-                                        <div>
-                                            <p className="font-semibold">Marks Already Submitted</p>
-                                            <p className="text-sm">Final marks: {selectedStudent.finalMarks}/100</p>
-                                            <p className="text-sm">Submitted on {new Date(selectedStudent.finalMarksSubmittedDate || '').toLocaleDateString()}</p>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="flex items-center justify-center h-96 text-gray-500 dark:text-gray-400">
-                                <p>Select a student to view and assign their final marks</p>
-                            </div>
-                        )}
+                {/* Search Bar */}
+                <div className="mb-6 flex gap-4">
+                    <div className="relative flex-1 max-w-md">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search by name or CB number..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                        />
                     </div>
                 </div>
+
+                {/* Info Banner */}
+                <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 flex gap-3">
+                    <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                        <p className="text-sm font-medium text-blue-900 dark:text-blue-200">
+                            Maximum marks: Technical (20), Soft Skills (20), Presentation (20) = Total (60)
+                        </p>
+                    </div>
+                </div>
+
+                {/* Students List */}
+                {students.length === 0 ? (
+                    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
+                        <p className="text-gray-600 dark:text-gray-400 mb-2">No completed students found</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-500">Students need to be marked as 'Completed' in the Students tab to appear here.</p>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {students.map((student) => {
+                            const studentMarks = marks[student._id];
+                            const total = (parseInt(studentMarks?.technical) || 0) +
+                                (parseInt(studentMarks?.softSkills) || 0) +
+                                (parseInt(studentMarks?.presentation) || 0);
+                            const isExpanded = expandedStudentId === student._id;
+
+                            return (
+                                <div
+                                    key={student._id}
+                                    className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
+                                >
+                                    {/* Header / Summary Row */}
+                                    <div
+                                        className="p-6 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                                        onClick={() => setExpandedStudentId(isExpanded ? null : student._id)}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-4 flex-1">
+                                                <div className="h-12 w-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                                                    {student.profile_picture ? (
+                                                        <img
+                                                            src={student.profile_picture.startsWith('http') ? student.profile_picture : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${student.profile_picture}`}
+                                                            alt=""
+                                                            className="h-12 w-12 rounded-full object-cover"
+                                                        />
+                                                    ) : (
+                                                        <User className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+                                                    )}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                                                        {student.first_name} {student.last_name}
+                                                    </div>
+                                                    <div className="text-sm text-gray-500 dark:text-gray-400">{student.cb_number}</div>
+                                                </div>
+                                            </div>
+
+                                            {/* Summary Info */}
+                                            <div className="flex items-center gap-6">
+                                                <div className="text-right">
+                                                    <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                                                        {total}/60
+                                                    </div>
+                                                    <div className="text-xs text-gray-500 dark:text-gray-400">Total Marks</div>
+                                                </div>
+                                                <div className="text-gray-400">
+                                                    <svg
+                                                        className={`h-6 w-6 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        viewBox="0 0 24 24"
+                                                    >
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Expanded Content */}
+                                    {isExpanded && (
+                                        <div className="border-t border-gray-200 dark:border-gray-700 p-6 bg-gray-50 dark:bg-gray-700/50">
+                                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                                                {/* Contact Info */}
+                                                <div>
+                                                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wider">
+                                                        Contact Information
+                                                    </h3>
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-start gap-3">
+                                                            <Mail className="h-4 w-4 text-gray-400 mt-1 flex-shrink-0" />
+                                                            <div className="text-sm text-gray-600 dark:text-gray-300">{student.user?.email}</div>
+                                                        </div>
+                                                        <div className="flex items-start gap-3">
+                                                            <Phone className="h-4 w-4 text-gray-400 mt-1 flex-shrink-0" />
+                                                            <div className="text-sm text-gray-600 dark:text-gray-300">{student.contact_number}</div>
+                                                        </div>
+                                                        {student.academic_mentor && (
+                                                            <div className="pt-3 border-t border-gray-300 dark:border-gray-600">
+                                                                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">Assigned Academic Mentor:</p>
+                                                                <p className="text-sm text-gray-900 dark:text-white font-medium">
+                                                                    {student.academic_mentor.first_name} {student.academic_mentor.last_name}
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                {/* Marks Input */}
+                                                <div>
+                                                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wider">
+                                                        Final Marks (Max 20 each)
+                                                    </h3>
+                                                    <div className="space-y-4">
+                                                        {[
+                                                            { label: 'Technical', key: 'technical' },
+                                                            { label: 'Soft Skills', key: 'softSkills' },
+                                                            { label: 'Presentation', key: 'presentation' }
+                                                        ].map(({ label, key }) => (
+                                                            <div key={key}>
+                                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                                    {label}
+                                                                </label>
+                                                                <input
+                                                                    type="number"
+                                                                    min="0"
+                                                                    max="20"
+                                                                    value={studentMarks?.[key] || 0}
+                                                                    onChange={(e) =>
+                                                                        handleMarkChange(student._id, key, Math.min(20, Math.max(0, parseInt(e.target.value) || 0)))
+                                                                    }
+                                                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Comments Section */}
+                                            <div className="mt-8 pt-8 border-t border-gray-300 dark:border-gray-600">
+                                                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-4 uppercase tracking-wider">
+                                                    Comments
+                                                </h3>
+                                                <div className="space-y-4">
+                                                    {[
+                                                        { label: 'Technical', key: 'technical' },
+                                                        { label: 'Soft Skills', key: 'softSkills' },
+                                                        { label: 'Presentation', key: 'presentation' }
+                                                    ].map(({ label, key }) => (
+                                                        <div key={key}>
+                                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                                {label} Comment
+                                                            </label>
+                                                            <textarea
+                                                                rows={2}
+                                                                placeholder={`Add comments about ${label.toLowerCase()}...`}
+                                                                value={studentMarks?.comments?.[key] || ''}
+                                                                onChange={(e) =>
+                                                                    handleCommentChange(student._id, key, e.target.value)
+                                                                }
+                                                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                                                            />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* Save Button */}
+                                            <div className="mt-8 flex justify-end">
+                                                <button
+                                                    onClick={() => handleSaveMarks(student._id)}
+                                                    disabled={saving}
+                                                    className="flex items-center gap-2 px-6 py-2 bg-green-600 hover:bg-green-700 disabled:bg-green-500 disabled:opacity-70 text-white font-semibold rounded-lg transition-colors"
+                                                >
+                                                    <Save className="h-4 w-4" />
+                                                    {saving ? 'Saving...' : 'Save Final Marks'}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </div>
         </div>
     );
