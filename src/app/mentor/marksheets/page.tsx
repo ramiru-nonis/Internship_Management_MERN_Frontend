@@ -43,15 +43,20 @@ export default function MarksheetSubmission() {
         }
     };
 
-    const handleFileUpload = async (fileUrl: string) => {
+    const handleFileUpload = async (file: File) => {
         if (!selectedStudent) return;
         setUploading(true);
         setMessage(null);
 
+        const formData = new FormData();
+        formData.append('studentId', selectedStudent._id);
+        formData.append('file', file);
+
         try {
-            await api.post('/mentor/marksheet', {
-                studentId: selectedStudent._id,
-                fileUrl
+            await api.post('/mentor/marksheet', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
             });
 
             setMessage({ type: 'success', text: 'Marksheet submitted successfully!' });
@@ -193,8 +198,8 @@ export default function MarksheetSubmission() {
                                         </div>
                                     ) : (
                                         <FileUpload
-                                            onUpload={handleFileUpload}
-                                            allowedTypes={['application/pdf']}
+                                            onFileSelect={handleFileUpload}
+                                            accept=".pdf"
                                             maxSize={5}
                                             label="Drop PDF here or click to browse"
                                         />

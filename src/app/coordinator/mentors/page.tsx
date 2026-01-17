@@ -24,6 +24,27 @@ export default function MentorManagement() {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
 
+    // View Students Modal State
+    const [showStudentsModal, setShowStudentsModal] = useState(false);
+    const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
+    const [assignedStudents, setAssignedStudents] = useState<any[]>([]);
+    const [loadingStudents, setLoadingStudents] = useState(false);
+
+    const handleViewStudents = async (mentor: Mentor) => {
+        setSelectedMentor(mentor);
+        setShowStudentsModal(true);
+        setLoadingStudents(true);
+        try {
+            const res = await api.get(`/coordinator/students?mentor=${mentor._id}`);
+            setAssignedStudents(res.data);
+        } catch (error) {
+            console.error(error);
+            alert('Failed to fetch assigned students');
+        } finally {
+            setLoadingStudents(false);
+        }
+    };
+
     // Form State
     const [currentMentor, setCurrentMentor] = useState({
         _id: '',
@@ -135,14 +156,21 @@ export default function MentorManagement() {
             {/* Mentor Cards Grid */}
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {mentors.map((mentor) => (
-                    <div key={mentor._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="flex items-center gap-3">
+                    <div key={mentor._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow relative">
+                        {/* Overlay for clicking card content to view students (excluding actions) */}
+                        <div
+                            className="absolute inset-0 cursor-pointer z-0 rounded-2xl"
+                            onClick={() => handleViewStudents(mentor)}
+                            title="Click to view assigned students"
+                        ></div>
+
+                        <div className="flex justify-between items-start mb-4 relative z-10 pointer-events-none">
+                            <div className="flex items-center gap-3 pointer-events-auto">
                                 <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
                                     <FaUserTie className="text-2xl" />
                                 </div>
-                                <div>
-                                    <h3 className="font-bold text-gray-900">{mentor.first_name} {mentor.last_name}</h3>
+                                <div onClick={() => handleViewStudents(mentor)} className="cursor-pointer">
+                                    <h3 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">{mentor.first_name} {mentor.last_name}</h3>
                                     <p className="text-sm text-gray-500">@{mentor.email.split('@')[0]}</p>
                                 </div>
                             </div>
@@ -245,6 +273,71 @@ export default function MentorManagement() {
                                 <button type="submit" className="flex-1 py-3 bg-blue-600 text-white rounded-xl">Save</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* View Students Modal */}
+            {showStudentsModal && selectedMentor && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                    <div className="bg-white rounded-3xl w-full max-w-2xl p-8 max-h-[80vh] flex flex-col">
+                        <div className="flex justify-between items-center mb-6">
+                            <div>
+                                <h2 className="text-2xl font-bold">Assigned Students</h2>
+                                <p className="text-gray-500">Mentor: {selectedMentor.first_name} {selectedMentor.last_name}</p>
+                            </div>
+                            <button onClick={() => setShowStudentsModal(false)} className="bg-gray-100 p-2 rounded-full hover:bg-gray-200">
+                                <FaArrowLeft />
+                            </button>
+                        </div>
+
+                        <div className="overflow-y-auto flex-1 pr-2">
+                            {loadingStudents ? (
+                                <div className="text-center py-8">Loading students...</div>
+                            ) : assignedStudents.length > 0 ? (
+                                <div className="space-y-3">
+                                    {assignedStudents.map((student: any) => (
+                                        <div key={student._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                                            <div className="flex items-center gap-4">
+                                                <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+                                                    {student.first_name[0]}
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-gray-900">{student.first_name} {student.last_name}</h3>
+                                                    <p className="text-xs text-gray-500">{student.cb_number}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold ${student.hasMarksheet
+                                                    ? 'bg-green-100 text-green-700'
+                                                    : 'bg-red-100 text-red-700'
+                                                    }`}>
+                                                    {student.hasMarksheet ? (
+                                                        <>
+                                                            <FaUserCheck className="text-sm" /> Marksheet
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            No Marksheet
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="text-center py-12 text-gray-500 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                                    <p>No students assigned to this mentor yet.</p>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="mt-6 pt-4 border-t border-gray-100 text-right">
+                            <button onClick={() => setShowStudentsModal(false)} className="px-6 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 font-medium">
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

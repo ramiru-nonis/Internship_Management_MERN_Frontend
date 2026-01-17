@@ -7,7 +7,7 @@ import StatusBadge from '@/components/StatusBadge';
 import {
     User, Mail, Phone, MapPin, Briefcase, Calendar,
     FileText, CheckCircle, Clock, ChevronLeft,
-    Download, ExternalLink, GraduationCap, Award
+    Download, ExternalLink, GraduationCap, Award, AlertCircle
 } from 'lucide-react';
 import LogbookModal from '@/components/LogbookModal';
 
@@ -225,6 +225,38 @@ export default function StudentProfile() {
                                     <p className="text-gray-500 italic">No preferences set</p>
                                 )}
                             </div>
+                        </div>
+
+                        {/* Academic Mentor Marksheet */}
+                        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 text-gray-900 dark:text-gray-100">
+                            <h2 className="text-lg font-bold mb-4 flex items-center">
+                                <FileText className="w-5 h-5 mr-2 text-teal-600" />
+                                Academic Mentor Marksheet
+                            </h2>
+                            {submissions.marksheet ? (
+                                <div className="space-y-3">
+                                    <button
+                                        onClick={() => handleViewPdf(submissions.marksheet.fileUrl)}
+                                        className="w-full flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-900/10 transition-all group"
+                                    >
+                                        <div className="flex items-center">
+                                            <CheckCircle className="w-5 h-5 mr-3 text-teal-500" />
+                                            <div>
+                                                <p className="font-medium text-sm text-left">Marksheet Submitted</p>
+                                                <p className="text-xs text-gray-500 text-left">
+                                                    {new Date(submissions.marksheet.submittedDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Download className="w-4 h-4 text-gray-400 group-hover:text-teal-500" />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex items-center p-3 rounded-xl bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-800">
+                                    <AlertCircle className="w-5 h-5 mr-3 text-gray-400" />
+                                    <span className="text-sm text-gray-500 italic">Marksheet not submitted yet</span>
+                                </div>
+                            )}
                         </div>
 
                         {/* Documents Section */}
