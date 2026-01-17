@@ -102,19 +102,13 @@ function StudentList() {
 
     const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.checked) {
-            const completedStudentIds = students
-                .filter(s => s.status === 'Completed' && !s.isOrphan)
-                .map(s => s._id);
-            setSelectedStudents(completedStudentIds);
+            setSelectedStudents(students.map(s => s._id));
         } else {
             setSelectedStudents([]);
         }
     };
 
     const handleSelectStudent = (id: string) => {
-        const student = students.find(s => s._id === id);
-        if (student?.status !== 'Completed' || student?.isOrphan) return;
-
         if (selectedStudents.includes(id)) {
             setSelectedStudents(selectedStudents.filter(sId => sId !== id));
         } else {
@@ -303,13 +297,18 @@ function StudentList() {
                             >
                                 {downloading ? 'Downloading...' : 'Download Selected'}
                             </button>
-                            <button
-                                onClick={() => setShowAssignModal(true)}
-                                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-sm transition-colors flex items-center text-sm"
-                            >
-                                <UserPlus className="h-4 w-4 mr-2" />
-                                Assign Mentor
-                            </button>
+                            {selectedStudents.length > 0 && selectedStudents.every(id => {
+                                const s = students.find(stud => stud._id === id);
+                                return s?.status === 'Completed';
+                            }) && (
+                                    <button
+                                        onClick={() => setShowAssignModal(true)}
+                                        className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg shadow-sm transition-colors flex items-center text-sm"
+                                    >
+                                        <UserPlus className="h-4 w-4 mr-2" />
+                                        Assign Mentor
+                                    </button>
+                                )}
                         </div>
                     ) : (
                         <div className="flex gap-4">
@@ -335,10 +334,9 @@ function StudentList() {
                                     <th className="px-6 py-3 text-left">
                                         <input
                                             type="checkbox"
-                                            checked={selectedStudents.length === students.filter(s => s.status === 'Completed' && !s.isOrphan).length && students.filter(s => s.status === 'Completed' && !s.isOrphan).length > 0}
+                                            checked={selectedStudents.length === students.length && students.length > 0}
                                             onChange={handleSelectAll}
-                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 disabled:opacity-50"
-                                            disabled={students.filter(s => s.status === 'Completed' && !s.isOrphan).length === 0}
+                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
                                         />
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Student</th>
@@ -357,9 +355,7 @@ function StudentList() {
                                                 type="checkbox"
                                                 checked={selectedStudents.includes(student._id)}
                                                 onChange={() => handleSelectStudent(student._id)}
-                                                disabled={student.status !== 'Completed' || student.isOrphan}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:cursor-not-allowed"
-                                                title={student.status !== 'Completed' ? "Mentors can only be assigned to completed students" : ""}
+                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700"
                                             />
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
