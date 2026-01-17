@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
-import { Check, AlertCircle, Send } from 'lucide-react';
+import { Check, AlertCircle, Send, FileText } from 'lucide-react';
 
 interface Student {
     _id: string;
@@ -10,14 +10,29 @@ interface Student {
     last_name: string;
     email: string;
     status: string;
+    user: {
+        _id: string;
+        email: string;
+    };
 }
 
 interface StudentMarks {
     _id: string;
-    first_name: string;
-    last_name: string;
+    studentId: string;
+    studentName: string;
+    academicMentorName: string;
     academicMentorMarks: number;
-    academicMentorComments: string;
+    academicMentorBreakdown: {
+        technical: number;
+        softSkills: number;
+        presentation: number;
+    };
+    academicMentorComments: any;
+    marksheetDetails: {
+        fileUrl: string;
+        submittedDate: string;
+        mentorId: string;
+    };
     industryMentorMarks: number | null;
     industryMentorComments: string | null;
     finalMarks: number | null;
@@ -56,7 +71,7 @@ export default function FinalMarksPage() {
     const handleStudentSelect = async (student: Student) => {
         try {
             setError('');
-            const response = await api.get(`/coordinator/final-marks/student/${student._id}`);
+            const response = await api.get(`/coordinator/final-marks/student/${student.user._id}`);
             const markData = response.data;
             setSelectedStudent(markData);
             setIndustryMarks(markData.industryMentorMarks || null);
@@ -80,7 +95,7 @@ export default function FinalMarksPage() {
         try {
             setSubmitting(true);
             setError('');
-            await api.post(`/coordinator/final-marks/submit/${selectedStudent._id}`, {
+            await api.post(`/coordinator/final-marks/submit/${selectedStudent.studentId}`, {
                 industryMentorMarks: industryMarks,
                 industryMentorComments: industryComments
             });
@@ -88,7 +103,7 @@ export default function FinalMarksPage() {
             setTimeout(() => setSuccess(''), 3000);
             
             // Refresh student data
-            const response = await api.get(`/coordinator/final-marks/student/${selectedStudent._id}`);
+            const response = await api.get(`/coordinator/final-marks/student/${selectedStudent.studentId}`);
             setSelectedStudent(response.data);
             setIndustryMarks(response.data.industryMentorMarks);
         } catch (err: any) {
@@ -122,7 +137,7 @@ export default function FinalMarksPage() {
         <div className="p-6 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-screen">
             <div className="max-w-7xl mx-auto">
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Final Marks Assignment</h1>
-                <p className="text-gray-600 dark:text-gray-400 mb-6">Assign industry mentor marks to complete final marks calculation</p>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">Assign industry mentor marks and combine with academic mentor marks</p>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Students List */}
@@ -146,7 +161,7 @@ export default function FinalMarksPage() {
                                         key={student._id}
                                         onClick={() => handleStudentSelect(student)}
                                         className={`w-full text-left p-4 hover:bg-gray-50 dark:hover:bg-slate-700 transition ${
-                                            selectedStudent?._id === student._id ? 'bg-blue-50 dark:bg-blue-900' : ''
+                                            selectedStudent?.studentId === student.user._id ? 'bg-blue-50 dark:bg-blue-900' : ''
                                         }`}
                                     >
                                         <div className="flex items-start justify-between">
@@ -156,7 +171,7 @@ export default function FinalMarksPage() {
                                                 </p>
                                                 <p className="text-sm text-gray-500 dark:text-gray-400">{student.email}</p>
                                             </div>
-                                            {selectedStudent?._id === student._id && selectedStudent.finalMarkStatus === 'submitted' && (
+                                            {selectedStudent?.studentId === student.user._id && selectedStudent.finalMarkStatus === 'submitted' && (
                                                 <Check className="w-5 h-5 text-green-500 flex-shrink-0" />
                                             )}
                                         </div>
@@ -172,9 +187,9 @@ export default function FinalMarksPage() {
                             <div className="space-y-6">
                                 <div>
                                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                                        {selectedStudent.first_name} {selectedStudent.last_name}
+                                        {selectedStudent.studentName}
                                     </h2>
-                                    <p className="text-gray-500 dark:text-gray-400">Final Marks Assignment</p>
+                                    <p className="text-gray-500 dark:text-gray-400">Academic Mentor: {selectedStudent.academicMentorName}</p>
                                 </div>
 
                                 {error && (
@@ -191,28 +206,44 @@ export default function FinalMarksPage() {
                                     </div>
                                 )}
 
+                                {/* Marksheet Details */}
+                                <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-6">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                                        <h3 className="font-semibold text-gray-900 dark:text-white">Academic Mentor Marksheet</h3>
+                                    </div>
+                                    <div className="space-y-3 text-sm">
+                                        <p className="text-gray-700 dark:text-gray-300">
+                                            <span className="font-medium">Submitted:</span> {new Date(selectedStudent.marksheetDetails.submittedDate).toLocaleDateString()}
+                                        </p>
+                                        {selectedStudent.marksheetDetails.fileUrl && (
+                                            <p className="text-gray-700 dark:text-gray-300">
+                                                <span className="font-medium">File:</span> <span className="text-purple-600 dark:text-purple-400 break-all">{selectedStudent.marksheetDetails.fileUrl}</span>
+                                            </p>
+                                        )}
+                                    </div>
+                                </div>
+
                                 {/* Academic Mentor Marks (Read-only) */}
                                 <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-6">
-                                    <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Academic Mentor Marks</h3>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                Marks (out of 60)
-                                            </label>
-                                            <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                                                {selectedStudent.academicMentorMarks}
-                                            </div>
+                                    <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Academic Mentor Marks Breakdown</h3>
+                                    <div className="grid grid-cols-4 gap-3">
+                                        <div className="bg-white dark:bg-slate-700 p-3 rounded-lg text-center">
+                                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Technical</p>
+                                            <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{selectedStudent.academicMentorBreakdown.technical}</p>
                                         </div>
-                                        {selectedStudent.academicMentorComments && (
-                                            <div>
-                                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                                    Comments
-                                                </label>
-                                                <p className="text-gray-600 dark:text-gray-400 p-3 bg-white dark:bg-slate-700 rounded">
-                                                    {selectedStudent.academicMentorComments}
-                                                </p>
-                                            </div>
-                                        )}
+                                        <div className="bg-white dark:bg-slate-700 p-3 rounded-lg text-center">
+                                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Soft Skills</p>
+                                            <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{selectedStudent.academicMentorBreakdown.softSkills}</p>
+                                        </div>
+                                        <div className="bg-white dark:bg-slate-700 p-3 rounded-lg text-center">
+                                            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Presentation</p>
+                                            <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{selectedStudent.academicMentorBreakdown.presentation}</p>
+                                        </div>
+                                        <div className="bg-blue-200 dark:bg-blue-800 p-3 rounded-lg text-center border-2 border-blue-600">
+                                            <p className="text-xs text-gray-700 dark:text-gray-300 mb-1 font-semibold">Total</p>
+                                            <p className="text-xl font-bold text-blue-700 dark:text-blue-300">{selectedStudent.academicMentorMarks}/60</p>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -259,16 +290,19 @@ export default function FinalMarksPage() {
                                         <h3 className="font-semibold text-gray-900 dark:text-white mb-4">Final Marks Summary</h3>
                                         <div className="grid grid-cols-3 gap-4">
                                             <div className="bg-white dark:bg-slate-700 p-4 rounded-lg text-center">
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Academic</p>
-                                                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{selectedStudent.academicMentorMarks}/60</p>
+                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Academic Mentor</p>
+                                                <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{selectedStudent.academicMentorMarks}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">/60</p>
                                             </div>
                                             <div className="bg-white dark:bg-slate-700 p-4 rounded-lg text-center">
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Industry</p>
-                                                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{industryMarks}/40</p>
+                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Industry Mentor</p>
+                                                <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">{industryMarks}</p>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">/40</p>
                                             </div>
-                                            <div className="bg-white dark:bg-slate-700 p-4 rounded-lg text-center border-2 border-green-500">
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Total</p>
-                                                <p className="text-2xl font-bold text-green-600 dark:text-green-400">{calculateFinalMarks()}/100</p>
+                                            <div className="bg-green-500 dark:bg-green-600 p-4 rounded-lg text-center text-white border-2 border-green-600 dark:border-green-500">
+                                                <p className="text-sm font-semibold mb-2">Final Total</p>
+                                                <p className="text-3xl font-bold">{calculateFinalMarks()}</p>
+                                                <p className="text-xs mt-1">/100</p>
                                             </div>
                                         </div>
                                     </div>
@@ -289,7 +323,8 @@ export default function FinalMarksPage() {
                                         <Check className="w-5 h-5" />
                                         <div>
                                             <p className="font-semibold">Marks Already Submitted</p>
-                                            <p className="text-sm">Final marks were submitted on {new Date(selectedStudent.finalMarksSubmittedDate || '').toLocaleDateString()}</p>
+                                            <p className="text-sm">Final marks: {selectedStudent.finalMarks}/100</p>
+                                            <p className="text-sm">Submitted on {new Date(selectedStudent.finalMarksSubmittedDate || '').toLocaleDateString()}</p>
                                         </div>
                                     </div>
                                 )}

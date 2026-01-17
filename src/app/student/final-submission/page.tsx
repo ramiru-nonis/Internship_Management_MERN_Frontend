@@ -25,6 +25,7 @@ export default function FinalSubmissionPage() {
 
     const [loading, setLoading] = useState(true);
     const [logbookStatus, setLogbookStatus] = useState({ complete: false, total: 0, approved: 0 });
+    const [finalMarks, setFinalMarks] = useState<any>(null);
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
@@ -48,6 +49,15 @@ export default function FinalSubmissionPage() {
 
             if (res.data.logbookStatus) {
                 setLogbookStatus(res.data.logbookStatus);
+            }
+
+            // Fetch final marks
+            try {
+                const marksRes = await api.get('/students/final-marks');
+                setFinalMarks(marksRes.data);
+            } catch (marksError) {
+                // Final marks might not be available yet, that's okay
+                console.log('Final marks not yet available');
             }
         } catch (error) {
             console.error("Error fetching submissions", error);
@@ -428,6 +438,47 @@ export default function FinalSubmissionPage() {
                                                 </a>
                                             )}
                                         </div>
+                                    </div>
+                                )}
+
+                                {/* Final Marks Section */}
+                                {finalMarks && finalMarks.finalMarkStatus === 'submitted' && (
+                                    <div className="mt-6 p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border border-green-200 dark:border-green-800 rounded-xl">
+                                        <h3 className="text-sm font-bold text-green-800 dark:text-green-300 mb-4 flex items-center">
+                                            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            Final Marks Summary
+                                        </h3>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            <div className="bg-white dark:bg-slate-700 p-3 rounded-lg text-center">
+                                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 font-semibold">Technical</p>
+                                                <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{finalMarks.academicMentorBreakdown.technical}</p>
+                                            </div>
+                                            <div className="bg-white dark:bg-slate-700 p-3 rounded-lg text-center">
+                                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 font-semibold">Soft Skills</p>
+                                                <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{finalMarks.academicMentorBreakdown.softSkills}</p>
+                                            </div>
+                                            <div className="bg-white dark:bg-slate-700 p-3 rounded-lg text-center">
+                                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 font-semibold">Presentation</p>
+                                                <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{finalMarks.academicMentorBreakdown.presentation}</p>
+                                            </div>
+                                            <div className="bg-blue-200 dark:bg-blue-800 p-3 rounded-lg text-center border-2 border-blue-600">
+                                                <p className="text-xs text-blue-700 dark:text-blue-300 mb-1 font-semibold">Academic</p>
+                                                <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{finalMarks.academicMentorMarks}/60</p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-4 grid grid-cols-2 gap-4">
+                                            <div className="bg-white dark:bg-slate-700 p-4 rounded-lg text-center">
+                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 font-semibold">Industry Mentor</p>
+                                                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{finalMarks.industryMentorMarks}/40</p>
+                                            </div>
+                                            <div className="bg-green-300 dark:bg-green-700 p-4 rounded-lg text-center border-2 border-green-600">
+                                                <p className="text-sm text-green-800 dark:text-green-200 mb-2 font-semibold">Final Total</p>
+                                                <p className="text-2xl font-bold text-green-800 dark:text-green-200">{finalMarks.finalMarks}/100</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-4">
+                                            Submitted on {new Date(finalMarks.finalMarksSubmittedDate).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                        </p>
                                     </div>
                                 )}
                             </div>

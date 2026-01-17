@@ -24,6 +24,7 @@ export default function MarksheetSubmission() {
     const [loading, setLoading] = useState(true);
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [submitting, setSubmitting] = useState(false);
+    const [finalMarks, setFinalMarks] = useState<any>(null);
 
     // Form State
     const [marks, setMarks] = useState({
@@ -60,6 +61,23 @@ export default function MarksheetSubmission() {
             setFilteredStudents(students);
         }
     }, [searchQuery, students]);
+
+    // Fetch final marks when student is selected
+    useEffect(() => {
+        if (selectedStudent) {
+            fetchFinalMarks(selectedStudent.user._id);
+        }
+    }, [selectedStudent]);
+
+    const fetchFinalMarks = async (studentId: string) => {
+        try {
+            const res = await api.get(`/mentor/final-marks/${studentId}`);
+            setFinalMarks(res.data);
+        } catch (error) {
+            console.log('Final marks not yet available');
+            setFinalMarks(null);
+        }
+    };
 
     const fetchAssignedStudents = async () => {
         try {
@@ -321,6 +339,47 @@ export default function MarksheetSubmission() {
                                         )}
                                     </button>
                                 </div>
+
+                                {/* Final Marks Display (if submitted by coordinator) */}
+                                {finalMarks && finalMarks.finalMarkStatus === 'submitted' && (
+                                    <div className="mt-8 p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border border-green-200 dark:border-green-800 rounded-xl">
+                                        <h3 className="text-lg font-bold text-green-800 dark:text-green-300 mb-4 flex items-center">
+                                            <CheckCircle className="w-5 h-5 mr-2" />
+                                            Final Marks Summary
+                                        </h3>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            <div className="bg-white dark:bg-slate-700 p-3 rounded-lg text-center">
+                                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 font-semibold">Technical</p>
+                                                <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">{finalMarks.academicMentorBreakdown.technical}</p>
+                                            </div>
+                                            <div className="bg-white dark:bg-slate-700 p-3 rounded-lg text-center">
+                                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 font-semibold">Soft Skills</p>
+                                                <p className="text-lg font-bold text-pink-600 dark:text-pink-400">{finalMarks.academicMentorBreakdown.softSkills}</p>
+                                            </div>
+                                            <div className="bg-white dark:bg-slate-700 p-3 rounded-lg text-center">
+                                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1 font-semibold">Presentation</p>
+                                                <p className="text-lg font-bold text-amber-600 dark:text-amber-400">{finalMarks.academicMentorBreakdown.presentation}</p>
+                                            </div>
+                                            <div className="bg-blue-200 dark:bg-blue-800 p-3 rounded-lg text-center border-2 border-blue-600">
+                                                <p className="text-xs text-blue-700 dark:text-blue-300 mb-1 font-semibold">Academic</p>
+                                                <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{finalMarks.academicMentorMarks}/60</p>
+                                            </div>
+                                        </div>
+                                        <div className="mt-4 grid grid-cols-2 gap-4">
+                                            <div className="bg-white dark:bg-slate-700 p-4 rounded-lg text-center">
+                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 font-semibold">Industry Mentor</p>
+                                                <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{finalMarks.industryMentorMarks}/40</p>
+                                            </div>
+                                            <div className="bg-green-300 dark:bg-green-700 p-4 rounded-lg text-center border-2 border-green-600">
+                                                <p className="text-sm text-green-800 dark:text-green-200 mb-2 font-semibold">Final Total</p>
+                                                <p className="text-2xl font-bold text-green-800 dark:text-green-200">{finalMarks.finalMarks}/100</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-4">
+                                            Finalized on {new Date(finalMarks.finalMarksSubmittedDate).toLocaleDateString('en-GB', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                                        </p>
+                                    </div>
+                                )}
                             </form>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-gray-400 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 min-h-[400px]">
