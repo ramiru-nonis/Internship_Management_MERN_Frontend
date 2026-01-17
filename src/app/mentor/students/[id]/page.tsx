@@ -169,6 +169,45 @@ export default function MentorStudentProfile() {
                             </div>
                         </div>
 
+                        {/* Final Marks Section */}
+                        {submissions.academicMarksheet?.isPublished && submissions.academicMarksheet?.finalMarks !== undefined && (
+                            <div className="bg-gradient-to-br from-teal-50 to-blue-50 dark:from-teal-900/20 dark:to-blue-900/20 rounded-2xl shadow-sm border-2 border-teal-200 dark:border-teal-800 p-6 text-gray-900 dark:text-gray-100">
+                                <h2 className="text-lg font-bold mb-4 flex items-center">
+                                    <Award className="w-5 h-5 mr-2 text-teal-600" />
+                                    Final Internship Marks
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Academic Mentor</p>
+                                        <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                                            {submissions.academicMarksheet.marks?.total || 0}
+                                            <span className="text-lg text-gray-400"> / 60</span>
+                                        </p>
+                                    </div>
+                                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Industry Mentor</p>
+                                        <p className="text-3xl font-bold text-purple-600 dark:text-purple-400">
+                                            {submissions.academicMarksheet.industryMarks || 0}
+                                            <span className="text-lg text-gray-400"> / 40</span>
+                                        </p>
+                                    </div>
+                                    <div className="bg-gradient-to-br from-teal-500 to-blue-500 p-4 rounded-xl shadow-lg">
+                                        <p className="text-sm text-teal-100 mb-1">Final Total</p>
+                                        <p className="text-4xl font-bold text-white">
+                                            {submissions.academicMarksheet.finalMarks}
+                                            <span className="text-xl text-teal-100"> / 100</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                {submissions.academicMarksheet.industryComments && (
+                                    <div className="mt-4 bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                                        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Industry Mentor Comments:</p>
+                                        <p className="text-gray-600 dark:text-gray-400">{submissions.academicMarksheet.industryComments}</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         {/* Documents Section */}
                         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 text-gray-900 dark:text-gray-100">
                             <h2 className="text-lg font-bold mb-4 flex items-center">
