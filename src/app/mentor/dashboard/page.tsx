@@ -64,7 +64,7 @@ export default function MentorDashboard() {
                                 <div
                                     key={student._id}
                                     className="p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors flex items-center justify-between group cursor-pointer"
-                                    onClick={() => router.push(`/mentor/student/${student._id}`)}
+                                    onClick={() => router.push(`/mentor/students/${student._id}`)}
                                 >
                                     <div className="flex items-center gap-4">
                                         <div className="h-12 w-12 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
@@ -90,8 +90,8 @@ export default function MentorDashboard() {
                                     </div>
                                     <div className="flex items-center gap-4">
                                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${student.status === 'intern' ? 'bg-blue-50 text-blue-700 border border-blue-100' :
-                                                student.status === 'Completed' ? 'bg-green-50 text-green-700 border border-green-100' :
-                                                    'bg-gray-50 text-gray-700 border border-gray-100'
+                                            student.status === 'Completed' ? 'bg-green-50 text-green-700 border border-green-100' :
+                                                'bg-gray-50 text-gray-700 border border-gray-100'
                                             }`}>
                                             {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
                                         </span>
