@@ -66,11 +66,16 @@ export default function FinalMarksAssignment() {
 
     const fetchCompletedStudents = async () => {
         try {
+            console.log('Fetching completed students from API...');
             const res = await api.get('/coordinator/students/completed');
+            console.log('API Response:', res.data);
+            console.log('Number of students received:', res.data.length);
             setStudents(res.data);
             setFilteredStudents(res.data);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error fetching students:', error);
+            console.error('Error response:', error.response?.data);
+            console.error('Error status:', error.response?.status);
         } finally {
             setLoading(false);
         }
