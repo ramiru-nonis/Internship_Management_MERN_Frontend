@@ -175,7 +175,25 @@ export default function FinalMarksAssignment() {
                                     </button>
                                 ))
                             ) : (
-                                <p className="text-center text-gray-500 mt-10">No completed students found.</p>
+                                <div className="text-center py-8 px-4">
+                                    <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-6 border border-blue-200 dark:border-blue-800">
+                                        <AlertCircle className="w-12 h-12 text-blue-500 mx-auto mb-3" />
+                                        <h3 className="font-semibold text-gray-900 dark:text-white mb-2">No Completed Students</h3>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                            Students will appear here once their status is set to "Completed" in the Students tab.
+                                        </p>
+                                        <div className="text-xs text-left bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-700">
+                                            <p className="font-semibold mb-2 text-gray-700 dark:text-gray-300">To assign final marks:</p>
+                                            <ol className="list-decimal list-inside space-y-1 text-gray-600 dark:text-gray-400">
+                                                <li>Go to Students tab</li>
+                                                <li>Find students who finished internship</li>
+                                                <li>Change their status to "Completed"</li>
+                                                <li>Ensure Academic Mentor has submitted marks</li>
+                                                <li>Return here to assign industry marks</li>
+                                            </ol>
+                                        </div>
+                                    </div>
+                                </div>
                             )}
                         </div>
                     </div>
