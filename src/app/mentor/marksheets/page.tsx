@@ -15,6 +15,8 @@ interface Student {
     user: { _id: string; email: string };
     degree: string;
     hasMarksheet: boolean;
+    finalTotal?: number;
+    finalGradingStatus?: 'Pending' | 'Completed';
 }
 
 export default function MarksheetSubmission() {
@@ -198,9 +200,17 @@ export default function MarksheetSubmission() {
                                         </div>
                                     </div>
                                     {selectedStudent.hasMarksheet && (
-                                        <div className="flex items-center px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium">
-                                            <CheckCircle className="w-4 h-4 mr-1.5" />
-                                            Already Submitted
+                                        <div className="flex items-center gap-2">
+                                            {selectedStudent.finalGradingStatus === 'Completed' && (
+                                                <div className="flex items-center px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium">
+                                                    <Award className="w-4 h-4 mr-1.5" />
+                                                    Final: {selectedStudent.finalTotal}/100
+                                                </div>
+                                            )}
+                                            <div className="flex items-center px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium">
+                                                <CheckCircle className="w-4 h-4 mr-1.5" />
+                                                Already Submitted
+                                            </div>
                                         </div>
                                     )}
                                 </div>
