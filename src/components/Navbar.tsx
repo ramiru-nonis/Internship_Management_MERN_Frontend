@@ -121,6 +121,7 @@ export default function Navbar() {
         { href: '/coordinator/jobs', label: 'Job Posts', icon: Briefcase },
         { href: '/coordinator/applications', label: 'Applications', icon: FileText },
         { href: '/coordinator/submissions', label: 'Submissions', icon: Check },
+        { href: '/coordinator/final-marks', label: 'Final Marks', icon: FileText },
         { href: '/coordinator/mentors', label: 'Academic Mentors', icon: User },
     ];
 
