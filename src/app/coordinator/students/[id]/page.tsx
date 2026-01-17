@@ -233,10 +233,10 @@ export default function StudentProfile() {
                                 <FileText className="w-5 h-5 mr-2 text-teal-600" />
                                 Academic Mentor Marksheet
                             </h2>
-                            {submissions.marksheet ? (
+                            {submissions.academicMarksheet ? (
                                 <div className="space-y-3">
                                     <button
-                                        onClick={() => handleViewPdf(submissions.marksheet.fileUrl)}
+                                        onClick={() => handleViewPdf(submissions.academicMarksheet.fileUrl)}
                                         className="w-full flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-900/10 transition-all group"
                                     >
                                         <div className="flex items-center">
@@ -244,7 +244,7 @@ export default function StudentProfile() {
                                             <div>
                                                 <p className="font-medium text-sm text-left">Marksheet Submitted</p>
                                                 <p className="text-xs text-gray-500 text-left">
-                                                    {new Date(submissions.marksheet.submittedDate).toLocaleDateString()}
+                                                    {new Date(submissions.academicMarksheet.submittedDate).toLocaleDateString()}
                                                 </p>
                                             </div>
                                         </div>
@@ -285,7 +285,7 @@ export default function StudentProfile() {
                                     >
                                         <div className="flex items-center">
                                             <CheckCircle className="w-5 h-5 mr-3 text-green-500" />
-                                            <span className="font-medium text-sm">Final Marksheet</span>
+                                            <span className="font-medium text-sm">Industry Mentor Marksheet</span>
                                         </div>
                                         <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />
                                     </button>

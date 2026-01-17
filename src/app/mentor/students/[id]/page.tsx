@@ -176,6 +176,23 @@ export default function MentorStudentProfile() {
                                 Submitted Documents
                             </h2>
                             <div className="space-y-3">
+                                {submissions.academicMarksheet && (
+                                    <button
+                                        onClick={() => handleViewPdf(submissions.academicMarksheet.fileUrl)}
+                                        className="w-full flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-teal-900/10 transition-all group"
+                                    >
+                                        <div className="flex items-center">
+                                            <CheckCircle className="w-5 h-5 mr-3 text-teal-500" />
+                                            <div>
+                                                <p className="font-medium text-sm text-left">Academic Mentor Marksheet</p>
+                                                <p className="text-xs text-gray-500 text-left">
+                                                    Submitted: {new Date(submissions.academicMarksheet.submittedDate).toLocaleDateString()}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <Download className="w-4 h-4 text-gray-400 group-hover:text-teal-500" />
+                                    </button>
+                                )}
                                 {student.cv && (
                                     <button
                                         onClick={() => handleViewPdf(student.cv)}
@@ -195,7 +212,7 @@ export default function MentorStudentProfile() {
                                     >
                                         <div className="flex items-center">
                                             <CheckCircle className="w-5 h-5 mr-3 text-green-500" />
-                                            <span className="font-medium text-sm">Final Marksheet</span>
+                                            <span className="font-medium text-sm">Industry Mentor Marksheet</span>
                                         </div>
                                         <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />
                                     </button>
