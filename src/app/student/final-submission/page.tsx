@@ -169,6 +169,34 @@ export default function FinalSubmissionPage() {
 
                 <p className="text-gray-600 dark:text-gray-400 mb-8">Please submit your marksheet and exit presentation to complete your internship. You have 3 attempts for each.</p>
 
+                {/* Final Grade Display (NEW) */}
+                {existingMarksheet?.finalGradingStatus === 'Completed' && (
+                    <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-8 mb-8 text-white shadow-lg relative overflow-hidden">
+                        <div className="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-10">
+                            <svg className="w-64 h-64" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                        </div>
+                        <h2 className="text-2xl font-bold mb-4 relative z-10 flex items-center">
+                            <svg className="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            Congratulations! Internship Completed
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 mt-6">
+                            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                                <p className="text-sm font-medium opacity-80 mb-1">Academic Score</p>
+                                <p className="text-3xl font-bold">{existingMarksheet.marks?.total || 0}<span className="text-sm opacity-60">/60</span></p>
+                            </div>
+                            <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4">
+                                <p className="text-sm font-medium opacity-80 mb-1">Industry Score</p>
+                                <p className="text-3xl font-bold">{existingMarksheet.industryMarks || 0}<span className="text-sm opacity-60">/40</span></p>
+                            </div>
+                            <div className="bg-white text-green-600 rounded-xl p-4 shadow-inner">
+                                <p className="text-sm font-bold uppercase tracking-wider mb-1 opacity-70">Final Total</p>
+                                <p className="text-4xl font-extrabold">{existingMarksheet.finalTotal || 0}<span className="text-lg text-gray-400 font-normal">/100</span></p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+
                 {(!loading && logbookStatus.complete) ? (
                     <>
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
