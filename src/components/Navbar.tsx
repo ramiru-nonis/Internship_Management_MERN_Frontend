@@ -121,14 +121,14 @@ export default function Navbar() {
         { href: '/coordinator/jobs', label: 'Job Posts', icon: Briefcase },
         { href: '/coordinator/applications', label: 'Applications', icon: FileText },
         { href: '/coordinator/submissions', label: 'Submissions', icon: Check },
-        { href: '/coordinator/final-marks', label: 'Final Marks', icon: FileText },
+        { href: '/coordinator/final-marks', label: 'Final Marks', icon: Check },
         { href: '/coordinator/mentors', label: 'Academic Mentors', icon: User },
     ];
 
     const mentorLinks = [
         { href: '/mentor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/mentor/marksheets', label: 'Marksheet Submission', icon: FileText },
-        { href: '/mentor/student', label: 'Final Marks', icon: Check },
+        { href: '/mentor/final-marks', label: 'Final Marks', icon: Check },
     ];
 
     const links = user.role === 'student' ? studentLinks :

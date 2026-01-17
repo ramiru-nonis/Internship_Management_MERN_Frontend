@@ -15,9 +15,9 @@ export default function FinalSubmissionPage() {
     const [existingPresentation, setExistingPresentation] = useState<any>(null);
     const [combinedLogbookUrl, setCombinedLogbookUrl] = useState<string | null>(null);
 
-    // Final Marks State
-    const [finalMarksData, setFinalMarksData] = useState<any>(null);
-    const [marksLoading, setMarksLoading] = useState(false);
+    // New State for final marks
+    const [finalMarks, setFinalMarks] = useState<any>(null);
+    const [finalMarksLoading, setFinalMarksLoading] = useState(false);
 
     // Attempt Counts
     const [marksheetCount, setMarksheetCount] = useState<number>(0);
@@ -38,22 +38,9 @@ export default function FinalSubmissionPage() {
             const user = JSON.parse(userStr);
             setStudentId(user._id);
             fetchExistingSubmissions(user._id);
-            fetchFinalMarks(user._id);
+            fetchFinalMarks();
         }
     }, []);
-
-    const fetchFinalMarks = async (id: string) => {
-        try {
-            setMarksLoading(true);
-            const res = await api.get(`/student/${id}/final-marks`);
-            setFinalMarksData(res.data);
-        } catch (error) {
-            console.error("Error fetching final marks:", error);
-            // It's okay if marks aren't available yet
-        } finally {
-            setMarksLoading(false);
-        }
-    };
 
     const fetchExistingSubmissions = async (id: string) => {
         try {
@@ -71,6 +58,18 @@ export default function FinalSubmissionPage() {
             console.error("Error fetching submissions", error);
         } finally {
             setLoading(false);
+        }
+    }
+
+    const fetchFinalMarks = async () => {
+        try {
+            setFinalMarksLoading(true);
+            const res = await api.get('/students/final-marks');
+            setFinalMarks(res.data);
+        } catch (error) {
+            console.error("Error fetching final marks", error);
+        } finally {
+            setFinalMarksLoading(false);
         }
     }
 
@@ -448,8 +447,44 @@ export default function FinalSubmissionPage() {
                                         </div>
                                     </div>
                                 )}
+
+                        {/* Final Marks Section */}
+                        {finalMarks && (
+                            <div className="mt-8 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl shadow-lg border border-green-200 dark:border-green-800 p-6">
+                                <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
+                                    <span className="bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 p-2 rounded-lg mr-3">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                    </span>
+                                    Final Marks
+                                </h2>
+                                <div className="grid md:grid-cols-4 gap-4">
+                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg">
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Academic Mentor</p>
+                                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{finalMarks.academicMentorMarks}/60</p>
+                                    </div>
+                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg">
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Industry Mentor</p>
+                                        <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{finalMarks.industryMentorMarks}/40</p>
+                                    </div>
+                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border-2 border-green-500">
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Total</p>
+                                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">{finalMarks.finalMarks}/100</p>
+                                    </div>
+                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg">
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Status</p>
+                                        <div className="flex items-center gap-1">
+                                            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                                            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 capitalize">{finalMarks.finalMarkStatus}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {finalMarks.finalMarksSubmittedDate && (
+                                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
+                                        Submitted on {new Date(finalMarks.finalMarksSubmittedDate).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                    </p>
+                                )}
                             </div>
-                        </div>
+                        )}
 
                         <div className="flex justify-center">
                             <button
@@ -472,190 +507,6 @@ export default function FinalSubmissionPage() {
                                 </span>
                             </button>
                         </div>
-
-                        {/* Final Marks Section */}
-                        {finalMarksData && finalMarksData.marksheet && finalMarksData.marksheet.finalMarks && (
-                            <div className="mt-12 border-t border-gray-200 dark:border-gray-700 pt-8">
-                                <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">
-                                    Final Marks
-                                </h2>
-
-                                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                    {/* Academic Mentor Marks Card */}
-                                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                                            <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 p-2 rounded-lg mr-3">
-                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 4v12l-4-2-4 2V4M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                            </span>
-                                            Academic Mentor
-                                        </h3>
-                                        
-                                        <div className="space-y-4">
-                                            {/* Technical Skills */}
-                                            <div>
-                                                <div className="flex justify-between items-center mb-1">
-                                                    <span className="text-sm text-gray-600 dark:text-gray-400">Technical Skills</span>
-                                                    <span className="font-bold text-blue-600 dark:text-blue-400">
-                                                        {finalMarksData.marksheet.academicMentorMarks.technical}/20
-                                                    </span>
-                                                </div>
-                                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                                    <div 
-                                                        className="bg-blue-600 h-2 rounded-full" 
-                                                        style={{ width: `${(finalMarksData.marksheet.academicMentorMarks.technical / 20) * 100}%` }}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            {/* Soft Skills */}
-                                            <div>
-                                                <div className="flex justify-between items-center mb-1">
-                                                    <span className="text-sm text-gray-600 dark:text-gray-400">Soft Skills</span>
-                                                    <span className="font-bold text-blue-600 dark:text-blue-400">
-                                                        {finalMarksData.marksheet.academicMentorMarks.softSkills}/20
-                                                    </span>
-                                                </div>
-                                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                                    <div 
-                                                        className="bg-blue-600 h-2 rounded-full" 
-                                                        style={{ width: `${(finalMarksData.marksheet.academicMentorMarks.softSkills / 20) * 100}%` }}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            {/* Presentation Skills */}
-                                            <div>
-                                                <div className="flex justify-between items-center mb-1">
-                                                    <span className="text-sm text-gray-600 dark:text-gray-400">Presentation</span>
-                                                    <span className="font-bold text-blue-600 dark:text-blue-400">
-                                                        {finalMarksData.marksheet.academicMentorMarks.presentation}/20
-                                                    </span>
-                                                </div>
-                                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                                    <div 
-                                                        className="bg-blue-600 h-2 rounded-full" 
-                                                        style={{ width: `${(finalMarksData.marksheet.academicMentorMarks.presentation / 20) * 100}%` }}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            {/* Total */}
-                                            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-                                                <div className="flex justify-between items-center">
-                                                    <span className="font-semibold text-gray-900 dark:text-white">Total</span>
-                                                    <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                                                        {finalMarksData.marksheet.academicMentorMarks.total}/60
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Industry Mentor Marks Card */}
-                                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700">
-                                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center">
-                                            <span className="bg-orange-100 dark:bg-orange-900/50 text-orange-600 dark:text-orange-400 p-2 rounded-lg mr-3">
-                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            </span>
-                                            Industry Mentor
-                                        </h3>
-                                        
-                                        <div className="space-y-4">
-                                            <div>
-                                                <div className="flex justify-between items-center mb-1">
-                                                    <span className="text-sm text-gray-600 dark:text-gray-400">Industry Marks</span>
-                                                    <span className="font-bold text-orange-600 dark:text-orange-400">
-                                                        {finalMarksData.marksheet.industryMentorMarks}/40
-                                                    </span>
-                                                </div>
-                                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                                                    <div 
-                                                        className="bg-orange-600 h-2 rounded-full" 
-                                                        style={{ width: `${(finalMarksData.marksheet.industryMentorMarks / 40) * 100}%` }}
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            {finalMarksData.marksheet.industryMentorComments && (
-                                                <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
-                                                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase mb-2">Feedback</p>
-                                                    <p className="text-sm text-gray-700 dark:text-gray-300">
-                                                        {finalMarksData.marksheet.industryMentorComments}
-                                                    </p>
-                                                </div>
-                                            )}
-
-                                            <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
-                                                <div className="flex justify-between items-center">
-                                                    <span className="font-semibold text-gray-900 dark:text-white">Total</span>
-                                                    <span className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                                                        {finalMarksData.marksheet.industryMentorMarks}/40
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Final Marks Card */}
-                                    <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-900/50 p-6 rounded-xl shadow-lg border border-green-200 dark:border-green-800 md:col-span-2 lg:col-span-1">
-                                        <h3 className="text-lg font-bold text-green-900 dark:text-green-300 mb-6 flex items-center">
-                                            <span className="bg-green-200 dark:bg-green-700 text-green-700 dark:text-green-300 p-2 rounded-lg mr-3">
-                                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            </span>
-                                            Final Marks
-                                        </h3>
-                                        
-                                        <div className="space-y-6">
-                                            <div className="text-center">
-                                                <p className="text-sm text-green-700 dark:text-green-400 uppercase font-semibold mb-2">Total Score</p>
-                                                <div className="relative inline-flex items-center justify-center">
-                                                    <svg className="w-32 h-32" viewBox="0 0 120 120">
-                                                        <circle cx="60" cy="60" r="54" fill="none" stroke="currentColor" strokeWidth="2" className="text-green-200 dark:text-green-800" />
-                                                        <circle 
-                                                            cx="60" 
-                                                            cy="60" 
-                                                            r="54" 
-                                                            fill="none" 
-                                                            stroke="currentColor" 
-                                                            strokeWidth="2" 
-                                                            className="text-green-600 dark:text-green-400"
-                                                            strokeDasharray={`${(finalMarksData.marksheet.finalMarks / 100) * 2 * Math.PI * 54} ${2 * Math.PI * 54}`}
-                                                            strokeLinecap="round"
-                                                            transform="rotate(-90 60 60)"
-                                                        />
-                                                    </svg>
-                                                    <div className="absolute text-center">
-                                                        <p className="text-4xl font-bold text-green-700 dark:text-green-400">
-                                                            {finalMarksData.marksheet.finalMarks}
-                                                        </p>
-                                                        <p className="text-sm text-green-600 dark:text-green-300 font-semibold">/ 100</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="text-center text-sm text-green-700 dark:text-green-400">
-                                                <p>
-                                                    {finalMarksData.marksheet.academicMentorMarks.total}/60 (Academic) + {finalMarksData.marksheet.industryMentorMarks}/40 (Industry)
-                                                </p>
-                                            </div>
-
-                                            {finalMarksData.marksheet.finalMarkStatus === 'submitted' && (
-                                                <div className="text-center">
-                                                    <p className="text-xs text-green-700 dark:text-green-400 font-semibold uppercase">
-                                                        ✓ Finalized
-                                                    </p>
-                                                    {finalMarksData.marksheet.finalMarksSubmittedDate && (
-                                                        <p className="text-xs text-green-600 dark:text-green-500 mt-1">
-                                                            {new Date(finalMarksData.marksheet.finalMarksSubmittedDate).toLocaleDateString()}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
                     </>
                 ) : null}
 
@@ -663,3 +514,5 @@ export default function FinalSubmissionPage() {
         </div>
     );
 }
+
+```
