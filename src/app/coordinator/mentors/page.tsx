@@ -12,6 +12,7 @@ interface Mentor {
     email: string;
     contact_number: string;
     status: 'active' | 'inactive';
+    assignedStudentsCount?: number;
     user: {
         email: string;
     };
@@ -153,6 +154,7 @@ export default function MentorManagement() {
                         <div className="space-y-2 mb-6">
                             <p className="text-sm text-gray-600"><span className="font-medium text-gray-900">Email:</span> {mentor.email}</p>
                             <p className="text-sm text-gray-600"><span className="font-medium text-gray-900">Phone:</span> {mentor.contact_number || 'N/A'}</p>
+                            <p className="text-sm text-gray-600"><span className="font-medium text-gray-900">Assigned Students:</span> {mentor.assignedStudentsCount || 0}</p>
                         </div>
 
                         <div className="flex gap-2">
