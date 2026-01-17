@@ -184,10 +184,11 @@ export default function StudentProfile() {
                             </h2>
                             <div className="space-y-4">
                                 <select
-                                    disabled={assigning}
+                                    disabled={assigning || student.status !== 'Completed'}
                                     value={student.academic_mentor?._id || ''}
                                     onChange={(e) => handleAssignMentor(e.target.value)}
-                                    className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                                    className={`w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all ${student.status === 'Completed' ? 'bg-gray-50 dark:bg-gray-900 cursor-pointer' : 'bg-gray-100 dark:bg-gray-800 cursor-not-allowed opacity-60'}`}
+                                    title={student.status !== 'Completed' ? "Mentors can only be assigned to students who have completed their internship" : ""}
                                 >
                                     <option value="">Not Assigned</option>
                                     {mentors.map((mentor) => (

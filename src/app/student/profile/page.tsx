@@ -214,7 +214,7 @@ export default function ProfilePage() {
                             <div className="pt-20 pb-6 px-6 text-center">
                                 <h2 className="text-xl font-bold text-gray-900">{student?.first_name} {student?.last_name}</h2>
                                 <p className="text-sm text-gray-500 mt-1">{student?.cb_number}</p>
-                                <div className="mt-4 inline-flex flex-col gap-1">
+                                <div className="mt-4 inline-flex flex-col gap-1 items-center">
                                     <div className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
                                         {student?.status}
                                     </div>
@@ -224,6 +224,31 @@ export default function ProfilePage() {
                                         </div>
                                     )}
                                 </div>
+                            </div>
+
+                            <div className="border-t border-gray-200 px-6 py-4">
+                                <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center">
+                                    <User className="w-4 h-4 mr-2 text-purple-600" />
+                                    Academic Mentor
+                                </h3>
+                                {student?.academic_mentor ? (
+                                    <div className="p-3 bg-purple-50 rounded-xl border border-purple-100">
+                                        <p className="text-sm font-bold text-purple-900">
+                                            {student.academic_mentor.first_name} {student.academic_mentor.last_name}
+                                        </p>
+                                        <p className="text-xs text-purple-600 mt-0.5">
+                                            {student.academic_mentor.email}
+                                        </p>
+                                        {student.academic_mentor.contact_number && (
+                                            <p className="text-xs text-purple-500 mt-1 flex items-center">
+                                                <Phone className="w-3 h-3 mr-1" />
+                                                {student.academic_mentor.contact_number}
+                                            </p>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-gray-500 italic">No Academic Mentor Assigned</p>
+                                )}
                             </div>
 
                             <div className="border-t border-gray-200 px-6 py-4">

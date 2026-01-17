@@ -10,7 +10,6 @@ interface LogbookData {
     year: number;
     status: string;
     weeks: any[];
-    signedPDFPath?: string;
 }
 
 interface LogbookModalProps {
@@ -143,28 +142,13 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                         </div>
                         <div className="flex items-center gap-4">
                             {selectedLogbook && (
-                                <div className="flex items-center gap-2">
-                                    {selectedLogbook.signedPDFPath && (
-                                        <a
-                                            href={selectedLogbook.signedPDFPath.startsWith('http')
-                                                ? selectedLogbook.signedPDFPath
-                                                : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/${selectedLogbook.signedPDFPath}`}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-all shadow-sm flex items-center gap-2 text-sm"
-                                        >
-                                            <ExternalLink className="w-4 h-4" />
-                                            View Signed
-                                        </a>
-                                    )}
-                                    <button
-                                        onClick={handleDownloadPdf}
-                                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all shadow-sm flex items-center gap-2 text-sm"
-                                    >
-                                        <Download className="w-4 h-4" />
-                                        Download PDF
-                                    </button>
-                                </div>
+                                <button
+                                    onClick={handleDownloadPdf}
+                                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all shadow-sm flex items-center gap-2 text-sm"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Download PDF
+                                </button>
                             )}
                             <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                                 <X className="w-6 h-6" />
