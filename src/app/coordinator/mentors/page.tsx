@@ -24,6 +24,12 @@ export default function MentorManagement() {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
 
+    // View Students State
+    const [showStudentsModal, setShowStudentsModal] = useState(false);
+    const [selectedMentor, setSelectedMentor] = useState<Mentor | null>(null);
+    const [assignedStudents, setAssignedStudents] = useState<any[]>([]);
+    const [loadingStudents, setLoadingStudents] = useState(false);
+
     // Form State
     const [currentMentor, setCurrentMentor] = useState({
         _id: '',
@@ -47,6 +53,23 @@ export default function MentorManagement() {
             console.error(error);
             alert('Failed to fetch mentors');
             setLoading(false);
+        }
+    };
+
+    const handleViewStudents = async (mentor: Mentor) => {
+        setSelectedMentor(mentor);
+        setShowStudentsModal(true);
+        setLoadingStudents(true);
+        try {
+            const res = await api.get('/coordinator/students', {
+                params: { mentor: mentor._id }
+            });
+            setAssignedStudents(res.data);
+        } catch (error) {
+            console.error(error);
+            alert('Failed to fetch assigned students');
+        } finally {
+            setLoadingStudents(false);
         }
     };
 
@@ -135,7 +158,15 @@ export default function MentorManagement() {
             {/* Mentor Cards Grid */}
             <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {mentors.map((mentor) => (
-                    <div key={mentor._id} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
+                    <div
+                        key={mentor._id}
+                        className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow cursor-pointer relative group"
+                        onClick={() => handleViewStudents(mentor)}
+                    >
+                        <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded-full">Click to view students</span>
+                        </div>
+
                         <div className="flex justify-between items-start mb-4">
                             <div className="flex items-center gap-3">
                                 <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
@@ -157,7 +188,7 @@ export default function MentorManagement() {
                             <p className="text-sm text-gray-600"><span className="font-medium text-gray-900">Assigned Students:</span> {mentor.assignedStudentsCount || 0}</p>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                             <button
                                 onClick={() => openEditModal(mentor)}
                                 className="flex-1 flex items-center justify-center gap-2 bg-gray-50 text-gray-700 py-2 rounded-lg hover:bg-gray-100 transition-colors text-sm"
@@ -245,6 +276,61 @@ export default function MentorManagement() {
                                 <button type="submit" className="flex-1 py-3 bg-blue-600 text-white rounded-xl">Save</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {/* View Students Modal */}
+            {showStudentsModal && selectedMentor && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50" onClick={() => setShowStudentsModal(false)}>
+                    <div className="bg-white rounded-3xl w-full max-w-2xl p-8 max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                        <div className="flex justify-between items-center mb-6">
+                            <div>
+                                <h2 className="text-2xl font-bold">Assigned Students</h2>
+                                <p className="text-gray-500">Mentor: {selectedMentor.first_name} {selectedMentor.last_name}</p>
+                            </div>
+                            <button onClick={() => setShowStudentsModal(false)} className="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                        </div>
+
+                        {loadingStudents ? (
+                            <div className="text-center py-8">Loading students...</div>
+                        ) : assignedStudents.length === 0 ? (
+                            <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-xl">
+                                No students currently assigned to this mentor.
+                            </div>
+                        ) : (
+                            <div className="space-y-3">
+                                {assignedStudents.map((student) => (
+                                    <div key={student._id} className="flex items-center justify-between p-4 border rounded-xl hover:bg-gray-50">
+                                        <div>
+                                            <h4 className="font-bold">{student.first_name} {student.last_name}</h4>
+                                            <p className="text-sm text-gray-500">{student.cb_number || 'No CB Number'} • {student.email}</p>
+                                        </div>
+                                        <div className="flex flex-col items-end gap-1">
+                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${student.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                                                    student.status === 'intern' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
+                                                }`}>
+                                                {student.status}
+                                            </span>
+                                            <button
+                                                onClick={() => router.push(`/coordinator/students/${student._id}`)}
+                                                className="text-sm text-blue-600 hover:underline"
+                                            >
+                                                View Profile
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <div className="mt-6 pt-4 border-t flex justify-end">
+                            <button
+                                onClick={() => setShowStudentsModal(false)}
+                                className="px-6 py-2 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors"
+                            >
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
