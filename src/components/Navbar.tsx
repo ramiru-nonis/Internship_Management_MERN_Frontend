@@ -128,7 +128,6 @@ export default function Navbar() {
     const mentorLinks = [
         { href: '/mentor/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { href: '/mentor/marksheets', label: 'Marksheet Submission', icon: FileText },
-        { href: '/mentor/final-marks', label: 'Final Marks', icon: Check },
     ];
 
     const links = user.role === 'student' ? studentLinks :

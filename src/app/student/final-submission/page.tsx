@@ -15,10 +15,6 @@ export default function FinalSubmissionPage() {
     const [existingPresentation, setExistingPresentation] = useState<any>(null);
     const [combinedLogbookUrl, setCombinedLogbookUrl] = useState<string | null>(null);
 
-    // New State for final marks
-    const [finalMarks, setFinalMarks] = useState<any>(null);
-    const [finalMarksLoading, setFinalMarksLoading] = useState(false);
-
     // Attempt Counts
     const [marksheetCount, setMarksheetCount] = useState<number>(0);
     const [presentationCount, setPresentationCount] = useState<number>(0);
@@ -38,7 +34,6 @@ export default function FinalSubmissionPage() {
             const user = JSON.parse(userStr);
             setStudentId(user._id);
             fetchExistingSubmissions(user._id);
-            fetchFinalMarks();
         }
     }, []);
 
@@ -58,18 +53,6 @@ export default function FinalSubmissionPage() {
             console.error("Error fetching submissions", error);
         } finally {
             setLoading(false);
-        }
-    }
-
-    const fetchFinalMarks = async () => {
-        try {
-            setFinalMarksLoading(true);
-            const res = await api.get('/students/final-marks');
-            setFinalMarks(res.data);
-        } catch (error) {
-            console.error("Error fetching final marks", error);
-        } finally {
-            setFinalMarksLoading(false);
         }
     }
 
@@ -447,44 +430,8 @@ export default function FinalSubmissionPage() {
                                         </div>
                                     </div>
                                 )}
-
-                        {/* Final Marks Section */}
-                        {finalMarks && (
-                            <div className="mt-8 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl shadow-lg border border-green-200 dark:border-green-800 p-6">
-                                <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-4 flex items-center">
-                                    <span className="bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 p-2 rounded-lg mr-3">
-                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                    </span>
-                                    Final Marks
-                                </h2>
-                                <div className="grid md:grid-cols-4 gap-4">
-                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg">
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Academic Mentor</p>
-                                        <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{finalMarks.academicMentorMarks}/60</p>
-                                    </div>
-                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg">
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Industry Mentor</p>
-                                        <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">{finalMarks.industryMentorMarks}/40</p>
-                                    </div>
-                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg border-2 border-green-500">
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Total</p>
-                                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">{finalMarks.finalMarks}/100</p>
-                                    </div>
-                                    <div className="bg-white dark:bg-slate-800 p-4 rounded-lg">
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Status</p>
-                                        <div className="flex items-center gap-1">
-                                            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                                            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 capitalize">{finalMarks.finalMarkStatus}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                {finalMarks.finalMarksSubmittedDate && (
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
-                                        Submitted on {new Date(finalMarks.finalMarksSubmittedDate).toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                    </p>
-                                )}
                             </div>
-                        )}
+                        </div>
 
                         <div className="flex justify-center">
                             <button
@@ -514,5 +461,3 @@ export default function FinalSubmissionPage() {
         </div>
     );
 }
-
-```
