@@ -211,6 +211,24 @@ export default function FinalSubmissionPage() {
                                         </p>
                                     </div>
                                 )}
+                                {combinedLogbookUrl && (
+                                    <div className="mt-4 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden h-64 bg-gray-100 dark:bg-gray-900">
+                                        <iframe
+                                            src={combinedLogbookUrl.startsWith('http') ? combinedLogbookUrl : `${apiUrl}${combinedLogbookUrl}`}
+                                            className="w-full h-full"
+                                            title="Combined Logbook Preview"
+                                        />
+                                    </div>
+                                )}
+                                {combinedLogbookUrl && (
+                                    <div className="mt-4 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden h-64 bg-gray-100 dark:bg-gray-900">
+                                        <iframe
+                                            src={combinedLogbookUrl.startsWith('http') ? combinedLogbookUrl : `${apiUrl}${combinedLogbookUrl}`}
+                                            className="w-full h-full"
+                                            title="Combined Logbook Preview"
+                                        />
+                                    </div>
+                                )}
                             </div>
 
                             {/* Marksheet Card */}
@@ -228,32 +246,41 @@ export default function FinalSubmissionPage() {
                                 </h2>
 
                                 {existingMarksheet && (
-                                    <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <p className="text-green-700 dark:text-green-300 font-semibold flex items-center mb-1">
-                                                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                                                    Submitted
-                                                </p>
-                                                <a
-                                                    href={existingMarksheet.fileUrl.startsWith('http') ? existingMarksheet.fileUrl : `${apiUrl}${existingMarksheet.fileUrl}`}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline break-all"
-                                                >
-                                                    View Latest Submission
-                                                </a>
+                                    <>
+                                        <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <p className="text-green-700 dark:text-green-300 font-semibold flex items-center mb-1">
+                                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                                        Submitted
+                                                    </p>
+                                                    <a
+                                                        href={existingMarksheet.fileUrl.startsWith('http') ? existingMarksheet.fileUrl : `${apiUrl}${existingMarksheet.fileUrl}`}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline break-all"
+                                                    >
+                                                        View Latest Submission
+                                                    </a>
+                                                </div>
+                                                {marksheetCount < 3 && !showMarksheetUpload && (
+                                                    <button
+                                                        onClick={() => setShowMarksheetUpload(true)}
+                                                        className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400"
+                                                    >
+                                                        Resubmit
+                                                    </button>
+                                                )}
                                             </div>
-                                            {marksheetCount < 3 && !showMarksheetUpload && (
-                                                <button
-                                                    onClick={() => setShowMarksheetUpload(true)}
-                                                    className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400"
-                                                >
-                                                    Resubmit
-                                                </button>
-                                            )}
                                         </div>
-                                    </div>
+                                        <div className="mt-4 mb-6 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden h-64 bg-gray-100 dark:bg-gray-900">
+                                            <iframe
+                                                src={existingMarksheet.fileUrl.startsWith('http') ? existingMarksheet.fileUrl : `${apiUrl}${existingMarksheet.fileUrl}`}
+                                                className="w-full h-full"
+                                                title="Marksheet Preview"
+                                            />
+                                        </div>
+                                    </>
                                 )}
 
                                 {(!existingMarksheet || showMarksheetUpload) && (
@@ -305,32 +332,41 @@ export default function FinalSubmissionPage() {
                                 </h2>
 
                                 {existingPresentation && (
-                                    <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
-                                        <div className="flex justify-between items-start">
-                                            <div>
-                                                <p className="text-green-700 dark:text-green-300 font-semibold flex items-center mb-1">
-                                                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
-                                                    Submitted
-                                                </p>
-                                                <a
-                                                    href={existingPresentation.fileUrl.startsWith('http') ? existingPresentation.fileUrl : `${apiUrl}${existingPresentation.fileUrl}`}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline break-all"
-                                                >
-                                                    View Latest Submission
-                                                </a>
+                                    <>
+                                        <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-4">
+                                            <div className="flex justify-between items-start">
+                                                <div>
+                                                    <p className="text-green-700 dark:text-green-300 font-semibold flex items-center mb-1">
+                                                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+                                                        Submitted
+                                                    </p>
+                                                    <a
+                                                        href={existingPresentation.fileUrl.startsWith('http') ? existingPresentation.fileUrl : `${apiUrl}${existingPresentation.fileUrl}`}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline break-all"
+                                                    >
+                                                        View Latest Submission
+                                                    </a>
+                                                </div>
+                                                {presentationCount < 3 && !showPresentationUpload && (
+                                                    <button
+                                                        onClick={() => setShowPresentationUpload(true)}
+                                                        className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400"
+                                                    >
+                                                        Resubmit
+                                                    </button>
+                                                )}
                                             </div>
-                                            {presentationCount < 3 && !showPresentationUpload && (
-                                                <button
-                                                    onClick={() => setShowPresentationUpload(true)}
-                                                    className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400"
-                                                >
-                                                    Resubmit
-                                                </button>
-                                            )}
                                         </div>
-                                    </div>
+                                        <div className="mt-4 mb-6 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden h-64 bg-gray-100 dark:bg-gray-900">
+                                            <iframe
+                                                src={existingPresentation.fileUrl.startsWith('http') ? existingPresentation.fileUrl : `${apiUrl}${existingPresentation.fileUrl}`}
+                                                className="w-full h-full"
+                                                title="Presentation Preview"
+                                            />
+                                        </div>
+                                    </>
                                 )}
 
                                 {(!existingPresentation || showPresentationUpload) && (
