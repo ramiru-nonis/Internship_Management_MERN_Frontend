@@ -14,6 +14,7 @@ export default function FinalSubmissionPage() {
     const [existingMarksheet, setExistingMarksheet] = useState<any>(null);
     const [existingPresentation, setExistingPresentation] = useState<any>(null);
     const [combinedLogbookUrl, setCombinedLogbookUrl] = useState<string | null>(null);
+    const [finalMarks, setFinalMarks] = useState<any>(null);
 
     // Attempt Counts
     const [marksheetCount, setMarksheetCount] = useState<number>(0);
@@ -45,6 +46,7 @@ export default function FinalSubmissionPage() {
             setMarksheetCount(res.data.marksheetCount || 0);
             setPresentationCount(res.data.presentationCount || 0);
             setCombinedLogbookUrl(res.data.combinedLogbookUrl);
+            setFinalMarks(res.data.finalMarks);
 
             if (res.data.logbookStatus) {
                 setLogbookStatus(res.data.logbookStatus);
@@ -171,6 +173,49 @@ export default function FinalSubmissionPage() {
 
                 {(!loading && logbookStatus.complete) ? (
                     <>
+                        {/* Final Marks Card */}
+                        {finalMarks && (
+                            <div className="mb-8 bg-gradient-to-br from-teal-50 to-blue-50 dark:from-teal-900/20 dark:to-blue-900/20 p-8 rounded-2xl shadow-lg border-2 border-teal-200 dark:border-teal-800">
+                                <div className="flex items-center mb-6">
+                                    <div className="bg-teal-600 p-3 rounded-xl mr-4">
+                                        <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Final Internship Marks</h2>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">Your complete assessment results</p>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Academic Mentor</p>
+                                        <p className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+                                            {finalMarks.academic}<span className="text-xl text-gray-400"> / 60</span>
+                                        </p>
+                                    </div>
+                                    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+                                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Industry Mentor</p>
+                                        <p className="text-4xl font-bold text-purple-600 dark:text-purple-400">
+                                            {finalMarks.industry}<span className="text-xl text-gray-400"> / 40</span>
+                                        </p>
+                                    </div>
+                                    <div className="bg-gradient-to-br from-teal-500 to-blue-500 p-6 rounded-xl shadow-lg">
+                                        <p className="text-sm text-teal-100 mb-2">Final Total</p>
+                                        <p className="text-5xl font-bold text-white">
+                                            {finalMarks.total}<span className="text-2xl text-teal-100"> / 100</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {finalMarks.industryComments && (
+                                    <div className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                                        <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Industry Mentor Comments:</p>
+                                        <p className="text-gray-600 dark:text-gray-400">{finalMarks.industryComments}</p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
                             {/* Combined Logbook Card (NEW) */}
                             <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-shadow flex flex-col justify-between">
