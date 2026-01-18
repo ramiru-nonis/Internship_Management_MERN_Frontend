@@ -276,7 +276,7 @@ export default function FinalSubmissionPage() {
                                         </div>
                                     </div>
                                     <button
-                                        onClick={() => window.open(finalizedMarksheet.fileUrl.startsWith('http') ? finalizedMarksheet.fileUrl : `${apiUrl}${finalizedMarksheet.fileUrl}`, '_blank')}
+                                        onClick={() => window.open(`${apiUrl}/submissions/marksheets/${finalizedMarksheet._id}/view?type=academic`, '_blank')}
                                         className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
                                     >
                                         View PDF
@@ -298,8 +298,11 @@ export default function FinalSubmissionPage() {
                                     </div>
                                     <button
                                         onClick={() => {
-                                            const url = finalizedMarksheet.marks?.industryMarksheetUrl || existingMarksheet.fileUrl;
-                                            window.open(url.startsWith('http') ? url : `${apiUrl}${url}`, '_blank');
+                                            if (finalizedMarksheet.marks?.industryMarksheetUrl) {
+                                                window.open(`${apiUrl}/submissions/marksheets/${finalizedMarksheet._id}/view?type=industry`, '_blank');
+                                            } else if (existingMarksheet) {
+                                                window.open(`${apiUrl}/submissions/marksheets/${existingMarksheet._id}/view`, '_blank');
+                                            }
                                         }}
                                         className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
                                     >
@@ -343,7 +346,7 @@ export default function FinalSubmissionPage() {
                                                         Submitted
                                                     </p>
                                                     <a
-                                                        href={existingMarksheet.fileUrl.startsWith('http') ? existingMarksheet.fileUrl : `${apiUrl}${existingMarksheet.fileUrl}`}
+                                                        href={`${apiUrl}/submissions/marksheets/${existingMarksheet._id}/view`}
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline break-all"
@@ -363,7 +366,7 @@ export default function FinalSubmissionPage() {
                                         </div>
                                         <div className="mt-4 mb-6 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden h-64 bg-gray-100 dark:bg-gray-900">
                                             <iframe
-                                                src={existingMarksheet.fileUrl.startsWith('http') ? existingMarksheet.fileUrl : `${apiUrl}${existingMarksheet.fileUrl}`}
+                                                src={`${apiUrl}/submissions/marksheets/${existingMarksheet._id}/view`}
                                                 className="w-full h-full"
                                                 title="Marksheet Preview"
                                             />
@@ -429,7 +432,7 @@ export default function FinalSubmissionPage() {
                                                         Submitted
                                                     </p>
                                                     <a
-                                                        href={existingPresentation.fileUrl.startsWith('http') ? existingPresentation.fileUrl : `${apiUrl}${existingPresentation.fileUrl}`}
+                                                        href={`${apiUrl}/submissions/presentations/${existingPresentation._id}/view`}
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline break-all"
@@ -449,7 +452,7 @@ export default function FinalSubmissionPage() {
                                         </div>
                                         <div className="mt-4 mb-6 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden h-64 bg-gray-100 dark:bg-gray-900">
                                             <iframe
-                                                src={existingPresentation.fileUrl.startsWith('http') ? existingPresentation.fileUrl : `${apiUrl}${existingPresentation.fileUrl}`}
+                                                src={`${apiUrl}/submissions/presentations/${existingPresentation._id}/view`}
                                                 className="w-full h-full"
                                                 title="Presentation Preview"
                                             />
