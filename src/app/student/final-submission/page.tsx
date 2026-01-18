@@ -172,34 +172,86 @@ export default function FinalSubmissionPage() {
 
                 {/* Finalized Marks Display (NEW) */}
                 {existingMarksheet?.isFinalized && (
-                    <div className="mb-12 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
-                        <div className="relative z-10">
-                            <h2 className="text-2xl font-bold mb-6 flex items-center">
-                                <Award className="w-8 h-8 mr-3" />
-                                Final Evaluation Result
-                            </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
-                                    <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Academic Mentor</p>
-                                    <p className="text-3xl font-black">{existingMarksheet.marks?.total || 0} <span className="text-sm font-normal opacity-60">/ 60</span></p>
-                                </div>
-                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
-                                    <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Industry Mentor</p>
-                                    <p className="text-3xl font-black">{existingMarksheet.marks?.industryMarks || 0} <span className="text-sm font-normal opacity-60">/ 40</span></p>
-                                </div>
-                                <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/40 shadow-inner">
-                                    <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Final Score</p>
-                                    <p className="text-4xl font-black text-white">{existingMarksheet.marks?.finalTotal || 0} <span className="text-sm font-normal opacity-60">/ 100</span></p>
+                    <div className="space-y-8 mb-12">
+                        {/* Summary Card */}
+                        <div className="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
+                            <div className="relative z-10">
+                                <h2 className="text-2xl font-bold mb-6 flex items-center">
+                                    <Award className="w-8 h-8 mr-3" />
+                                    Final Evaluation Result
+                                </h2>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
+                                        <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Academic Mentor</p>
+                                        <p className="text-3xl font-black">{existingMarksheet.marks?.total || 0} <span className="text-sm font-normal opacity-60">/ 60</span></p>
+                                    </div>
+                                    <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
+                                        <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Industry Mentor</p>
+                                        <p className="text-3xl font-black">{existingMarksheet.marks?.industryMarks || 0} <span className="text-sm font-normal opacity-60">/ 40</span></p>
+                                    </div>
+                                    <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/40 shadow-inner">
+                                        <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Final Score</p>
+                                        <p className="text-4xl font-black text-white">{existingMarksheet.marks?.finalTotal || 0} <span className="text-sm font-normal opacity-60">/ 100</span></p>
+                                    </div>
                                 </div>
                             </div>
-                            {existingMarksheet.comments?.finalComments && (
-                                <div className="bg-black/10 rounded-xl p-4 italic text-indigo-50 text-sm">
-                                    " {existingMarksheet.comments.finalComments} "
-                                </div>
-                            )}
+                            <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
                         </div>
-                        {/* Decorative background circle */}
-                        <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+
+                        {/* Detailed Marks Table (Functional Requirement 1) */}
+                        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                            <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50">
+                                <h3 className="text-lg font-bold text-gray-800 dark:text-white flex items-center">
+                                    <Award className="w-5 h-5 mr-2 text-indigo-500" />
+                                    Detailed Mark Breakdown
+                                </h3>
+                                <p className="text-xs text-gray-500 mt-1">Submission Date: {new Date(existingMarksheet.updatedAt).toLocaleDateString()}</p>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="bg-gray-50 dark:bg-gray-900/50 text-gray-500 uppercase text-[10px] font-bold tracking-widest">
+                                            <th className="px-6 py-4">Criteria</th>
+                                            <th className="px-6 py-4">Marks Obtained</th>
+                                            <th className="px-6 py-4">Max Marks</th>
+                                            <th className="px-6 py-4">Feedback</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                                        <tr className="text-sm">
+                                            <td className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">Technical Skill Development (AM)</td>
+                                            <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">{existingMarksheet.marks?.technical || 0}</td>
+                                            <td className="px-6 py-4 text-gray-400">20</td>
+                                            <td className="px-6 py-4 text-gray-500 text-xs italic">"{existingMarksheet.comments?.technical || 'No comments'}"</td>
+                                        </tr>
+                                        <tr className="text-sm">
+                                            <td className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">Soft Skill Development (AM)</td>
+                                            <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">{existingMarksheet.marks?.softSkills || 0}</td>
+                                            <td className="px-6 py-4 text-gray-400">20</td>
+                                            <td className="px-6 py-4 text-gray-500 text-xs italic">"{existingMarksheet.comments?.softSkills || 'No comments'}"</td>
+                                        </tr>
+                                        <tr className="text-sm">
+                                            <td className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">Presentation Skills (AM)</td>
+                                            <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">{existingMarksheet.marks?.presentation || 0}</td>
+                                            <td className="px-6 py-4 text-gray-400">20</td>
+                                            <td className="px-6 py-4 text-gray-500 text-xs italic">"{existingMarksheet.comments?.presentation || 'No comments'}"</td>
+                                        </tr>
+                                        <tr className="text-sm bg-indigo-50/30 dark:bg-indigo-900/10">
+                                            <td className="px-6 py-4 font-bold text-indigo-700 dark:text-indigo-300">Industry Mentor Evaluation (IM)</td>
+                                            <td className="px-6 py-4 font-bold text-indigo-700 dark:text-indigo-300">{existingMarksheet.marks?.industryMarks || 0}</td>
+                                            <td className="px-6 py-4 text-indigo-400">40</td>
+                                            <td className="px-6 py-4 text-indigo-600 dark:text-indigo-400 text-xs italic">"{existingMarksheet.comments?.finalComments || 'Finalized by Coordinator'}"</td>
+                                        </tr>
+                                        <tr className="bg-indigo-600 text-white font-black">
+                                            <td className="px-6 py-4 text-white">FINAL TOTAL SCORE</td>
+                                            <td className="px-6 py-4 text-white text-xl">{existingMarksheet.marks?.finalTotal || 0}</td>
+                                            <td className="px-6 py-4 text-indigo-200">100</td>
+                                            <td className="px-6 py-4 text-indigo-100 text-xs">Internship Completed successfully.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 )}
 

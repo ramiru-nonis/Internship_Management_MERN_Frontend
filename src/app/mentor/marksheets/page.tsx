@@ -212,12 +212,45 @@ export default function MarksheetSubmission() {
                                         </div>
                                     </div>
                                     {selectedStudent.hasMarksheet && (
-                                        <div className="flex items-center px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium">
-                                            <CheckCircle className="w-4 h-4 mr-1.5" />
-                                            Already Submitted
+                                        <div className="flex flex-col items-end">
+                                            <div className="flex items-center px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium">
+                                                <CheckCircle className="w-4 h-4 mr-1.5" />
+                                                {selectedStudent.marksheet?.isFinalized ? "Finalized" : "Already Submitted"}
+                                            </div>
+                                            {selectedStudent.marksheet?.isFinalized && (
+                                                <div className="mt-2 text-right">
+                                                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Final Score</p>
+                                                    <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400">{selectedStudent.marksheet.marks.finalTotal} / 100</p>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
                                 </div>
+
+                                {selectedStudent.marksheet?.isFinalized && (
+                                    <div className="mb-8 p-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-100 dark:border-green-800 rounded-2xl">
+                                        <h3 className="text-sm font-bold text-green-800 dark:text-green-300 uppercase tracking-wider mb-4 flex items-center">
+                                            <Award className="w-4 h-4 mr-2" />
+                                            Final Evaluation Composition
+                                        </h3>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            <div className="p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800">
+                                                <p className="text-[10px] text-gray-400 uppercase font-bold">Your Score</p>
+                                                <p className="text-lg font-bold text-gray-800 dark:text-white">{selectedStudent.marksheet.marks.total} / 60</p>
+                                            </div>
+                                            <div className="p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800">
+                                                <p className="text-[10px] text-gray-400 uppercase font-bold">Industry</p>
+                                                <p className="text-lg font-bold text-gray-800 dark:text-white">{selectedStudent.marksheet.marks.industryMarks} / 40</p>
+                                            </div>
+                                            <div className="p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800 col-span-2">
+                                                <p className="text-[10px] text-gray-400 uppercase font-bold">Calculation</p>
+                                                <p className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                                                    {selectedStudent.marksheet.marks.total} + {selectedStudent.marksheet.marks.industryMarks} = {selectedStudent.marksheet.marks.finalTotal}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="space-y-8">
                                     {/* Technical Skills */}
@@ -235,7 +268,8 @@ export default function MarksheetSubmission() {
                                                     required
                                                     value={marks.technical}
                                                     onChange={(e) => handleMarkChange('technical', e.target.value)}
-                                                    className="w-20 text-center font-bold text-xl p-2 border-2 border-indigo-100 dark:border-indigo-900/50 rounded-lg focus:border-indigo-500 outline-none"
+                                                    className="w-20 text-center font-bold text-xl p-2 border-2 border-indigo-100 dark:border-indigo-900/50 rounded-lg focus:border-indigo-500 outline-none disabled:bg-white dark:disabled:bg-gray-800"
+                                                    disabled={selectedStudent.marksheet?.isFinalized}
                                                 />
                                                 <span className="ml-2 text-gray-400 font-medium">/ 20</span>
                                             </div>
@@ -244,7 +278,8 @@ export default function MarksheetSubmission() {
                                             placeholder="Comments on technical skills..."
                                             value={comments.technical}
                                             onChange={(e) => handleCommentChange('technical', e.target.value)}
-                                            className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none bg-white dark:bg-gray-800"
+                                            className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none bg-white dark:bg-gray-800 disabled:opacity-70"
+                                            disabled={selectedStudent.marksheet?.isFinalized}
                                         />
                                     </div>
 
@@ -263,7 +298,8 @@ export default function MarksheetSubmission() {
                                                     required
                                                     value={marks.softSkills}
                                                     onChange={(e) => handleMarkChange('softSkills', e.target.value)}
-                                                    className="w-20 text-center font-bold text-xl p-2 border-2 border-pink-100 dark:border-pink-900/50 rounded-lg focus:border-pink-500 outline-none"
+                                                    className="w-20 text-center font-bold text-xl p-2 border-2 border-pink-100 dark:border-pink-900/50 rounded-lg focus:border-pink-500 outline-none disabled:bg-white dark:disabled:bg-gray-800"
+                                                    disabled={selectedStudent.marksheet?.isFinalized}
                                                 />
                                                 <span className="ml-2 text-gray-400 font-medium">/ 20</span>
                                             </div>
@@ -272,7 +308,8 @@ export default function MarksheetSubmission() {
                                             placeholder="Comments on soft skills..."
                                             value={comments.softSkills}
                                             onChange={(e) => handleCommentChange('softSkills', e.target.value)}
-                                            className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none h-24 resize-none bg-white dark:bg-gray-800"
+                                            className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none h-24 resize-none bg-white dark:bg-gray-800 disabled:opacity-70"
+                                            disabled={selectedStudent.marksheet?.isFinalized}
                                         />
                                     </div>
 
@@ -291,7 +328,8 @@ export default function MarksheetSubmission() {
                                                     required
                                                     value={marks.presentation}
                                                     onChange={(e) => handleMarkChange('presentation', e.target.value)}
-                                                    className="w-20 text-center font-bold text-xl p-2 border-2 border-amber-100 dark:border-amber-900/50 rounded-lg focus:border-amber-500 outline-none"
+                                                    className="w-20 text-center font-bold text-xl p-2 border-2 border-amber-100 dark:border-amber-900/50 rounded-lg focus:border-amber-500 outline-none disabled:bg-white dark:disabled:bg-gray-800"
+                                                    disabled={selectedStudent.marksheet?.isFinalized}
                                                 />
                                                 <span className="ml-2 text-gray-400 font-medium">/ 20</span>
                                             </div>
@@ -300,7 +338,8 @@ export default function MarksheetSubmission() {
                                             placeholder="Comments on presentation skills..."
                                             value={comments.presentation}
                                             onChange={(e) => handleCommentChange('presentation', e.target.value)}
-                                            className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none h-24 resize-none bg-white dark:bg-gray-800"
+                                            className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none h-24 resize-none bg-white dark:bg-gray-800 disabled:opacity-70"
+                                            disabled={selectedStudent.marksheet?.isFinalized}
                                         />
                                     </div>
                                 </div>
@@ -314,26 +353,28 @@ export default function MarksheetSubmission() {
                                         </span>
                                     </div>
 
-                                    <button
-                                        type="submit"
-                                        disabled={submitting || total > 60}
-                                        className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg flex items-center transition-all ${submitting || total > 60
-                                            ? 'bg-gray-400 cursor-not-allowed'
-                                            : 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-500/30'
-                                            }`}
-                                    >
-                                        {submitting ? (
-                                            <>
-                                                <Loader className="w-5 h-5 mr-2 animate-spin" />
-                                                Generating Marksheet...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Save className="w-5 h-5 mr-2" />
-                                                Submit Marksheet
-                                            </>
-                                        )}
-                                    </button>
+                                    {!selectedStudent.marksheet?.isFinalized && (
+                                        <button
+                                            type="submit"
+                                            disabled={submitting || total > 60}
+                                            className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg flex items-center transition-all ${submitting || total > 60
+                                                ? 'bg-gray-400 cursor-not-allowed'
+                                                : 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-500/30'
+                                                }`}
+                                        >
+                                            {submitting ? (
+                                                <>
+                                                    <Loader className="w-5 h-5 mr-2 animate-spin" />
+                                                    Generating Marksheet...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Save className="w-5 h-5 mr-2" />
+                                                    Submit Marksheet
+                                                </>
+                                            )}
+                                        </button>
+                                    )}
                                 </div>
                             </form>
                         ) : (
