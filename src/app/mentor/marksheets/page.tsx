@@ -18,10 +18,18 @@ interface Student {
     marksheet?: {
         isFinalized: boolean;
         marks: {
+            technical: number;
+            softSkills: number;
+            presentation: number;
             total: number;
             industryMarks: number;
             finalTotal: number;
             industryMarksheetUrl?: string;
+        };
+        comments?: {
+            technical: string;
+            softSkills: string;
+            presentation: string;
         };
         fileUrl?: string;
     };
@@ -164,32 +172,43 @@ export default function MarksheetSubmission() {
                                     key={student._id}
                                     onClick={() => {
                                         setSelectedStudent(student);
-                                        // Reset form on student switch
-                                        setMarks({ technical: 0, softSkills: 0, presentation: 0 });
-                                        setComments({ technical: '', softSkills: '', presentation: '' });
+                                        // Populate form if marks exist, otherwise reset
+                                        if (student.hasMarksheet && student.marksheet) {
+                                            setMarks({
+                                                technical: student.marksheet.marks.technical || 0,
+                                                softSkills: student.marksheet.marks.softSkills || 0,
+                                                presentation: student.marksheet.marks.presentation || 0
+                                            });
+                                            setComments({
+                                                technical: student.marksheet.comments?.technical || '',
+                                                softSkills: student.marksheet.comments?.softSkills || '',
+                                                presentation: student.marksheet.comments?.presentation || ''
+                                            });
+                                        } else {
+                                            setMarks({ technical: 0, softSkills: 0, presentation: 0 });
+                                            setComments({ technical: '', softSkills: '', presentation: '' });
+                                        }
                                     }}
-                                    className={`w-full text-left p-3 rounded-xl transition-all border ${selectedStudent?._id === student._id
+                                    className={`w-full text-left p-3 rounded-xl transition-all border flex items-center gap-3 ${selectedStudent?._id === student._id
                                         ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500'
                                         : 'hover:bg-gray-50 dark:hover:bg-gray-700/50 border-transparent hover:border-gray-200'
                                         }`}
                                 >
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <p className="font-medium text-gray-900 dark:text-white">
-                                                {student.first_name} {student.last_name}
-                                            </p>
-                                            <p className="text-xs text-gray-500">{student.cb_number}</p>
-                                            {student.hasMarksheet && student.marksheet?.isFinalized && (
-                                                <div className="mt-1 flex items-center gap-2">
-                                                    <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 bg-green-100 text-green-700 rounded-sm">Finalized</span>
-                                                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{student.marksheet.marks.finalTotal}/100</span>
-                                                </div>
-                                            )}
-                                        </div>
-                                        {student.hasMarksheet ? (
-                                            <CheckCircle className="w-5 h-5 text-green-500" />
-                                        ) : (
-                                            <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600" />
+                                    {student.hasMarksheet ? (
+                                        <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                                    ) : (
+                                        <div className="w-5 h-5 rounded-full border-2 border-gray-300 dark:border-gray-600 flex-shrink-0" />
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-medium text-gray-900 dark:text-white truncate">
+                                            {student.first_name} {student.last_name}
+                                        </p>
+                                        <p className="text-xs text-gray-500">{student.cb_number}</p>
+                                        {student.hasMarksheet && student.marksheet?.isFinalized && (
+                                            <div className="mt-1 flex items-center gap-2">
+                                                <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 bg-green-100 text-green-700 rounded-sm">Finalized</span>
+                                                <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{student.marksheet.marks.finalTotal}/100</span>
+                                            </div>
                                         )}
                                     </div>
                                 </button>
@@ -302,7 +321,7 @@ export default function MarksheetSubmission() {
                                                     value={marks.technical}
                                                     onChange={(e) => handleMarkChange('technical', e.target.value)}
                                                     className="w-20 text-center font-bold text-xl p-2 border-2 border-indigo-100 dark:border-indigo-900/50 rounded-lg focus:border-indigo-500 outline-none disabled:bg-white dark:disabled:bg-gray-800"
-                                                    disabled={selectedStudent.marksheet?.isFinalized}
+                                                    disabled={selectedStudent.hasMarksheet}
                                                 />
                                                 <span className="ml-2 text-gray-400 font-medium">/ 20</span>
                                             </div>
@@ -312,7 +331,7 @@ export default function MarksheetSubmission() {
                                             value={comments.technical}
                                             onChange={(e) => handleCommentChange('technical', e.target.value)}
                                             className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none h-24 resize-none bg-white dark:bg-gray-800 disabled:opacity-70"
-                                            disabled={selectedStudent.marksheet?.isFinalized}
+                                            disabled={selectedStudent.hasMarksheet}
                                         />
                                     </div>
 
@@ -332,7 +351,7 @@ export default function MarksheetSubmission() {
                                                     value={marks.softSkills}
                                                     onChange={(e) => handleMarkChange('softSkills', e.target.value)}
                                                     className="w-20 text-center font-bold text-xl p-2 border-2 border-pink-100 dark:border-pink-900/50 rounded-lg focus:border-pink-500 outline-none disabled:bg-white dark:disabled:bg-gray-800"
-                                                    disabled={selectedStudent.marksheet?.isFinalized}
+                                                    disabled={selectedStudent.hasMarksheet}
                                                 />
                                                 <span className="ml-2 text-gray-400 font-medium">/ 20</span>
                                             </div>
@@ -342,7 +361,7 @@ export default function MarksheetSubmission() {
                                             value={comments.softSkills}
                                             onChange={(e) => handleCommentChange('softSkills', e.target.value)}
                                             className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none h-24 resize-none bg-white dark:bg-gray-800 disabled:opacity-70"
-                                            disabled={selectedStudent.marksheet?.isFinalized}
+                                            disabled={selectedStudent.hasMarksheet}
                                         />
                                     </div>
 
@@ -362,7 +381,7 @@ export default function MarksheetSubmission() {
                                                     value={marks.presentation}
                                                     onChange={(e) => handleMarkChange('presentation', e.target.value)}
                                                     className="w-20 text-center font-bold text-xl p-2 border-2 border-amber-100 dark:border-amber-900/50 rounded-lg focus:border-amber-500 outline-none disabled:bg-white dark:disabled:bg-gray-800"
-                                                    disabled={selectedStudent.marksheet?.isFinalized}
+                                                    disabled={selectedStudent.hasMarksheet}
                                                 />
                                                 <span className="ml-2 text-gray-400 font-medium">/ 20</span>
                                             </div>
@@ -372,7 +391,7 @@ export default function MarksheetSubmission() {
                                             value={comments.presentation}
                                             onChange={(e) => handleCommentChange('presentation', e.target.value)}
                                             className="w-full p-3 border border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none h-24 resize-none bg-white dark:bg-gray-800 disabled:opacity-70"
-                                            disabled={selectedStudent.marksheet?.isFinalized}
+                                            disabled={selectedStudent.hasMarksheet}
                                         />
                                     </div>
                                 </div>
@@ -386,7 +405,7 @@ export default function MarksheetSubmission() {
                                         </span>
                                     </div>
 
-                                    {!selectedStudent.marksheet?.isFinalized && (
+                                    {!selectedStudent.hasMarksheet && (
                                         <button
                                             type="submit"
                                             disabled={submitting || total > 60}
