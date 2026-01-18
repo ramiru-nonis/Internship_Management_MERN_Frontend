@@ -184,18 +184,36 @@ export default function LogbookPage() {
     };
 
     // --- PDF Helper ---
-    // Removed fetchPdf useEffect. We now use direct URL in iframe.
-    // This avoids CORS issues with redirects and simplifies loading.
-    useEffect(() => {
-        if (showPdfModal && logbookData?.signedPDFPath) {
-            // Optional: reset states if we want to track loading manually, 
-            // but strictly speaking we just render the iframe now.
-            setPdfLoading(true);
-            // We'll assume it loads quickly or let the iframe handle it. 
-            // Actually, let's just turn off loading immediately so the iframe renders.
+    const fetchSignedPdf = async () => {
+        if (!logbookData?._id) return;
+        setPdfLoading(true);
+        setPdfError(false);
+        try {
+            const response = await api.get(`/logbooks/${logbookData._id}/download`, {
+                responseType: 'blob'
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            setPdfUrl(url);
+        } catch (err) {
+            console.error("Error fetching PDF blob:", err);
+            setPdfError(true);
+        } finally {
             setPdfLoading(false);
         }
-    }, [showPdfModal, logbookData]);
+    };
+
+    useEffect(() => {
+        if (showPdfModal && logbookData?._id && logbookData?.signedPDFPath) {
+            fetchSignedPdf();
+        }
+        // Cleanup URL on close
+        return () => {
+            if (pdfUrl) {
+                window.URL.revokeObjectURL(pdfUrl);
+                setPdfUrl(null);
+            }
+        };
+    }, [showPdfModal]);
 
     // --- Actions ---
     const handleMonthChange = (m: number) => {
@@ -680,9 +698,9 @@ export default function LogbookPage() {
                                 </div>
                             )}
 
-                            {!pdfLoading && !pdfError && (
+                            {!pdfLoading && !pdfError && pdfUrl && (
                                 <iframe
-                                    src={directDownloadUrl}
+                                    src={pdfUrl}
                                     className="w-full h-full"
                                     title="Signed Logbook PDF"
                                 />
