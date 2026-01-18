@@ -13,6 +13,7 @@ export default function FinalSubmissionPage() {
 
     // New State for existing submissions
     const [existingMarksheet, setExistingMarksheet] = useState<any>(null);
+    const [finalizedMarksheet, setFinalizedMarksheet] = useState<any>(null);
     const [existingPresentation, setExistingPresentation] = useState<any>(null);
     const [combinedLogbookUrl, setCombinedLogbookUrl] = useState<string | null>(null);
 
@@ -42,6 +43,7 @@ export default function FinalSubmissionPage() {
         try {
             const res = await api.get(`/submissions/student/${id}`);
             setExistingMarksheet(res.data.marksheet);
+            setFinalizedMarksheet(res.data.finalizedMarksheet);
             setExistingPresentation(res.data.presentation);
             setMarksheetCount(res.data.marksheetCount || 0);
             setPresentationCount(res.data.presentationCount || 0);
@@ -171,7 +173,7 @@ export default function FinalSubmissionPage() {
                 <p className="text-gray-600 dark:text-gray-400 mb-8">Please submit your marksheet and exit presentation to complete your internship. You have 3 attempts for each.</p>
 
                 {/* Finalized Marks Display (NEW) */}
-                {existingMarksheet?.isFinalized && (
+                {finalizedMarksheet && finalizedMarksheet.isFinalized && (
                     <div className="space-y-8 mb-12">
                         {/* Summary Card */}
                         <div className="bg-gradient-to-br from-indigo-600 to-blue-700 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
@@ -190,15 +192,15 @@ export default function FinalSubmissionPage() {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                                 <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
                                     <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Academic Mentor</p>
-                                    <p className="text-3xl font-black">{existingMarksheet.marks?.total || 0} <span className="text-sm font-normal opacity-60">/ 60</span></p>
+                                    <p className="text-3xl font-black">{finalizedMarksheet.marks?.total || 0} <span className="text-sm font-normal opacity-60">/ 60</span></p>
                                 </div>
                                 <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
                                     <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Industry Mentor</p>
-                                    <p className="text-3xl font-black">{existingMarksheet.marks?.industryMarks || 0} <span className="text-sm font-normal opacity-60">/ 40</span></p>
+                                    <p className="text-3xl font-black">{finalizedMarksheet.marks?.industryMarks || 0} <span className="text-sm font-normal opacity-60">/ 40</span></p>
                                 </div>
                                 <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/40 shadow-inner text-center md:text-left">
                                     <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Final Score</p>
-                                    <p className="text-4xl font-black text-white">{existingMarksheet.marks?.finalTotal || 0} <span className="text-sm font-normal opacity-60">/ 100</span></p>
+                                    <p className="text-4xl font-black text-white">{finalizedMarksheet.marks?.finalTotal || 0} <span className="text-sm font-normal opacity-60">/ 100</span></p>
                                 </div>
                             </div>
                         </div>
@@ -216,7 +218,7 @@ export default function FinalSubmissionPage() {
                             <p className="text-xs text-indigo-600 dark:text-indigo-400 font-bold uppercase tracking-widest mt-1 italic">Read-Only View</p>
                         </div>
                         <div className="text-md font-bold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-900 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700">
-                            Submission Date: {new Date(existingMarksheet.updatedAt).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            Submission Date: {new Date(finalizedMarksheet.updatedAt).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </div>
                     </div>
                     <div className="overflow-x-auto">
@@ -232,31 +234,31 @@ export default function FinalSubmissionPage() {
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                                 <tr className="text-sm">
                                     <td className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">Technical Skill Development (AM)</td>
-                                    <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">{existingMarksheet.marks?.technical || 0}</td>
+                                    <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">{finalizedMarksheet.marks?.technical || 0}</td>
                                     <td className="px-6 py-4 text-gray-400">20</td>
-                                    <td className="px-6 py-4 text-gray-500 text-xs italic">"{existingMarksheet.comments?.technical || 'No comments'}"</td>
+                                    <td className="px-6 py-4 text-gray-500 text-xs italic">"{finalizedMarksheet.comments?.technical || 'No comments'}"</td>
                                 </tr>
                                 <tr className="text-sm">
                                     <td className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">Soft Skill Development (AM)</td>
-                                    <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">{existingMarksheet.marks?.softSkills || 0}</td>
+                                    <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">{finalizedMarksheet.marks?.softSkills || 0}</td>
                                     <td className="px-6 py-4 text-gray-400">20</td>
-                                    <td className="px-6 py-4 text-gray-500 text-xs italic">"{existingMarksheet.comments?.softSkills || 'No comments'}"</td>
+                                    <td className="px-6 py-4 text-gray-500 text-xs italic">"{finalizedMarksheet.comments?.softSkills || 'No comments'}"</td>
                                 </tr>
                                 <tr className="text-sm">
                                     <td className="px-6 py-4 font-medium text-gray-700 dark:text-gray-300">Presentation Skills (AM)</td>
-                                    <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">{existingMarksheet.marks?.presentation || 0}</td>
+                                    <td className="px-6 py-4 font-bold text-gray-900 dark:text-white">{finalizedMarksheet.marks?.presentation || 0}</td>
                                     <td className="px-6 py-4 text-gray-400">20</td>
-                                    <td className="px-6 py-4 text-gray-500 text-xs italic">"{existingMarksheet.comments?.presentation || 'No comments'}"</td>
+                                    <td className="px-6 py-4 text-gray-500 text-xs italic">"{finalizedMarksheet.comments?.presentation || 'No comments'}"</td>
                                 </tr>
                                 <tr className="text-sm bg-indigo-50/30 dark:bg-indigo-900/10">
                                     <td className="px-6 py-4 font-bold text-indigo-700 dark:text-indigo-300">Industry Mentor Evaluation (IM)</td>
-                                    <td className="px-6 py-4 font-bold text-indigo-700 dark:text-indigo-300">{existingMarksheet.marks?.industryMarks || 0}</td>
+                                    <td className="px-6 py-4 font-bold text-indigo-700 dark:text-indigo-300">{finalizedMarksheet.marks?.industryMarks || 0}</td>
                                     <td className="px-6 py-4 text-indigo-400">40</td>
-                                    <td className="px-6 py-4 text-indigo-600 dark:text-indigo-400 text-xs italic">"{existingMarksheet.comments?.finalComments || 'Finalized by Coordinator'}"</td>
+                                    <td className="px-6 py-4 text-indigo-600 dark:text-indigo-400 text-xs italic">"{finalizedMarksheet.comments?.finalComments || 'Finalized by Coordinator'}"</td>
                                 </tr>
                                 <tr className="bg-indigo-600 text-white font-black">
                                     <td className="px-6 py-4 text-white">FINAL TOTAL SCORE</td>
-                                    <td className="px-6 py-4 text-white text-xl">{existingMarksheet.marks?.finalTotal || 0}</td>
+                                    <td className="px-6 py-4 text-white text-xl">{finalizedMarksheet.marks?.finalTotal || 0}</td>
                                     <td className="px-6 py-4 text-indigo-200">100</td>
                                     <td className="px-6 py-4 text-indigo-100 text-xs">Internship Completed successfully.</td>
                                 </tr>
