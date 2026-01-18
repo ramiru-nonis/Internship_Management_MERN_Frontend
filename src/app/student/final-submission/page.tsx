@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { FiLock } from "react-icons/fi";
+import { FiLock, FiAlertCircle } from "react-icons/fi";
 import { Award, CheckCircle } from "lucide-react";
 
 export default function FinalSubmissionPage() {
@@ -24,6 +24,13 @@ export default function FinalSubmissionPage() {
     const [showMarksheetUpload, setShowMarksheetUpload] = useState(false);
     const [showPresentationUpload, setShowPresentationUpload] = useState(false);
 
+    // Eligibility State
+    const [eligibility, setEligibility] = useState<{ checked: boolean; eligible: boolean; message: string }>({
+        checked: false,
+        eligible: false,
+        message: ""
+    });
+
     const [loading, setLoading] = useState(true);
     const [logbookStatus, setLogbookStatus] = useState({ complete: false, total: 0, approved: 0 });
 
@@ -35,8 +42,23 @@ export default function FinalSubmissionPage() {
             const user = JSON.parse(userStr);
             setStudentId(user._id);
             fetchExistingSubmissions(user._id);
+            checkEligibility(user._id);
         }
     }, []);
+
+
+
+    const checkEligibility = async (id: string) => {
+        try {
+            const res = await api.get(`/submissions/eligibility/${id}`);
+            setEligibility({ checked: true, eligible: res.data.eligible, message: res.data.message });
+        } catch (error: any) {
+            console.error("Eligibility check failed:", error);
+            const msg = error.response?.data?.message || "Could not verify eligibility.";
+            // Fail safe: if error, we block access to be safe
+            setEligibility({ checked: true, eligible: false, message: msg });
+        }
+    };
 
     const fetchExistingSubmissions = async (id: string) => {
         try {
@@ -119,6 +141,50 @@ export default function FinalSubmissionPage() {
     // Checking if we are "done" is nuanced now.
     // Done if: we have existing files AND user isn't trying to upload new ones.
     const canSubmit = (marksheet || presentation);
+
+    if (loading || !eligibility.checked) {
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            </div>
+        );
+    }
+
+    if (!eligibility.eligible) {
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-lg w-full text-center space-y-6">
+                    <div className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <FiAlertCircle className="text-4xl" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Access Restricted</h2>
+                    <p className="text-gray-600 dark:text-gray-300">
+                        {eligibility.message || "You are not eligible to access Final Submission at this time."}
+                    </p>
+                    <div className="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-lg text-left">
+                        <p className="text-sm text-indigo-800 dark:text-indigo-200 font-semibold mb-2">Requirements:</p>
+                        <ul className="list-disc list-inside text-sm text-indigo-700 dark:text-indigo-300 space-y-1">
+                            <li>Complete your placement details.</li>
+                            <li>Submit logbooks for all internship months.</li>
+                            <li>Have all logbooks <strong>Approved</strong> by your mentor.</li>
+                        </ul>
+                    </div>
+                    <button
+                        onClick={() => router.push('/student/logbook')}
+                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-indigo-200"
+                    >
+                        Go to Logbooks
+                    </button>
+                    <button
+                        onClick={() => router.push('/student/dashboard')}
+                        className="block w-full text-sm text-gray-400 hover:text-gray-600 mt-2"
+                    >
+                        Return to Dashboard
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
