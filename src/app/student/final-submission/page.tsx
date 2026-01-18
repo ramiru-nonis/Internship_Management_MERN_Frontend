@@ -263,6 +263,54 @@ export default function FinalSubmissionPage() {
                                 </table>
                             </div>
                         </div>
+
+                        {/* Evaluation Documents (Functional Requirement 3) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Academic Mentor evaluation link */}
+                            {finalizedMarksheet.fileUrl && (
+                                <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg">
+                                            <Award size={20} />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-900 dark:text-white">Academic evaluation</p>
+                                            <p className="text-xs text-gray-500">Formal assessment by mentor</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => window.open(finalizedMarksheet.fileUrl.startsWith('http') ? finalizedMarksheet.fileUrl : `${apiUrl}${finalizedMarksheet.fileUrl}`, '_blank')}
+                                        className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                                    >
+                                        View PDF
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Industry Mentor marksheet link */}
+                            {(finalizedMarksheet.marks?.industryMarksheetUrl || (existingMarksheet && existingMarksheet.fileUrl)) && (
+                                <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
+                                            <CheckCircle size={20} />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-900 dark:text-white">Industry evaluation</p>
+                                            <p className="text-xs text-gray-500">Evaluation from employer</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            const url = finalizedMarksheet.marks?.industryMarksheetUrl || existingMarksheet.fileUrl;
+                                            window.open(url.startsWith('http') ? url : `${apiUrl}${url}`, '_blank');
+                                        }}
+                                        className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                                    >
+                                        View PDF
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
 
@@ -340,7 +388,7 @@ export default function FinalSubmissionPage() {
                                         <span className="bg-red-100 dark:bg-red-900/50 text-red-600 dark:text-red-400 p-2 rounded-lg mr-3">
                                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                                         </span>
-                                        Marksheet
+                                        Industry Mentor Marksheet <span className="text-gray-400 font-normal ml-2">(Optional)</span>
                                     </div>
                                     <span className={`text-xs px-2 py-1 rounded-full ${marksheetCount >= 3 ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
                                         Attempt {marksheetCount}/3

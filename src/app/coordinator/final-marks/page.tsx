@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import api from "@/lib/api";
+import { Upload, FileText } from "lucide-react";
 
 export default function FinalMarksPage() {
     const [candidates, setCandidates] = useState<any[]>([]);
@@ -12,6 +13,7 @@ export default function FinalMarksPage() {
     const [selectedStudent, setSelectedStudent] = useState<any>(null);
     const [industryMarks, setIndustryMarks] = useState<number>(0);
     const [finalComments, setFinalComments] = useState("");
+    const [industryMarksheet, setIndustryMarksheet] = useState<File | null>(null);
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
@@ -42,6 +44,7 @@ export default function FinalMarksPage() {
 
     const handleGrade = (student: any) => {
         setSelectedStudent(student);
+        setIndustryMarksheet(null);
         setIndustryMarks(student.marks?.industryMarks || 0);
         setFinalComments(student.comments?.finalComments || "");
         setShowModal(true);
@@ -56,10 +59,16 @@ export default function FinalMarksPage() {
 
         setSaving(true);
         try {
-            await api.post('/coordinator/marks/save', {
-                studentId: selectedStudent.studentId,
-                industryMarks,
-                finalComments
+            const formData = new FormData();
+            formData.append('studentId', selectedStudent.studentId);
+            formData.append('industryMarks', String(industryMarks));
+            formData.append('finalComments', finalComments);
+            if (industryMarksheet) {
+                formData.append('industryMarksheet', industryMarksheet);
+            }
+
+            await api.post('/coordinator/marks/save', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
             });
             setShowModal(false);
             fetchCandidates(); // Refresh list
@@ -247,6 +256,55 @@ export default function FinalMarksPage() {
                                         className="w-full px-4 py-3 border rounded-xl dark:bg-gray-900 dark:border-gray-700 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500"
                                         placeholder="Coordinator final feedback/comments..."
                                     />
+
+                                    {/* Optional Marksheet Upload & View Links */}
+                                    <div className="mt-4">
+                                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                                            <Upload className="w-4 h-4 mr-2" />
+                                            Industry Mentor Marksheet (Optional)
+                                        </label>
+                                        <div className="flex flex-col gap-3">
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex-1 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center hover:bg-gray-50 dark:hover:bg-gray-900/50 cursor-pointer relative">
+                                                    <input
+                                                        type="file"
+                                                        accept=".pdf"
+                                                        onChange={(e) => e.target.files && setIndustryMarksheet(e.target.files[0])}
+                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                    />
+                                                    <span className="text-sm text-gray-500">
+                                                        {industryMarksheet ? industryMarksheet.name : "Click to upload industry marksheet (PDF)"}
+                                                    </span>
+                                                </div>
+                                                {selectedStudent.marks?.fileUrl && (
+                                                    <a
+                                                        href={selectedStudent.marks.fileUrl.startsWith('http') ? selectedStudent.marks.fileUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}${selectedStudent.marks.fileUrl}`}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="flex items-center px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 text-sm font-bold h-fit"
+                                                        title="View Academic Mentor Marksheet"
+                                                    >
+                                                        <FileText className="w-4 h-4 mr-2" />
+                                                        AM Marksheet
+                                                    </a>
+                                                )}
+                                            </div>
+                                            {selectedStudent.industryMarksheetUrl && (
+                                                <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+                                                    <span className="text-xs text-blue-700 dark:text-blue-300 font-medium">Existing Submission found</span>
+                                                    <a
+                                                        href={selectedStudent.industryMarksheetUrl.startsWith('http') ? selectedStudent.industryMarksheetUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}${selectedStudent.industryMarksheetUrl}`}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="flex items-center text-xs font-bold text-blue-600 hover:underline"
+                                                    >
+                                                        <FileText className="w-3 h-3 mr-1" />
+                                                        View Industry Marksheet
+                                                    </a>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

@@ -21,7 +21,9 @@ interface Student {
             total: number;
             industryMarks: number;
             finalTotal: number;
+            industryMarksheetUrl?: string;
         };
+        fileUrl?: string;
     };
 }
 
@@ -248,6 +250,37 @@ export default function MarksheetSubmission() {
                                                     {selectedStudent.marksheet.marks.total} + {selectedStudent.marksheet.marks.industryMarks} = {selectedStudent.marksheet.marks.finalTotal}
                                                 </p>
                                             </div>
+                                        </div>
+                                        {/* Evaluation Documents link for mentor */}
+                                        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            {selectedStudent.marksheet.fileUrl && (
+                                                <a
+                                                    href={selectedStudent.marksheet.fileUrl.startsWith('http') ? selectedStudent.marksheet.fileUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}${selectedStudent.marksheet.fileUrl}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800 hover:bg-green-50 transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <Award size={16} className="text-green-600" />
+                                                        <span className="text-xs font-bold text-gray-700 dark:text-gray-300">Your Evaluation Assessment</span>
+                                                    </div>
+                                                    <span className="text-[10px] text-blue-600 font-bold uppercase">View PDF</span>
+                                                </a>
+                                            )}
+                                            {selectedStudent.marksheet.marks.industryMarksheetUrl && (
+                                                <a
+                                                    href={selectedStudent.marksheet.marks.industryMarksheetUrl.startsWith('http') ? selectedStudent.marksheet.marks.industryMarksheetUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}${selectedStudent.marksheet.marks.industryMarksheetUrl}`}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800 hover:bg-green-50 transition-colors"
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <CheckCircle size={16} className="text-blue-600" />
+                                                        <span className="text-xs font-bold text-gray-700 dark:text-gray-300">Industry Assessment Marksheet</span>
+                                                    </div>
+                                                    <span className="text-[10px] text-blue-600 font-bold uppercase">View PDF</span>
+                                                </a>
+                                            )}
                                         </div>
                                     </div>
                                 )}
