@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { FiLock } from "react-icons/fi";
+import { Award } from "lucide-react";
 
 export default function FinalSubmissionPage() {
     const router = useRouter();
@@ -168,6 +169,39 @@ export default function FinalSubmissionPage() {
                 )}
 
                 <p className="text-gray-600 dark:text-gray-400 mb-8">Please submit your marksheet and exit presentation to complete your internship. You have 3 attempts for each.</p>
+
+                {/* Finalized Marks Display (NEW) */}
+                {existingMarksheet?.isFinalized && (
+                    <div className="mb-12 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
+                        <div className="relative z-10">
+                            <h2 className="text-2xl font-bold mb-6 flex items-center">
+                                <Award className="w-8 h-8 mr-3" />
+                                Final Evaluation Result
+                            </h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
+                                    <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Academic Mentor</p>
+                                    <p className="text-3xl font-black">{existingMarksheet.marks?.total || 0} <span className="text-sm font-normal opacity-60">/ 60</span></p>
+                                </div>
+                                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
+                                    <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Industry Mentor</p>
+                                    <p className="text-3xl font-black">{existingMarksheet.marks?.industryMarks || 0} <span className="text-sm font-normal opacity-60">/ 40</span></p>
+                                </div>
+                                <div className="bg-white/20 backdrop-blur-md rounded-2xl p-4 border border-white/40 shadow-inner">
+                                    <p className="text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1">Final Score</p>
+                                    <p className="text-4xl font-black text-white">{existingMarksheet.marks?.finalTotal || 0} <span className="text-sm font-normal opacity-60">/ 100</span></p>
+                                </div>
+                            </div>
+                            {existingMarksheet.comments?.finalComments && (
+                                <div className="bg-black/10 rounded-xl p-4 italic text-indigo-50 text-sm">
+                                    " {existingMarksheet.comments.finalComments} "
+                                </div>
+                            )}
+                        </div>
+                        {/* Decorative background circle */}
+                        <div className="absolute -right-20 -bottom-20 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+                    </div>
+                )}
 
 
 

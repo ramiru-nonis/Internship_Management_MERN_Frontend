@@ -15,6 +15,14 @@ interface Student {
     user: { _id: string; email: string };
     degree: string;
     hasMarksheet: boolean;
+    marksheet?: {
+        isFinalized: boolean;
+        marks: {
+            total: number;
+            industryMarks: number;
+            finalTotal: number;
+        };
+    };
 }
 
 export default function MarksheetSubmission() {
@@ -169,6 +177,12 @@ export default function MarksheetSubmission() {
                                                 {student.first_name} {student.last_name}
                                             </p>
                                             <p className="text-xs text-gray-500">{student.cb_number}</p>
+                                            {student.hasMarksheet && student.marksheet?.isFinalized && (
+                                                <div className="mt-1 flex items-center gap-2">
+                                                    <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 bg-green-100 text-green-700 rounded-sm">Finalized</span>
+                                                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{student.marksheet.marks.finalTotal}/100</span>
+                                                </div>
+                                            )}
                                         </div>
                                         {student.hasMarksheet ? (
                                             <CheckCircle className="w-5 h-5 text-green-500" />
