@@ -62,16 +62,21 @@ export default function MentorVerifyPage() {
 
     const handleDownloadPDF = async () => {
         try {
+            // Note: Since this page is often visited via public link, 
+            // the backend might allow download without 'protect' if we didn't add it yet
+            // OR we need to ensure the backend allows mentors to download the unsigned version.
             const response = await api.get(`/logbooks/${logbookId}/download`, {
                 responseType: 'blob'
             });
-            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `Logbook_${logbook?.month}_${logbook?.year}.pdf`);
             document.body.appendChild(link);
             link.click();
             link.remove();
+            window.URL.revokeObjectURL(url);
         } catch (err) {
             console.error("Error downloading PDF", err);
             alert("Failed to download PDF.");
