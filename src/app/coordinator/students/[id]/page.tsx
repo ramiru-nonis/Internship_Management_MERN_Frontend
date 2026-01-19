@@ -61,9 +61,14 @@ export default function StudentProfile() {
         }
     };
 
-    const handleViewPdf = async (url: string) => {
+    const handleViewPdf = async (url: string, type?: 'cv' | 'other') => {
         if (!url) return;
         try {
+            if (type === 'cv') {
+                const proxyUrl = `${process.env.NEXT_PUBLIC_API_URL}/submissions/cv/${student.user._id}/view`;
+                window.open(proxyUrl, '_blank');
+                return;
+            }
             const fullUrl = url.startsWith('http') ? url : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}${url}`;
             window.open(fullUrl, '_blank');
         } catch (error) {
@@ -268,7 +273,7 @@ export default function StudentProfile() {
                             <div className="space-y-3">
                                 {student.cv && (
                                     <button
-                                        onClick={() => handleViewPdf(student.cv)}
+                                        onClick={() => handleViewPdf(student.cv, 'cv')}
                                         className="w-full flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all group"
                                     >
                                         <div className="flex items-center">

@@ -274,19 +274,9 @@ export default function ProfilePage() {
                                             <p className="text-sm font-medium text-gray-900">Current CV</p>
                                             <div className="flex items-center space-x-3">
                                                 <button
-                                                    onClick={async () => {
-                                                        const cvUrl = student?.cv?.startsWith('http') ? student.cv : `${process.env.NEXT_PUBLIC_API_URL?.replace('/api', '')}/${student?.cv}`;
-                                                        try {
-                                                            const response = await fetch(cvUrl);
-                                                            const blob = await response.blob();
-                                                            const pdfBlob = new Blob([blob], { type: 'application/pdf' });
-                                                            const url = window.URL.createObjectURL(pdfBlob);
-                                                            window.open(url, '_blank');
-                                                            setTimeout(() => window.URL.revokeObjectURL(url), 100);
-                                                        } catch (error) {
-                                                            console.error('Error viewing PDF:', error);
-                                                            window.open(cvUrl, '_blank');
-                                                        }
+                                                    onClick={() => {
+                                                        const proxyUrl = `${process.env.NEXT_PUBLIC_API_URL}/submissions/cv/${student?.user?._id}/view`;
+                                                        window.open(proxyUrl, '_blank');
                                                     }}
                                                     className="text-xs text-blue-600 hover:underline bg-transparent border-0 cursor-pointer p-0"
                                                 >
