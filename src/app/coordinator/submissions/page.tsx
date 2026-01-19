@@ -81,6 +81,11 @@ export default function CoordinatorSubmissionsPage() {
     const handleSaveSchedule = async () => {
         if (!selectedPresentationId || !scheduleDateTime) return;
 
+        if (new Date(scheduleDateTime) < new Date()) {
+            alert("Scheduled date must be in the future.");
+            return;
+        }
+
         try {
             await api.put(`/submissions/presentation/${selectedPresentationId}/schedule`, {
                 scheduledDate: scheduleDateTime,
@@ -405,6 +410,7 @@ export default function CoordinatorSubmissionsPage() {
                             <input
                                 type="datetime-local"
                                 value={scheduleDateTime}
+                                min={new Date(new Date().getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16)}
                                 onChange={(e) => setScheduleDateTime(e.target.value)}
                                 className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
                             />
