@@ -25,16 +25,32 @@ export default function FinalSubmissionPage() {
     const [showPresentationUpload, setShowPresentationUpload] = useState(false);
 
     const [loading, setLoading] = useState(true);
+    const [authLoading, setAuthLoading] = useState(true);
     const [logbookStatus, setLogbookStatus] = useState({ complete: false, total: 0, approved: 0 });
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
     useEffect(() => {
+        const token = localStorage.getItem('token');
         const userStr = localStorage.getItem('user');
-        if (userStr) {
+
+        if (!token || !userStr) {
+            router.push('/login');
+            return;
+        }
+
+        try {
             const user = JSON.parse(userStr);
+            if (user.role !== 'student') {
+                router.push('/login');
+                return;
+            }
             setStudentId(user._id);
+            setAuthLoading(false);
             fetchExistingSubmissions(user._id);
+        } catch (error) {
+            console.error('Error parsing user data:', error);
+            router.push('/login');
         }
     }, []);
 
@@ -126,8 +142,16 @@ export default function FinalSubmissionPage() {
                 <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Final Submission</h1>
                 <p className="text-gray-500 mb-8">Upload your Marksheet and Exit Presentation (PDF only) to complete your internship.</p>
 
+                {/* Auth Loading State */}
+                {authLoading && (
+                    <div className="flex flex-col items-center justify-center p-12">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+                        <p className="mt-4 text-gray-600 dark:text-gray-400">Verifying authorization...</p>
+                    </div>
+                )}
+
                 {/* STRICT LOCK: If logbooks are not strictly complete, BLOCK EVERYTHING */}
-                {!loading && !logbookStatus.complete && (
+                {!authLoading && !loading && !logbookStatus.complete && (
                     <div className="flex flex-col items-center justify-center bg-white dark:bg-gray-800 rounded-3xl p-12 shadow-xl border border-gray-200 dark:border-gray-700 text-center space-y-6">
                         <div className="bg-red-50 dark:bg-red-900/30 p-6 rounded-full">
                             <FiLock className="text-5xl text-red-500 dark:text-red-400" />
@@ -319,7 +343,8 @@ export default function FinalSubmissionPage() {
 
 
 
-                {(!loading && logbookStatus.complete) ? (
+                {/* Main Submission UI */}
+                {!authLoading && !loading && logbookStatus.complete ? (
                     <>
                         <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8 mb-8">
                             {/* Marksheet Card */}

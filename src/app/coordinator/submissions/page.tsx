@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import api from "@/lib/api";
+import { useRouter } from "next/navigation";
 
 interface Submission {
     id: string;
@@ -45,7 +46,32 @@ export default function CoordinatorSubmissionsPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [submissions, setSubmissions] = useState<Submission[]>([]);
     const [loading, setLoading] = useState(true);
+    const [authLoading, setAuthLoading] = useState(true);
+    const router = useRouter();
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        const user = localStorage.getItem('user');
+
+        if (!token || !user) {
+            router.push('/login');
+            return;
+        }
+
+        try {
+            const userData = JSON.parse(user);
+            if (userData.role !== 'coordinator' && userData.role !== 'admin') {
+                router.push('/login');
+                return;
+            }
+            setAuthLoading(false);
+            fetchSubmissions();
+        } catch (error) {
+            console.error('Error parsing user data:', error);
+            router.push('/login');
+        }
+    }, []);
 
     // Logbook Modal State
     const [showLogbookModal, setShowLogbookModal] = useState(false);
@@ -101,7 +127,7 @@ export default function CoordinatorSubmissionsPage() {
     };
 
     useEffect(() => {
-        fetchSubmissions();
+        // fetchSubmissions is now called inside the auth useEffect
     }, []);
 
     const fetchSubmissions = async () => {
@@ -205,8 +231,10 @@ export default function CoordinatorSubmissionsPage() {
 
                 {/* Scrollable List */}
                 <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 max-h-[600px] overflow-y-auto">
-                    {loading ? (
-                        <div className="p-12 text-center text-gray-500 dark:text-gray-400">Loading submissions...</div>
+                    {authLoading || loading ? (
+                        <div className="p-12 text-center text-gray-500 dark:text-gray-400">
+                            {authLoading ? "Verifying authorization..." : "Loading submissions..."}
+                        </div>
                     ) : filteredSubmissions.length > 0 ? (
                         <div className="divide-y divide-gray-100 dark:divide-gray-700">
                             {filteredSubmissions.map((sub) => (
