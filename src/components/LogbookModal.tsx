@@ -74,17 +74,17 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
     const handleDownloadPdf = async () => {
         if (!selectedLogbook) return;
         try {
-            // Use direct URL download instead of blob API call
-            const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/logbooks/${selectedLogbook._id}/download`;
-
-            // Create temporary link and trigger download
+            const res = await api.get(`/logbooks/${selectedLogbook._id}/download`, {
+                responseType: 'blob'
+            });
+            const url = window.URL.createObjectURL(new Blob([res.data]));
             const link = document.createElement('a');
-            link.href = downloadUrl;
+            link.href = url;
             link.setAttribute('download', `Logbook_${studentName.replace(/\s+/g, '_')}_Month_${selectedLogbook.month}.pdf`);
-            link.setAttribute('target', '_blank');
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
+            link.remove();
+            window.URL.revokeObjectURL(url);
         } catch (error) {
             console.error("Download error:", error);
             alert("Failed to download PDF.");
