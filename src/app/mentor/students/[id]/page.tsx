@@ -50,6 +50,21 @@ export default function MentorStudentProfile() {
         }
     };
 
+    const handleDownloadLogbook = async () => {
+        if (!submissions.logbooks.currentLogbookId) {
+            alert('No logbook available for download');
+            return;
+        }
+        try {
+            const downloadUrl = `${process.env.NEXT_PUBLIC_API_URL}/logbook/${submissions.logbooks.currentLogbookId}/download`;
+            window.open(downloadUrl, '_blank');
+        } catch (error) {
+            console.error('Error downloading logbook:', error);
+            alert('Failed to download logbook');
+        }
+    };
+
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -233,7 +248,7 @@ export default function MentorStudentProfile() {
                                         </div>
                                         <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />
                                     </button>
-                                )}
+                                )}\
                                 <button
                                     onClick={() => (submissions.logbooks.currentLogbookId || student.status === 'Completed') && setShowLogbookModal(true)}
                                     disabled={!submissions.logbooks.currentLogbookId && student.status !== 'Completed'}
@@ -254,6 +269,22 @@ export default function MentorStudentProfile() {
                                             <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />
                                         )}
                                     </div>
+                                </button>
+                                <button
+                                    onClick={handleDownloadLogbook}
+                                    disabled={!submissions.logbooks.currentLogbookId}
+                                    className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all group ${submissions.logbooks.currentLogbookId
+                                        ? 'border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/10'
+                                        : 'border-gray-100 dark:border-gray-800 opacity-60 cursor-not-allowed'
+                                        }`}
+                                >
+                                    <div className="flex items-center">
+                                        <Download className="w-5 h-5 mr-3 text-purple-500" />
+                                        <span className="font-medium text-sm">Download Logbook PDF</span>
+                                    </div>
+                                    {submissions.logbooks.currentLogbookId && (
+                                        <Download className="w-4 h-4 text-gray-400 group-hover:text-purple-500" />
+                                    )}
                                 </button>
                             </div>
                         </div>

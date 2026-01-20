@@ -106,6 +106,12 @@ export default function MarksheetSubmission() {
         e.preventDefault();
         if (!selectedStudent) return;
 
+        // Validate that all marks are filled (greater than 0)
+        if (marks.technical === 0 || marks.softSkills === 0 || marks.presentation === 0) {
+            alert("All mark fields must be filled. Please enter a value greater than 0 for each category.");
+            return;
+        }
+
         if (total > 60) {
             alert("Total marks cannot exceed 60.");
             return;
@@ -408,8 +414,8 @@ export default function MarksheetSubmission() {
                                     {!selectedStudent.hasMarksheet && (
                                         <button
                                             type="submit"
-                                            disabled={submitting || total > 60}
-                                            className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg flex items-center transition-all ${submitting || total > 60
+                                            disabled={submitting || total > 60 || marks.technical === 0 || marks.softSkills === 0 || marks.presentation === 0}
+                                            className={`px-8 py-3 rounded-xl font-bold text-white shadow-lg flex items-center transition-all ${submitting || total > 60 || marks.technical === 0 || marks.softSkills === 0 || marks.presentation === 0
                                                 ? 'bg-gray-400 cursor-not-allowed'
                                                 : 'bg-blue-600 hover:bg-blue-700 hover:shadow-blue-500/30'
                                                 }`}
