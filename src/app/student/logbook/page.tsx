@@ -250,6 +250,13 @@ export default function LogbookPage() {
 
     const handleSaveDraft = async () => {
         if (!studentId || !activeWeek) return;
+
+        // Validation: Ensure log details (activities) are not empty
+        if (!formData.activities.trim()) {
+            alert("Please enter log details before saving.");
+            return;
+        }
+
         setSaving(true);
         try {
             const res = await api.post('/logbooks/entry', {
