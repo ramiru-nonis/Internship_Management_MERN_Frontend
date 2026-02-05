@@ -39,6 +39,7 @@ interface LogbookData {
     year: number;
     status: string;
     weeks: any[];
+    signedPDFPath?: string;
 }
 
 export default function CoordinatorSubmissionsPage() {
