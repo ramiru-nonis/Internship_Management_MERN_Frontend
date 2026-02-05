@@ -10,6 +10,7 @@ interface LogbookData {
     year: number;
     status: string;
     weeks: any[];
+    signedPDFPath?: string;
 }
 
 interface LogbookModalProps {
@@ -77,7 +78,7 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
             const res = await api.get(`/logbooks/${selectedLogbook._id}/download`, {
                 responseType: 'blob'
             });
-            const url = window.URL.createObjectURL(new Blob([res.data]));
+            const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
             const link = document.createElement('a');
             link.href = url;
             link.setAttribute('download', `Logbook_${studentName.replace(/\s+/g, '_')}_Month_${selectedLogbook.month}.pdf`);
@@ -87,7 +88,7 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
             window.URL.revokeObjectURL(url);
         } catch (error) {
             console.error("Download error:", error);
-            alert("Failed to download PDF.");
+            alert("Failed to download PDF. The file may be missing.");
         }
     };
 
@@ -143,7 +144,7 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                             <p className="text-sm text-gray-500 dark:text-gray-400">{studentName}</p>
                         </div>
                         <div className="flex items-center gap-4">
-                            {selectedLogbook && (
+                            {selectedLogbook && selectedLogbook.signedPDFPath && (
                                 <button
                                     onClick={handleDownloadPdf}
                                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all shadow-sm flex items-center gap-2 text-sm"
