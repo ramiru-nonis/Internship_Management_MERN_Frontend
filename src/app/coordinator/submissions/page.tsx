@@ -349,23 +349,25 @@ export default function CoordinatorSubmissionsPage() {
                                     {selectedLogbook ? `Logbook - Month ${selectedLogbook.month}/${selectedLogbook.year}` : 'Logbook Details'}
                                 </h2>
                                 <div className="flex items-center gap-4">
-                                    {selectedLogbook && (
+                                    {selectedLogbook && selectedLogbook.signedPDFPath && (
                                         <button
                                             onClick={async () => {
                                                 try {
                                                     const res = await api.get(`/logbooks/${selectedLogbook._id}/download`, {
                                                         responseType: 'blob'
                                                     });
-                                                    const url = window.URL.createObjectURL(new Blob([res.data]));
+                                                    // If we get here, axios successfully followed the redirect and got the file
+                                                    const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
                                                     const link = document.createElement('a');
                                                     link.href = url;
                                                     link.setAttribute('download', `Logbook_Month_${selectedLogbook.month}.pdf`);
                                                     document.body.appendChild(link);
                                                     link.click();
                                                     link.remove();
+                                                    window.URL.revokeObjectURL(url);
                                                 } catch (error) {
                                                     console.error("Download error:", error);
-                                                    alert("Failed to download PDF.");
+                                                    alert("Failed to download PDF. The file may be missing.");
                                                 }
                                             }}
                                             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all shadow-sm flex items-center gap-2"
