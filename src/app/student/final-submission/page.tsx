@@ -132,9 +132,11 @@ export default function FinalSubmissionPage() {
         }
     }
 
-    // Checking if we are "done" is nuanced now.
-    // Done if: we have existing files AND user isn't trying to upload new ones.
-    const canSubmit = (marksheet || presentation);
+    // Done if: we have existing files OR user is uploading marksheet/presentation.
+    // Crucially: Presentation is REQUIRED. Marksheet is OPTIONAL.
+    // So if we have an existing presentation, we can submit (to finalize). 
+    // If we have a new presentation selected, we can submit.
+    const canSubmit = (presentation !== null || existingPresentation !== null);
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-8">
