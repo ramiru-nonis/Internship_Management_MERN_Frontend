@@ -186,11 +186,11 @@ export default function LogbookPage() {
 
     // --- PDF Helper ---
     const fetchSignedPdf = async () => {
-        if (!studentId) return;
+        if (!studentId || !logbookData?._id) return;
         setPdfLoading(true);
         setPdfError(false);
         try {
-            const response = await api.get(`/logbooks/consolidated/${studentId}`, {
+            const response = await api.get(`/logbooks/${logbookData._id}/download`, {
                 responseType: 'blob'
             });
             const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
