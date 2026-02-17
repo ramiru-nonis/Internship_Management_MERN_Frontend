@@ -307,6 +307,18 @@ export default function StudentProfile() {
                                         <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-blue-500" />
                                     </button>
                                 )}
+                                {submissions.logbooks.finalConsolidatedLogbookUrl && (
+                                    <button
+                                        onClick={() => handleViewPdf(submissions.logbooks.finalConsolidatedLogbookUrl)}
+                                        className="w-full flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-600 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all group bg-blue-50/50 dark:bg-blue-900/10 shadow-sm"
+                                    >
+                                        <div className="flex items-center">
+                                            <CheckCircle className="w-5 h-5 mr-3 text-blue-600" />
+                                            <span className="font-bold text-sm text-blue-700 dark:text-blue-400">Final Consolidated Logbook</span>
+                                        </div>
+                                        <Download className="w-4 h-4 text-blue-600 group-hover:scale-110 transition-transform" />
+                                    </button>
+                                )}
                                 <button
                                     onClick={() => (submissions.logbooks.currentLogbookId || student.status === 'Completed') && setShowLogbookModal(true)}
                                     disabled={!submissions.logbooks.currentLogbookId && student.status !== 'Completed'}
