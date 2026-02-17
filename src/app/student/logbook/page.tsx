@@ -186,11 +186,11 @@ export default function LogbookPage() {
 
     // --- PDF Helper ---
     const fetchSignedPdf = async () => {
-        if (!logbookData?._id) return;
+        if (!studentId) return;
         setPdfLoading(true);
         setPdfError(false);
         try {
-            const response = await api.get(`/logbooks/${logbookData._id}/download`, {
+            const response = await api.get(`/logbooks/consolidated/${studentId}`, {
                 responseType: 'blob'
             });
             const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
@@ -204,7 +204,7 @@ export default function LogbookPage() {
     };
 
     useEffect(() => {
-        if (showPdfModal && logbookData?._id && logbookData?.signedPDFPath) {
+        if (showPdfModal && studentId) {
             fetchSignedPdf();
         }
     }, [showPdfModal]);
@@ -707,7 +707,7 @@ export default function LogbookPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-gray-800 dark:text-white">Signed Logbook</h3>
-                                    <p className="text-xs text-gray-500 dark:text-gray-400">Month {logbookData?.month} / {logbookData?.year}</p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">Consolidated Internship Record</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">

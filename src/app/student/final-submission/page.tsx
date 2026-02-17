@@ -388,7 +388,7 @@ export default function FinalSubmissionPage() {
                                     <BookOpen size={30} />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-bold text-gray-800 dark:text-white">Consolidated Internship Logbook</h3>
+                                    <h3 className="text-xl font-bold text-gray-800 dark:text-white">Signed Logbook</h3>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">All your signed monthly logbooks merged into a single PDF document.</p>
                                 </div>
                             </div>
@@ -396,7 +396,7 @@ export default function FinalSubmissionPage() {
                                 onClick={() => setShowPdfModal(true)}
                                 className="w-full md:w-auto px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none flex items-center justify-center gap-2"
                             >
-                                <FiEye /> View Consolidated PDF
+                                <FiEye /> View Signed Logbook
                             </button>
                         </div>
                     </div>
