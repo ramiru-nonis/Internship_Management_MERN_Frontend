@@ -313,7 +313,7 @@ export default function LogbookPage() {
         }
     };
 
-    const isEditable = logbookData ? (logbookData.status === 'Draft' || logbookData.status === 'Rejected') : true; // True if null (new draft)
+    const isEditable = logbookData ? (logbookData.status === 'Draft' || logbookData.status === 'Rejected' || logbookData.status === 'Approved') : true; // Allow editing Approved for weekly cumulative logs
     const isLockedMonth = currentMonth > unlockedMonth;
 
     if (initializing) {
@@ -561,7 +561,12 @@ export default function LogbookPage() {
                                                     </span>
                                                 )}
                                             </div>
-                                        ) : "Approved"}
+                                        ) : (
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-green-600 font-bold">Approved</span>
+                                                <span className="text-[10px] text-gray-400">Cumulative Approved</span>
+                                            </div>
+                                        )}
                             </div>
                             <button
                                 onClick={handleSubmitApproval}
@@ -570,7 +575,9 @@ export default function LogbookPage() {
                                     px-8 py-3 rounded-xl font-bold text-white shadow-lg transition-all flex items-center gap-3 transform active:scale-95
                                     ${!isEditable || sending
                                         ? "bg-gray-400 cursor-not-allowed shadow-none"
-                                        : "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 hover:shadow-green-200"
+                                        : logbookData?.status === 'Approved'
+                                            ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 hover:shadow-blue-200"
+                                            : "bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 hover:shadow-green-200"
                                     }
                                 `}
                             >
@@ -582,7 +589,7 @@ export default function LogbookPage() {
                                 ) : (
                                     <>
                                         <FiSend />
-                                        Get Approval
+                                        {logbookData?.status === 'Approved' ? "Request Update" : "Get Approval"}
                                     </>
                                 )}
                             </button>

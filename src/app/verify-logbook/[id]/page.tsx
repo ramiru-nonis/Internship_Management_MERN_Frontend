@@ -60,19 +60,16 @@ export default function MentorVerifyPage() {
         }
     };
 
-    const handleDownloadPDF = async () => {
+    const handleDownloadPDF = async (template = false) => {
         try {
-            // Note: Since this page is often visited via public link, 
-            // the backend might allow download without 'protect' if we didn't add it yet
-            // OR we need to ensure the backend allows mentors to download the unsigned version.
-            const response = await api.get(`/logbooks/${logbookId}/download`, {
+            const response = await api.get(`/logbooks/${logbookId}/download${template ? '?template=true' : ''}`, {
                 responseType: 'blob'
             });
             const blob = new Blob([response.data], { type: 'application/pdf' });
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.setAttribute('download', `Logbook_${logbook?.month}_${logbook?.year}.pdf`);
+            link.setAttribute('download', `${template ? 'Template_' : ''}Logbook_${logbook?.month}_${logbook?.year}.pdf`);
             document.body.appendChild(link);
             link.click();
             link.remove();
@@ -253,12 +250,25 @@ export default function MentorVerifyPage() {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-700">1. Download Logbook</label>
-                                    <button
-                                        onClick={handleDownloadPDF}
-                                        className="w-full flex items-center justify-center gap-2 py-3 bg-white border-2 border-blue-600 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition-colors"
-                                    >
-                                        <FiDownload /> Download PDF
-                                    </button>
+                                    <div className="flex flex-col gap-2">
+                                        <button
+                                            onClick={() => handleDownloadPDF(true)}
+                                            className="w-full flex items-center justify-center gap-2 py-3 bg-white border-2 border-blue-600 text-blue-600 font-bold rounded-xl hover:bg-blue-50 transition-colors"
+                                            title="Download the blank template with latest entries to sign"
+                                        >
+                                            <FiDownload /> Download Blank Template
+                                        </button>
+
+                                        {logbook?.signedPDFPath && (
+                                            <button
+                                                onClick={() => handleDownloadPDF(false)}
+                                                className="w-full flex items-center justify-center gap-2 py-2 text-sm text-gray-500 hover:text-blue-600 transition-colors"
+                                                title="View the currently uploaded signed copy"
+                                            >
+                                                <FiFileText /> View Current Signed PDF
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="space-y-2">
