@@ -196,7 +196,7 @@ export default function LogbookPage() {
             });
 
             // response.data is already a Blob when responseType is 'blob'
-            const blob = response.data;
+            const blob = new Blob([response.data], { type: 'application/pdf' });
             if (blob.size === 0) throw new Error("Received empty blob");
 
             const url = window.URL.createObjectURL(blob);
