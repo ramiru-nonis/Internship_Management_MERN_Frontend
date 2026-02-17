@@ -190,13 +190,30 @@ export default function LogbookPage() {
         setPdfLoading(true);
         setPdfError(false);
         try {
+            console.log(`[DEBUG] Fetching signed PDF for logbook: ${logbookData._id}`);
             const response = await api.get(`/logbooks/${logbookData._id}/download`, {
                 responseType: 'blob'
             });
-            const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+
+            // response.data is already a Blob when responseType is 'blob'
+            const blob = response.data;
+            if (blob.size === 0) throw new Error("Received empty blob");
+
+            const url = window.URL.createObjectURL(blob);
             setPdfUrl(url);
-        } catch (err) {
+            console.log("[DEBUG] PDF Blob URL created successfully");
+        } catch (err: any) {
             console.error("Error fetching PDF blob:", err);
+            // If it's a blob-type error, the response might still contain JSON but it's hidden in the blob
+            if (err.response?.data instanceof Blob) {
+                const text = await err.response.data.text();
+                try {
+                    const errorJson = JSON.parse(text);
+                    console.error("[DEBUG] Backend error message:", errorJson.message);
+                } catch (e) {
+                    console.error("[DEBUG] Raw error text:", text);
+                }
+            }
             setPdfError(true);
         } finally {
             setPdfLoading(false);
