@@ -207,13 +207,23 @@ export default function LogbookPage() {
         if (showPdfModal && logbookData?._id && logbookData?.signedPDFPath) {
             fetchSignedPdf();
         }
-        // Cleanup URL on close
+    }, [showPdfModal]);
+
+    // Independent cleanup effect for Blob URLs
+    useEffect(() => {
         return () => {
             if (pdfUrl) {
                 window.URL.revokeObjectURL(pdfUrl);
-                setPdfUrl(null);
             }
         };
+    }, [pdfUrl]);
+
+    // Reset when modal closes
+    useEffect(() => {
+        if (!showPdfModal) {
+            setPdfUrl(null);
+            setPdfError(false);
+        }
     }, [showPdfModal]);
 
     // --- Actions ---
