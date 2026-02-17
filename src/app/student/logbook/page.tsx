@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import api from "@/lib/api";
 import {
     FiCalendar, FiClock, FiCheckCircle, FiAlertCircle,
-    FiEdit3, FiLock, FiSend, FiChevronRight, FiChevronLeft
+    FiEdit3, FiLock, FiSend, FiChevronRight, FiChevronLeft,
+    FiFileText, FiDownload, FiX, FiEye
 } from "react-icons/fi";
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -391,6 +392,14 @@ export default function LogbookPage() {
                         )}
 
                         {/* View Signed Logbook Button */}
+                        {logbookData && logbookData.signedPDFPath && (
+                            <button
+                                onClick={() => setShowPdfModal(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all shadow-md shadow-blue-200"
+                            >
+                                <FiEye /> View Signed Logbook
+                            </button>
+                        )}
 
                     </div>
                 </div>
@@ -669,6 +678,85 @@ export default function LogbookPage() {
                 )}
 
 
+            {/* PDF Modal */}
+            {showPdfModal && (
+                <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-5xl flex flex-col h-[90vh] overflow-hidden">
+                        {/* Modal Header */}
+                        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/30">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-lg">
+                                    <FiFileText size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-gray-800 dark:text-white">Signed Logbook</h3>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">Month {logbookData?.month} / {logbookData?.year}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <a
+                                    href={pdfUrl || '#'}
+                                    download={`Signed_Logbook_Month_${logbookData?.month}.pdf`}
+                                    className="p-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+                                    title="Download PDF"
+                                >
+                                    <FiDownload size={20} />
+                                </a>
+                                <button
+                                    onClick={() => setShowPdfModal(false)}
+                                    className="p-2 text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
+                                >
+                                    <FiX size={24} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="flex-1 bg-gray-100 dark:bg-gray-900 overflow-hidden relative">
+                            {pdfLoading ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Loading signed PDF...</p>
+                                </div>
+                            ) : pdfError ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-4">
+                                    <FiAlertCircle className="text-5xl text-red-500" />
+                                    <h4 className="text-lg font-bold text-gray-800 dark:text-white">Could not load PDF</h4>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                                        We encountered an error while trying to fetch the signed logbook. Please try again later or contact support.
+                                    </p>
+                                    <button
+                                        onClick={fetchSignedPdf}
+                                        className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-all"
+                                    >
+                                        Try Again
+                                    </button>
+                                </div>
+                            ) : pdfUrl ? (
+                                <iframe
+                                    src={`${pdfUrl}#toolbar=1&navpanes=0&scrollbar=1`}
+                                    className="w-full h-full border-none"
+                                    title="Signed Logbook Viewer"
+                                />
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center text-gray-500">
+                                    Initializing viewer...
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 flex justify-end bg-gray-50/50 dark:bg-gray-700/30">
+                            <button
+                                onClick={() => setShowPdfModal(false)}
+                                className="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium"
+                            >
+                                Close Viewer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
