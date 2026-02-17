@@ -2,8 +2,8 @@
 import React, { useState, useEffect } from "react";
 import api from "@/lib/api";
 import { useRouter } from "next/navigation";
-import { FiLock } from "react-icons/fi";
-import { Award, CheckCircle } from "lucide-react";
+import { FiLock, FiFileText, FiDownload, FiX, FiEye, FiAlertCircle } from "react-icons/fi";
+import { Award, CheckCircle, BookOpen } from "lucide-react";
 
 export default function FinalSubmissionPage() {
     const router = useRouter();
@@ -27,6 +27,12 @@ export default function FinalSubmissionPage() {
     const [loading, setLoading] = useState(true);
     const [authLoading, setAuthLoading] = useState(true);
     const [logbookStatus, setLogbookStatus] = useState({ complete: false, total: 0, approved: 0 });
+
+    // PDF Modal State
+    const [showPdfModal, setShowPdfModal] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+    const [pdfLoading, setPdfLoading] = useState(false);
+    const [pdfError, setPdfError] = useState(false);
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
@@ -72,6 +78,43 @@ export default function FinalSubmissionPage() {
             setLoading(false);
         }
     }
+
+    const fetchConsolidatedPdf = async () => {
+        if (!studentId) return;
+        setPdfLoading(true);
+        setPdfError(false);
+        try {
+            const response = await api.get(`/logbooks/consolidated/${studentId}`, {
+                responseType: 'blob'
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+            setPdfUrl(url);
+        } catch (err) {
+            console.error("Error fetching consolidated PDF:", err);
+            setPdfError(true);
+        } finally {
+            setPdfLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (showPdfModal && studentId) {
+            fetchConsolidatedPdf();
+        }
+    }, [showPdfModal]);
+
+    useEffect(() => {
+        return () => {
+            if (pdfUrl) window.URL.revokeObjectURL(pdfUrl);
+        };
+    }, [pdfUrl]);
+
+    useEffect(() => {
+        if (!showPdfModal) {
+            setPdfUrl(null);
+            setPdfError(false);
+        }
+    }, [showPdfModal]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: 'marksheet' | 'presentation') => {
         if (e.target.files && e.target.files[0]) {
@@ -337,6 +380,25 @@ export default function FinalSubmissionPage() {
                                 </div>
                             )}
                         </div>
+
+                        {/* Consolidated Logbook Card (NEW) */}
+                        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 flex flex-col md:flex-row items-center justify-between gap-6 mb-12">
+                            <div className="flex items-center gap-4 text-center md:text-left">
+                                <div className="p-4 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-2xl">
+                                    <BookOpen size={30} />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-800 dark:text-white">Consolidated Internship Logbook</h3>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">All your signed monthly logbooks merged into a single PDF document.</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => setShowPdfModal(true)}
+                                className="w-full md:w-auto px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none flex items-center justify-center gap-2"
+                            >
+                                <FiEye /> View Consolidated PDF
+                            </button>
+                        </div>
                     </div>
                 )}
 
@@ -576,6 +638,86 @@ export default function FinalSubmissionPage() {
                 ) : null}
 
             </div>
+
+            {/* PDF Modal */}
+            {showPdfModal && (
+                <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-[60]">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-5xl flex flex-col h-[90vh] overflow-hidden">
+                        {/* Modal Header */}
+                        <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/30">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-lg">
+                                    <FiFileText size={20} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-gray-800 dark:text-white">Consolidated Logbook</h3>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">Full Record of Monthly Signed Entries</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <a
+                                    href={pdfUrl || '#'}
+                                    download={`Consolidated_Logbook.pdf`}
+                                    className="p-2 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+                                    title="Download PDF"
+                                >
+                                    <FiDownload size={20} />
+                                </a>
+                                <button
+                                    onClick={() => setShowPdfModal(false)}
+                                    className="p-2 text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
+                                >
+                                    <FiX size={24} />
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="flex-1 bg-gray-100 dark:bg-gray-900 overflow-hidden relative">
+                            {pdfLoading ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4">
+                                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">Combining logbooks and loading PDF...</p>
+                                </div>
+                            ) : pdfError ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-4">
+                                    <FiAlertCircle className="text-5xl text-red-500" />
+                                    <h4 className="text-lg font-bold text-gray-800 dark:text-white">Could not load Consolidated PDF</h4>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400 max-w-xs">
+                                        We encountered an error while merging your logbooks. Please ensure all your monthly logbooks are approved and signed.
+                                    </p>
+                                    <button
+                                        onClick={fetchConsolidatedPdf}
+                                        className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-all"
+                                    >
+                                        Try Again
+                                    </button>
+                                </div>
+                            ) : pdfUrl ? (
+                                <iframe
+                                    src={`${pdfUrl}#toolbar=1&navpanes=0&scrollbar=1`}
+                                    className="w-full h-full border-none"
+                                    title="Consolidated Logbook Viewer"
+                                />
+                            ) : (
+                                <div className="absolute inset-0 flex items-center justify-center text-gray-500">
+                                    Initializing viewer...
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 flex justify-end bg-gray-50/50 dark:bg-gray-700/30">
+                            <button
+                                onClick={() => setShowPdfModal(false)}
+                                className="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 font-medium"
+                            >
+                                Close Viewer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
