@@ -340,7 +340,7 @@ export default function LogbookPage() {
         }
     };
 
-    const isEditable = logbookData ? (logbookData.status === 'Draft' || logbookData.status === 'Rejected' || logbookData.status === 'Approved') : true; // Allow editing Approved for weekly cumulative logs
+    const isEditable = logbookData ? (logbookData.status === 'Draft' || logbookData.status === 'Rejected') : true;
     const isLockedMonth = currentMonth > unlockedMonth;
 
     if (initializing) {
@@ -562,8 +562,8 @@ export default function LogbookPage() {
                                                 : "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50"
                                                 }`}
                                         >
-                                            {week > 1 && !hasData && !logbookData?.weeks?.some((w: any) => w.weekNumber === week - 1) ? <FiLock /> : <FiEdit3 />}
-                                            {isEditable ? (hasData ? "Edit Entry" : "Add Entry") : "View Only"}
+                                            {!isEditable ? <FiEye /> : (week > 1 && !hasData && !logbookData?.weeks?.some((w: any) => w.weekNumber === week - 1) ? <FiLock /> : <FiEdit3 />)}
+                                            {isEditable ? (hasData ? "Edit Entry" : "Add Entry") : (logbookData?.status === 'Approved' ? "View Entry" : "View Only")}
                                         </button>
                                     </div>
                                 </div>
