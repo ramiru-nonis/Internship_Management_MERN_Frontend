@@ -31,7 +31,17 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
     const [loadingLogbook, setLoadingLogbook] = useState(false);
     const [loadingHistory, setLoadingHistory] = useState(false);
 
+    const [userRole, setUserRole] = useState<string | null>(null);
+
     useEffect(() => {
+        const user = localStorage.getItem('user');
+        if (user) {
+            try {
+                setUserRole(JSON.parse(user).role);
+            } catch (e) {
+                console.error("Error parsing user role", e);
+            }
+        }
         if (isOpen && (initialLogbookId || studentId)) {
             fetchData();
         }
@@ -147,7 +157,7 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                             <p className="text-sm text-gray-500 dark:text-gray-400">{studentName}</p>
                         </div>
                         <div className="flex items-center gap-4">
-                            {(consolidatedUrl || studentStatus === 'Completed') && (
+                            {(consolidatedUrl || studentStatus === 'Completed') && userRole !== 'coordinator' && userRole !== 'mentor' && (
                                 <button
                                     onClick={() => {
                                         window.open(`${apiUrl}/submissions/student/${studentId}/consolidated-logbook`, '_blank');

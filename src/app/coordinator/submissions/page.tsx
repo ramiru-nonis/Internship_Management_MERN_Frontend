@@ -269,11 +269,6 @@ export default function CoordinatorSubmissionsPage() {
                                                     }`}>
                                                     {sub.status}
                                                 </span>
-                                                {sub.finalConsolidatedLogbookUrl && (
-                                                    <span className="ml-2 px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-200">
-                                                        Combined PDF Available
-                                                    </span>
-                                                )}
                                                 {/* Show Scheduled Date if exists */}
                                                 {sub.scheduledDate && (
                                                     <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200">
