@@ -168,7 +168,15 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                                     Download Combined PDF
                                 </button>
                             )}
-                            {selectedLogbook && selectedLogbook.signedPDFPath && (
+                            {selectedLogbook && (userRole === 'coordinator' || userRole === 'mentor' ? (
+                                <button
+                                    onClick={() => window.open(`${apiUrl}/submissions/student/${studentId}/consolidated-logbook`, '_blank')}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold transition-all shadow-sm flex items-center gap-2 text-sm"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Download Logbook
+                                </button>
+                            ) : selectedLogbook.signedPDFPath && (
                                 <button
                                     onClick={handleDownloadPdf}
                                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all shadow-sm flex items-center gap-2 text-sm"
@@ -176,7 +184,7 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                                     <Download className="w-4 h-4" />
                                     Download Month PDF
                                 </button>
-                            )}
+                            ))}
                             <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                                 <X className="w-6 h-6" />
                             </button>
