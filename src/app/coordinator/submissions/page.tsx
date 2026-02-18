@@ -292,7 +292,7 @@ export default function CoordinatorSubmissionsPage() {
                                         </button>
                                         {sub.type === 'Logbook' && sub.finalConsolidatedLogbookUrl && (
                                             <button
-                                                onClick={() => window.open(sub.finalConsolidatedLogbookUrl!, '_blank')}
+                                                onClick={() => window.open(`${apiUrl}/submissions/student/${sub.studentId}/consolidated-logbook`, '_blank')}
                                                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-bold transition-all shadow-sm hover:shadow-md flex items-center gap-2"
                                             >
                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>

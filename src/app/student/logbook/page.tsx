@@ -16,6 +16,7 @@ export default function LogbookPage() {
     // --- State ---
     const [studentId, setStudentId] = useState<string | null>(null);
     const [mentorEmail, setMentorEmail] = useState<string>("");
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
     const [currentMonth, setCurrentMonth] = useState<number>(1);
     const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
@@ -393,63 +394,64 @@ export default function LogbookPage() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans text-gray-800 dark:text-white pb-20">
 
-            {/* Header / Top Bar */}
-            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10 shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-700 to-indigo-600">
-                        Monthly Logbook
-                    </h1>
-
-                    <div className="flex items-center gap-4">
-
-                        {/* Status Pill */}
-                        {logbookData && (
-                            <div className={`px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2 border ${logbookData.status === 'Approved' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/50 dark:text-green-200 dark:border-green-800' :
-                                logbookData.status === 'Rejected' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/50 dark:text-red-200 dark:border-red-800' :
-                                    logbookData.status === 'Pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-200 dark:border-yellow-800' :
-                                        'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
-                                }`}>
-                                <span className={`w-2 h-2 rounded-full ${logbookData.status === 'Approved' ? 'bg-green-500' :
-                                    logbookData.status === 'Rejected' ? 'bg-red-500' :
-                                        logbookData.status === 'Pending' ? 'bg-yellow-500' :
-                                            'bg-gray-400'
-                                    }`} />
-                                {logbookData.status.toUpperCase()}
+            {/* Header Section */}
+            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-30">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <div className="p-3 bg-blue-100 dark:bg-blue-900/40 rounded-xl">
+                                <FiFileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                             </div>
-                        )}
+                            <div>
+                                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                                    Monthly Logbook
+                                </h1>
 
-                        {/* View Signed Logbook Button */}
-                        {logbookData && logbookData.signedPDFPath && (
-                            <button
-                                onClick={() => setShowPdfModal(true)}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl transition-all shadow-md shadow-green-200"
-                            >
-                                <FiEye /> View Signed Month PDF
-                            </button>
-                        )}
+                                <div className="flex items-center gap-4 mt-1">
 
-                        {/* Consolidated Download Link */}
-                        {submissionHistory.some(h => h.studentId?.status === 'Completed' || h.finalConsolidatedLogbookUrl) && (
-                            <button
-                                onClick={() => {
-                                    const student = submissionHistory.find(h => h.studentId?.finalConsolidatedLogbookUrl)?.studentId;
-                                    const url = student?.finalConsolidatedLogbookUrl || logbookData?.studentId?.finalConsolidatedLogbookUrl;
-                                    if (url) window.open(url, '_blank');
-                                    else alert("Consolidated PDF being prepared...");
-                                }}
-                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all shadow-md shadow-blue-200"
-                            >
-                                <FiDownload /> Download Combined Logbook
-                            </button>
-                        )}
+                                    {/* Status Pill */}
+                                    {logbookData && (
+                                        <div className={`px-4 py-1.5 rounded-full text-sm font-semibold flex items-center gap-2 border ${logbookData.status === 'Approved' ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/50 dark:text-green-200 dark:border-green-800' :
+                                            logbookData.status === 'Rejected' ? 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/50 dark:text-red-200 dark:border-red-800' :
+                                                logbookData.status === 'Pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-200 dark:border-yellow-800' :
+                                                    'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
+                                            }`}>
+                                            <span className={`w-2 h-2 rounded-full ${logbookData.status === 'Approved' ? 'bg-green-500' :
+                                                logbookData.status === 'Rejected' ? 'bg-red-500' :
+                                                    logbookData.status === 'Pending' ? 'bg-yellow-500' :
+                                                        'bg-gray-400'
+                                                }`} />
+                                            {logbookData.status.toUpperCase()}
+                                        </div>
+                                    )}
 
+                                    {/* View Signed Logbook Button */}
+                                    {logbookData && logbookData.signedPDFPath && (
+                                        <button
+                                            onClick={() => setShowPdfModal(true)}
+                                            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl transition-all shadow-md shadow-green-200"
+                                        >
+                                            <FiEye /> View Signed Month PDF
+                                        </button>
+                                    )}
+
+                                    {/* Consolidated Download Link */}
+                                    {submissionHistory.some(h => h.studentId?.status === 'Completed' || h.finalConsolidatedLogbookUrl) && (
+                                        <button
+                                            onClick={() => {
+                                                window.open(`${apiUrl}/submissions/student/${studentId}/consolidated-logbook`, '_blank');
+                                            }}
+                                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all shadow-md shadow-blue-200"
+                                        >
+                                            <FiDownload /> Download Combined Logbook
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            {/* ... (rest of the component) ... */}
-
-
 
             {logbookData?.status === 'Rejected' && (
                 <div className="bg-red-50 dark:bg-red-900/30 border-l-4 border-red-500 p-4 max-w-7xl mx-auto mt-6 mx-4 sm:mx-6 lg:mx-8">

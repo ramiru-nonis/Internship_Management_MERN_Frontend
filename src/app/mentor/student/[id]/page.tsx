@@ -43,6 +43,8 @@ export default function MentorStudentProfile() {
         }
     };
 
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
@@ -152,6 +154,26 @@ export default function MentorStudentProfile() {
                             </div>
                         </div>
 
+                        {/* Professional Info */}
+                        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+                            <h2 className="text-xl font-bold mb-6 flex items-center text-gray-900 dark:text-white">
+                                <Briefcase className="w-6 h-6 mr-3 text-indigo-600" />
+                                Professional
+                            </h2>
+                            <div className="space-y-6">
+                                <div>
+                                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Applied Position</p>
+                                    <p className="font-bold text-gray-900 dark:text-gray-100">{student.position || 'Not Specified'}</p>
+                                </div>
+                                {placement?.company_name && (
+                                    <div>
+                                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1.5">Placed At</p>
+                                        <p className="font-bold text-gray-900 dark:text-gray-100">{placement.company_name}</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
                         {/* Logbook Status */}
                         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl shadow-xl p-8 text-white">
                             <div className="flex items-center justify-between mb-6">
@@ -172,6 +194,30 @@ export default function MentorStudentProfile() {
 
                     {/* Main Content Area */}
                     <div className="lg:col-span-2 space-y-8">
+                        {/* Summary Section */}
+                        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
+                            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Profile Summary</h2>
+                            <p className="text-gray-600 dark:text-gray-400 leading-relaxed text-lg">
+                                {student.summary || 'No summary available for this student.'}
+                            </p>
+                        </div>
+
+                        {/* Skills Section */}
+                        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
+                            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Technical Expertise</h2>
+                            <div className="flex flex-wrap gap-2">
+                                {student.skills && student.skills.length > 0 ? (
+                                    student.skills.map((skill: string, idx: number) => (
+                                        <span key={idx} className="px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-xl text-sm font-bold border border-blue-100 dark:border-blue-800/50">
+                                            {skill}
+                                        </span>
+                                    ))
+                                ) : (
+                                    <span className="text-gray-400 italic">No skills listed</span>
+                                )}
+                            </div>
+                        </div>
+
                         {/* Current Placement */}
                         {placement ? (
                             <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
@@ -249,16 +295,33 @@ export default function MentorStudentProfile() {
                                                 <CheckCircle className="w-6 h-6 text-green-600" />
                                             </div>
                                             <div className="text-left">
-                                                <p className="font-bold text-gray-900 dark:text-white">Final Marksheet</p>
-                                                <p className="text-xs text-gray-500">Graded Submission</p>
+                                                <p className="font-bold text-gray-900 dark:text-white">Marksheet</p>
+                                                <p className="text-xs text-gray-500">Official Internship Grade</p>
                                             </div>
                                         </div>
                                         <ExternalLink className="w-5 h-5 text-gray-300 group-hover:text-green-600" />
                                     </button>
                                 )}
+                                {submissions.presentation && (
+                                    <button
+                                        onClick={() => handleViewPdf(submissions.presentation.fileUrl)}
+                                        className="flex items-center justify-between p-5 rounded-2xl border border-gray-100 dark:border-gray-700 hover:border-orange-500 hover:bg-orange-50/50 transition-all group"
+                                    >
+                                        <div className="flex items-center">
+                                            <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-xl mr-4">
+                                                <Calendar className="w-6 h-6 text-orange-600" />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="font-bold text-gray-900 dark:text-white">Presentation</p>
+                                                <p className="text-xs text-gray-500">Final Internship PPT</p>
+                                            </div>
+                                        </div>
+                                        <ExternalLink className="w-5 h-5 text-gray-300 group-hover:text-orange-600" />
+                                    </button>
+                                )}
                                 {student.finalConsolidatedLogbookUrl && (
                                     <button
-                                        onClick={() => handleViewPdf(student.finalConsolidatedLogbookUrl)}
+                                        onClick={() => window.open(`${apiUrl}/submissions/student/${student.user?._id || student.user}/consolidated-logbook`, '_blank')}
                                         className="flex items-center justify-between p-5 rounded-2xl border border-emerald-100 dark:border-emerald-700/50 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all group lg:col-span-2"
                                     >
                                         <div className="flex items-center">

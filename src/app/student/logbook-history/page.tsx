@@ -7,11 +7,14 @@ export default function LogbookHistoryPage() {
     const router = useRouter();
     const [history, setHistory] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [studentId, setStudentId] = useState<string | null>(null);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
     useEffect(() => {
         const userStr = localStorage.getItem('user');
         if (userStr) {
             const user = JSON.parse(userStr);
+            setStudentId(user._id);
             fetchHistory(user._id);
         } else {
             router.push('/login');
@@ -44,10 +47,7 @@ export default function LogbookHistoryPage() {
                         {history.some(h => (h.studentId?.status === 'Completed' || h.finalConsolidatedLogbookUrl)) && (
                             <button
                                 onClick={() => {
-                                    const student = history.find(h => h.studentId?.finalConsolidatedLogbookUrl)?.studentId;
-                                    const url = student?.finalConsolidatedLogbookUrl || history[0]?.studentId?.finalConsolidatedLogbookUrl;
-                                    if (url) window.open(url, '_blank');
-                                    else alert("Consolidated PDF being prepared...");
+                                    window.open(`${apiUrl}/submissions/student/${studentId}/consolidated-logbook`, '_blank');
                                 }}
                                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-all font-bold shadow-sm flex items-center gap-2"
                             >

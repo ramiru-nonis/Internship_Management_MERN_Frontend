@@ -51,6 +51,8 @@ export default function StudentDashboard() {
         }
     };
 
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -98,46 +100,50 @@ export default function StudentDashboard() {
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Total Applications</p>
-                                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.totalApplications}</p>
-                            </div>
-                            <div className="p-4 bg-blue-100 rounded-full">
-                                <FileText className="h-8 w-8 text-blue-600" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Active Applications</p>
-                                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stats.activeApplications}</p>
-                            </div>
-                            <div className="p-4 bg-green-100 rounded-full">
-                                <Briefcase className="h-8 w-8 text-green-600" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Placement Form</p>
-                                <p className="text-lg font-bold text-gray-900 dark:text-white">
-                                    {stats.placementSubmitted ? 'Submitted' : 'Not Submitted'}
+                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Applications</p>
+                                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                                    {stats.totalApplications}
                                 </p>
                             </div>
-                            <div className={`p-4 rounded-full ${stats.placementSubmitted ? 'bg-green-100' : 'bg-orange-100'}`}>
-                                <ClipboardList className={`h-8 w-8 ${stats.placementSubmitted ? 'text-green-600' : 'text-orange-600'}`} />
+                            <div className="p-3 bg-blue-100 rounded-lg">
+                                <FileText className="h-6 w-6 text-blue-600" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Applications</p>
+                                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                                    {stats.activeApplications}
+                                </p>
+                            </div>
+                            <div className="p-3 bg-green-100 rounded-lg">
+                                <Briefcase className="h-6 w-6 text-green-600" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Internship Program</p>
+                                <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+                                    {student?.internship_duration || '6'} mo
+                                </p>
+                            </div>
+                            <div className="p-3 bg-purple-100 rounded-lg">
+                                <ClipboardList className="h-6 w-6 text-purple-600" />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Quick Actions */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {/* Quick Actions Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <Link
-                        href="/student/internships"
+                        href="/student/applications"
                         className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-all group"
                     >
                         <div className="flex items-center space-x-4">
@@ -145,23 +151,8 @@ export default function StudentDashboard() {
                                 <Briefcase className="h-6 w-6 text-blue-600" />
                             </div>
                             <div>
-                                <p className="font-semibold text-gray-900 dark:text-white">Browse Jobs</p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Find internships</p>
-                            </div>
-                        </div>
-                    </Link>
-
-                    <Link
-                        href="/student/applications"
-                        className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-all group"
-                    >
-                        <div className="flex items-center space-x-4">
-                            <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
-                                <FileText className="h-6 w-6 text-green-600" />
-                            </div>
-                            <div>
-                                <p className="font-semibold text-gray-900 dark:text-white">My Applications</p>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">Track status</p>
+                                <p className="font-semibold text-gray-900 dark:text-white">Applications</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">View status</p>
                             </div>
                         </div>
                     </Link>
@@ -171,13 +162,11 @@ export default function StudentDashboard() {
                         className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-all group"
                     >
                         <div className="flex items-center space-x-4">
-                            <div className={`p-3 rounded-lg transition-colors ${stats.placementSubmitted ? 'bg-green-100 group-hover:bg-green-200' : 'bg-purple-100 group-hover:bg-purple-200'}`}>
-                                <ClipboardList className={`h-6 w-6 ${stats.placementSubmitted ? 'text-green-600' : 'text-purple-600'}`} />
+                            <div className="p-3 bg-green-100 rounded-lg group-hover:bg-green-200 transition-colors">
+                                <ClipboardList className="h-6 w-6 text-green-600" />
                             </div>
                             <div>
-                                <p className="font-semibold text-gray-900 dark:text-white">
-                                    {stats.placementSubmitted ? 'Placement Form' : 'Placement Form'}
-                                </p>
+                                <p className="font-semibold text-gray-900 dark:text-white">Placement Info</p>
                                 <p className="text-sm text-gray-600 dark:text-gray-400">
                                     {stats.placementSubmitted ? 'View details' : 'Submit details'}
                                 </p>
@@ -199,8 +188,6 @@ export default function StudentDashboard() {
                             </div>
                         </div>
                     </Link>
-
-
 
                     {/* Logbook Quick Action */}
                     <Link
@@ -249,10 +236,10 @@ export default function StudentDashboard() {
                                 </div>
                             </div>
                             <button
-                                onClick={() => window.open(student.finalConsolidatedLogbookUrl, '_blank')}
-                                className="w-full md:w-auto px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none flex items-center justify-center gap-2"
+                                onClick={() => window.open(`${apiUrl}/submissions/student/${student.user}/consolidated-logbook`, '_blank')}
+                                className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-all shadow-md hover:shadow-lg flex items-center gap-2"
                             >
-                                <FileText className="h-5 w-5" />
+                                <TrendingUp className="h-5 w-5" />
                                 Download Combined PDF
                             </button>
                         </div>
