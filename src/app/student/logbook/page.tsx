@@ -577,23 +577,24 @@ export default function LogbookPage() {
                     <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 flex justify-end items-center z-20">
                         <div className="max-w-7xl w-full mx-auto px-4 flex justify-between items-center">
                             <div className="text-sm text-gray-500 dark:text-gray-400">
-                                {logbookData?.status === 'Draft' ? "Draft - Not Submitted" :
-                                    logbookData?.status === 'Pending' ? "Submitted for Review" :
-                                        logbookData?.status === 'Rejected' ? (
-                                            <div className="flex flex-col items-end">
-                                                <span className="text-red-500 font-bold">Rejected</span>
-                                                {logbookData.rejectionReason && (
-                                                    <span className="text-xs text-red-400 max-w-xs text-right truncate" title={logbookData.rejectionReason}>
-                                                        "{logbookData.rejectionReason}"
-                                                    </span>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            <div className="flex flex-col items-end">
-                                                <span className="text-green-600 font-bold">Approved</span>
-                                                <span className="text-[10px] text-gray-400">Cumulative Approved</span>
-                                            </div>
-                                        )}
+                                {!logbookData ? "Ready for Entry" :
+                                    logbookData.status === 'Draft' ? "Draft - Not Submitted" :
+                                        logbookData.status === 'Pending' ? "Submitted for Review" :
+                                            logbookData.status === 'Rejected' ? (
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-red-500 font-bold">Rejected</span>
+                                                    {logbookData.rejectionReason && (
+                                                        <span className="text-xs text-red-400 max-w-xs text-right truncate" title={logbookData.rejectionReason}>
+                                                            "{logbookData.rejectionReason}"
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ) : logbookData.status === 'Approved' ? (
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-green-600 font-bold">Approved</span>
+                                                    <span className="text-[10px] text-gray-400">Cumulative Approved</span>
+                                                </div>
+                                            ) : "No Status"}
                             </div>
                             <button
                                 onClick={handleSubmitApproval}
