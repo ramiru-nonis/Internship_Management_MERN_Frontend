@@ -47,8 +47,6 @@ export default function StudentProfile() {
         }
     };
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
-
     const handleAssignMentor = async (mentorId: string) => {
         setAssigning(true);
         try {
@@ -63,11 +61,16 @@ export default function StudentProfile() {
         }
     };
 
-    const handleViewPdf = async (url: string, type?: 'cv' | 'other') => {
+    const handleViewPdf = async (url: string, type?: 'cv' | 'consolidated' | 'other') => {
         if (!url) return;
         try {
             if (type === 'cv') {
                 const proxyUrl = `${process.env.NEXT_PUBLIC_API_URL}/submissions/cv/${student.user._id}/view`;
+                window.open(proxyUrl, '_blank');
+                return;
+            }
+            if (type === 'consolidated') {
+                const proxyUrl = `${process.env.NEXT_PUBLIC_API_URL}/submissions/student/${student.user?._id || student.user}/consolidated-logbook`;
                 window.open(proxyUrl, '_blank');
                 return;
             }
@@ -311,7 +314,7 @@ export default function StudentProfile() {
                                 )}
                                 {submissions.logbooks.finalConsolidatedLogbookUrl && (
                                     <button
-                                        onClick={() => window.open(`${apiUrl}/submissions/student/${student.user?._id || student.user}/consolidated-logbook`, '_blank')}
+                                        onClick={() => handleViewPdf(submissions.logbooks.finalConsolidatedLogbookUrl, 'consolidated')}
                                         className="w-full flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-blue-600 dark:hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all group bg-blue-50/50 dark:bg-blue-900/10 shadow-sm"
                                     >
                                         <div className="flex items-center">
