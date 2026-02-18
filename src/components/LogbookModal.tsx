@@ -147,7 +147,7 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                             <p className="text-sm text-gray-500 dark:text-gray-400">{studentName}</p>
                         </div>
                         <div className="flex items-center gap-4">
-                            {(consolidatedUrl || studentStatus === 'Completed') && (
+                            {consolidatedUrl && (
                                 <button
                                     onClick={() => {
                                         window.open(`${apiUrl}/submissions/student/${studentId}/consolidated-logbook`, '_blank');
