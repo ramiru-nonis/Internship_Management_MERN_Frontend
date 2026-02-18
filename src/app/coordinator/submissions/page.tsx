@@ -53,7 +53,7 @@ export default function CoordinatorSubmissionsPage() {
     const [loading, setLoading] = useState(true);
     const [authLoading, setAuthLoading] = useState(true);
     const router = useRouter();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
     useEffect(() => {
         const token = localStorage.getItem('token');

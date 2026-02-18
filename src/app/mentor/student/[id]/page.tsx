@@ -43,7 +43,7 @@ export default function MentorStudentProfile() {
         }
     };
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
     if (loading) {
         return (

@@ -16,7 +16,7 @@ export default function LogbookPage() {
     // --- State ---
     const [studentId, setStudentId] = useState<string | null>(null);
     const [mentorEmail, setMentorEmail] = useState<string>("");
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
 
     const [currentMonth, setCurrentMonth] = useState<number>(1);
     const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());

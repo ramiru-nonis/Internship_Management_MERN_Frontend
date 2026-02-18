@@ -280,7 +280,7 @@ export default function MarksheetSubmission() {
                                         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                                             {selectedStudent.marksheet.fileUrl && (
                                                 <a
-                                                    href={selectedStudent.marksheet.fileUrl.startsWith('http') ? selectedStudent.marksheet.fileUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}${selectedStudent.marksheet.fileUrl}`}
+                                                    href={selectedStudent.marksheet.fileUrl.startsWith('http') ? selectedStudent.marksheet.fileUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}${selectedStudent.marksheet.fileUrl}`}
                                                     target="_blank"
                                                     rel="noreferrer"
                                                     className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800 hover:bg-green-50 transition-colors"
@@ -294,7 +294,7 @@ export default function MarksheetSubmission() {
                                             )}
                                             {selectedStudent.marksheet.marks.industryMarksheetUrl && (
                                                 <a
-                                                    href={selectedStudent.marksheet.marks.industryMarksheetUrl.startsWith('http') ? selectedStudent.marksheet.marks.industryMarksheetUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}${selectedStudent.marksheet.marks.industryMarksheetUrl}`}
+                                                    href={selectedStudent.marksheet.marks.industryMarksheetUrl.startsWith('http') ? selectedStudent.marksheet.marks.industryMarksheetUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}${selectedStudent.marksheet.marks.industryMarksheetUrl}`}
                                                     target="_blank"
                                                     rel="noreferrer"
                                                     className="flex items-center justify-between p-3 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-green-100 dark:border-green-800 hover:bg-green-50 transition-colors"

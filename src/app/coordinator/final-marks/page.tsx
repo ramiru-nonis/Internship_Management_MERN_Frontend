@@ -278,7 +278,7 @@ export default function FinalMarksPage() {
                                                 </div>
                                                 {selectedStudent.marks?.fileUrl && (
                                                     <a
-                                                        href={selectedStudent.marks.fileUrl.startsWith('http') ? selectedStudent.marks.fileUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}${selectedStudent.marks.fileUrl}`}
+                                                        href={selectedStudent.marks.fileUrl.startsWith('http') ? selectedStudent.marks.fileUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}${selectedStudent.marks.fileUrl}`}
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         className="flex items-center px-4 py-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 text-sm font-bold h-fit"
@@ -293,7 +293,7 @@ export default function FinalMarksPage() {
                                                 <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
                                                     <span className="text-xs text-blue-700 dark:text-blue-300 font-medium">Existing Submission found</span>
                                                     <a
-                                                        href={selectedStudent.industryMarksheetUrl.startsWith('http') ? selectedStudent.industryMarksheetUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}${selectedStudent.industryMarksheetUrl}`}
+                                                        href={selectedStudent.industryMarksheetUrl.startsWith('http') ? selectedStudent.industryMarksheetUrl : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api'}${selectedStudent.industryMarksheetUrl}`}
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         className="flex items-center text-xs font-bold text-blue-600 hover:underline"
