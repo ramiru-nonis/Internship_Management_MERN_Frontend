@@ -256,6 +256,23 @@ export default function MentorStudentProfile() {
                                         <ExternalLink className="w-5 h-5 text-gray-300 group-hover:text-green-600" />
                                     </button>
                                 )}
+                                {student.finalConsolidatedLogbookUrl && (
+                                    <button
+                                        onClick={() => handleViewPdf(student.finalConsolidatedLogbookUrl)}
+                                        className="flex items-center justify-between p-5 rounded-2xl border border-emerald-100 dark:border-emerald-700/50 hover:border-emerald-500 hover:bg-emerald-50/50 transition-all group lg:col-span-2"
+                                    >
+                                        <div className="flex items-center">
+                                            <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl mr-4">
+                                                <Award className="w-6 h-6 text-emerald-600" />
+                                            </div>
+                                            <div className="text-left">
+                                                <p className="font-bold text-gray-900 dark:text-white">Consolidated Logbook</p>
+                                                <p className="text-xs text-gray-500">Combined Record PDF (All Months)</p>
+                                            </div>
+                                        </div>
+                                        <ExternalLink className="w-5 h-5 text-gray-300 group-hover:text-emerald-600" />
+                                    </button>
+                                )}
                             </div>
                         </div>
                     </div>

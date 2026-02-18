@@ -234,6 +234,30 @@ export default function StudentDashboard() {
                         </div>
                     </Link>
                 </div>
+
+                {/* Final Documents (Consolidated Logbook) */}
+                {student?.status === 'Completed' && student?.finalConsolidatedLogbookUrl && (
+                    <div className="mt-8 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-emerald-200 dark:border-emerald-900/50 p-6">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center space-x-4 text-center md:text-left">
+                                <div className="p-4 bg-emerald-100 rounded-full">
+                                    <BookOpen className="h-8 w-8 text-emerald-600" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">Your Consolidated Logbook is ready!</h3>
+                                    <p className="text-gray-600 dark:text-gray-400">Download your complete, signed internship record as a single PDF.</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => window.open(student.finalConsolidatedLogbookUrl, '_blank')}
+                                className="w-full md:w-auto px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none flex items-center justify-center gap-2"
+                            >
+                                <FileText className="h-5 w-5" />
+                                Download Combined PDF
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -309,6 +309,8 @@ export default function MentorStudentProfile() {
                 initialLogbookId={submissions.logbooks.currentLogbookId}
                 studentId={student.user?._id || student.user}
                 studentName={`${student.first_name} ${student.last_name}`}
+                studentStatus={student.status}
+                consolidatedUrl={student.finalConsolidatedLogbookUrl}
             />
         </div>
     );

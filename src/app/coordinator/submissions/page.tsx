@@ -31,6 +31,7 @@ interface Submission {
         contact_number?: string;
         email?: string;
     };
+    finalConsolidatedLogbookUrl?: string | null;
 }
 
 interface LogbookData {
@@ -267,6 +268,11 @@ export default function CoordinatorSubmissionsPage() {
                                                     }`}>
                                                     {sub.status}
                                                 </span>
+                                                {sub.finalConsolidatedLogbookUrl && (
+                                                    <span className="ml-2 px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-200">
+                                                        Combined PDF Available
+                                                    </span>
+                                                )}
                                                 {/* Show Scheduled Date if exists */}
                                                 {sub.scheduledDate && (
                                                     <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-200">
@@ -279,10 +285,20 @@ export default function CoordinatorSubmissionsPage() {
                                     <div className="flex space-x-2">
                                         <button
                                             onClick={() => handleView(sub)}
-                                            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium transition-all shadow-sm hover:shadow-md"
+                                            className="px-4 py-2 border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-800 transition-all font-bold shadow-sm hover:shadow-md flex items-center gap-2"
                                         >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             View
                                         </button>
+                                        {sub.type === 'Logbook' && sub.finalConsolidatedLogbookUrl && (
+                                            <button
+                                                onClick={() => window.open(sub.finalConsolidatedLogbookUrl!, '_blank')}
+                                                className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-bold transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                                Download Combined
+                                            </button>
+                                        )}
                                         {/* Schedule Button for Presentations */}
                                         {sub.type === 'Exit Presentation' && (
                                             <button
@@ -350,6 +366,18 @@ export default function CoordinatorSubmissionsPage() {
                                     {selectedLogbook ? `Logbook - Month ${selectedLogbook.month}/${selectedLogbook.year}` : 'Logbook Details'}
                                 </h2>
                                 <div className="flex items-center gap-4">
+                                    {(submissions.find(s => s.studentId === selectedLogbook.studentId._id)?.finalConsolidatedLogbookUrl) && (
+                                        <button
+                                            onClick={() => {
+                                                const url = submissions.find(s => s.studentId === selectedLogbook.studentId._id)?.finalConsolidatedLogbookUrl;
+                                                if (url) window.open(url, '_blank');
+                                            }}
+                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold transition-all shadow-sm flex items-center gap-2 text-sm"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                            Download Combined PDF
+                                        </button>
+                                    )}
                                     {selectedLogbook && selectedLogbook.signedPDFPath && (
                                         <button
                                             onClick={async () => {
@@ -374,7 +402,7 @@ export default function CoordinatorSubmissionsPage() {
                                             className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all shadow-sm flex items-center gap-2"
                                         >
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                            Download PDF
+                                            Download Month PDF
                                         </button>
                                     )}
                                     <button onClick={() => setShowLogbookModal(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl">&times;</button>

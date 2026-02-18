@@ -422,9 +422,24 @@ export default function LogbookPage() {
                         {logbookData && logbookData.signedPDFPath && (
                             <button
                                 onClick={() => setShowPdfModal(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-bold rounded-xl transition-all shadow-md shadow-green-200"
+                            >
+                                <FiEye /> View Signed Month PDF
+                            </button>
+                        )}
+
+                        {/* Consolidated Download Link */}
+                        {submissionHistory.some(h => h.studentId?.status === 'Completed' || h.finalConsolidatedLogbookUrl) && (
+                            <button
+                                onClick={() => {
+                                    const student = submissionHistory.find(h => h.studentId?.finalConsolidatedLogbookUrl)?.studentId;
+                                    const url = student?.finalConsolidatedLogbookUrl || logbookData?.studentId?.finalConsolidatedLogbookUrl;
+                                    if (url) window.open(url, '_blank');
+                                    else alert("Consolidated PDF being prepared...");
+                                }}
                                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-all shadow-md shadow-blue-200"
                             >
-                                <FiEye /> View Signed Logbook
+                                <FiDownload /> Download Combined Logbook
                             </button>
                         )}
 

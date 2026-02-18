@@ -19,6 +19,8 @@ interface LogbookModalProps {
     initialLogbookId: string | null;
     studentId: string;
     studentName: string;
+    studentStatus?: string;
+    consolidatedUrl?: string;
 }
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -144,13 +146,32 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                             <p className="text-sm text-gray-500 dark:text-gray-400">{studentName}</p>
                         </div>
                         <div className="flex items-center gap-4">
+                            {(consolidatedUrl || studentStatus === 'Completed') && (
+                                <button
+                                    onClick={() => {
+                                        if (consolidatedUrl) {
+                                            window.open(consolidatedUrl, '_blank');
+                                        } else {
+                                            // Trigger generation or search for it? 
+                                            // For now, if we don't have URL but status is Completed, 
+                                            // we might need to fetch it from student profile.
+                                            // But let's assume it's passed if available.
+                                            alert("Consolidated logbook is being prepared. Please check back in a moment.");
+                                        }
+                                    }}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold transition-all shadow-sm flex items-center gap-2 text-sm"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Download Combined PDF
+                                </button>
+                            )}
                             {selectedLogbook && selectedLogbook.signedPDFPath && (
                                 <button
                                     onClick={handleDownloadPdf}
                                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all shadow-sm flex items-center gap-2 text-sm"
                                 >
                                     <Download className="w-4 h-4" />
-                                    Download PDF
+                                    Download Month PDF
                                 </button>
                             )}
                             <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
