@@ -27,7 +27,6 @@ export default function FinalSubmissionPage() {
     const [loading, setLoading] = useState(true);
     const [authLoading, setAuthLoading] = useState(true);
     const [logbookStatus, setLogbookStatus] = useState({ complete: false, total: 0, approved: 0 });
-    const [finalConsolidatedLogbookUrl, setFinalConsolidatedLogbookUrl] = useState<string | null>(null);
 
     // PDF Modal State
     const [showPdfModal, setShowPdfModal] = useState(false);
@@ -69,7 +68,6 @@ export default function FinalSubmissionPage() {
             setExistingPresentation(res.data.presentation);
             setMarksheetCount(res.data.marksheetCount || 0);
             setPresentationCount(res.data.presentationCount || 0);
-            setFinalConsolidatedLogbookUrl(res.data.finalConsolidatedLogbookUrl || null);
 
             if (res.data.logbookStatus) {
                 setLogbookStatus(res.data.logbookStatus);
@@ -86,22 +84,6 @@ export default function FinalSubmissionPage() {
         setPdfLoading(true);
         setPdfError(false);
         try {
-            // If the consolidated logbook has been submitted (saved on Cloudinary), use that URL directly
-            if (finalConsolidatedLogbookUrl) {
-                console.log(`[DEBUG] Using saved consolidated logbook URL: ${finalConsolidatedLogbookUrl}`);
-                // Fetch the saved PDF from Cloudinary via proxy to get a blob
-                const response = await api.get(`/submissions/student/${studentId}/consolidated-logbook`, {
-                    responseType: 'blob'
-                });
-                const blob = new Blob([response.data], { type: 'application/pdf' });
-                if (blob.size === 0) throw new Error("Received empty blob");
-                const url = window.URL.createObjectURL(blob);
-                setPdfUrl(url);
-                console.log("[DEBUG] Saved consolidated PDF loaded successfully");
-                return;
-            }
-
-            // Otherwise, generate on-the-fly from approved logbooks
             console.log(`[DEBUG] Fetching consolidated PDF for student: ${studentId}`);
             const response = await api.get(`/logbooks/consolidated/${studentId}`, {
                 responseType: 'blob'
@@ -244,11 +226,6 @@ export default function FinalSubmissionPage() {
                                 <div className="flex-1">
                                     <h3 className="text-xl font-bold text-gray-800 dark:text-white">Signed Logbook</h3>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Your consolidated record of all signed monthly logbooks.</p>
-                                    {finalConsolidatedLogbookUrl && (
-                                        <span className="inline-flex items-center gap-1.5 mt-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold rounded-full">
-                                            <CheckCircle size={14} /> Submitted to Coordinator
-                                        </span>
-                                    )}
                                 </div>
                             </div>
                             <button

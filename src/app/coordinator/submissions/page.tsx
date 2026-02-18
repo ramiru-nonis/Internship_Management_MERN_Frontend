@@ -35,12 +35,15 @@ interface Submission {
 }
 
 interface LogbookData {
-    _id: string; // Add ID for comparison
+    _id: string;
     month: number;
     year: number;
     status: string;
     weeks: any[];
     signedPDFPath?: string;
+    studentId?: {
+        _id: string;
+    };
 }
 
 export default function CoordinatorSubmissionsPage() {
@@ -81,8 +84,6 @@ export default function CoordinatorSubmissionsPage() {
     const [logbookHistory, setLogbookHistory] = useState<LogbookData[]>([]);
     const [loadingLogbook, setLoadingLogbook] = useState(false);
     const [loadingHistory, setLoadingHistory] = useState(false);
-    const [currentViewingStudentId, setCurrentViewingStudentId] = useState<string | null>(null);
-    const [currentViewingConsolidatedUrl, setCurrentViewingConsolidatedUrl] = useState<string | null>(null);
 
     // Sorting State for Scheduled Date
     const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
@@ -159,8 +160,6 @@ export default function CoordinatorSubmissionsPage() {
             setLoadingHistory(true);
             setShowLogbookModal(true);
             setLogbookHistory([]); // Clear previous
-            setCurrentViewingStudentId(sub.studentId || null);
-            setCurrentViewingConsolidatedUrl(sub.finalConsolidatedLogbookUrl || null);
 
             // Fetch specific logbook
             try {
@@ -261,9 +260,7 @@ export default function CoordinatorSubmissionsPage() {
                                             </div>
                                         )}
                                         <div>
-                                            <h3 className="font-bold text-gray-800 dark:text-white">
-                                                <h3 className="font-bold text-gray-800 dark:text-white">{sub.name} <span className="text-gray-400 dark:text-gray-500 font-normal text-sm">({sub.cbNumber})</span></h3>
-                                            </h3>
+                                            <h3 className="font-bold text-gray-800 dark:text-white">{sub.name} <span className="text-gray-400 dark:text-gray-500 font-normal text-sm">({sub.cbNumber})</span></h3>
                                             <p className="text-sm text-gray-500 dark:text-gray-400">
                                                 {sub.type} {sub.month && `- ${sub.month}`}
                                                 <span className={`ml-2 px-2 py-0.5 rounded text-xs font-medium ${sub.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-200' :
@@ -370,10 +367,11 @@ export default function CoordinatorSubmissionsPage() {
                                     {selectedLogbook ? `Logbook - Month ${selectedLogbook.month}/${selectedLogbook.year}` : 'Logbook Details'}
                                 </h2>
                                 <div className="flex items-center gap-4">
-                                    {currentViewingConsolidatedUrl && currentViewingStudentId && (
+                                    {(selectedLogbook?.studentId?._id && submissions.find(s => s.studentId === selectedLogbook.studentId?._id)?.finalConsolidatedLogbookUrl) && (
                                         <button
                                             onClick={() => {
-                                                window.open(`${apiUrl}/submissions/student/${currentViewingStudentId}/consolidated-logbook`, '_blank');
+                                                const url = submissions.find(s => s.studentId === selectedLogbook.studentId?._id)?.finalConsolidatedLogbookUrl;
+                                                if (url) window.open(url, '_blank');
                                             }}
                                             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold transition-all shadow-sm flex items-center gap-2 text-sm"
                                         >
