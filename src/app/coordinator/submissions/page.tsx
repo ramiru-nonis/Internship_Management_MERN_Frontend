@@ -291,7 +291,7 @@ export default function CoordinatorSubmissionsPage() {
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             View
                                         </button>
-                                        {sub.type === 'Logbook' && sub.finalConsolidatedLogbookUrl && (
+                                        {sub.finalConsolidatedLogbookUrl && (
                                             <button
                                                 onClick={() => window.open(`${apiUrl}/submissions/student/${sub.studentId}/consolidated-logbook`, '_blank')}
                                                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-bold transition-all shadow-sm hover:shadow-md flex items-center gap-2"
@@ -370,8 +370,9 @@ export default function CoordinatorSubmissionsPage() {
                                     {(selectedLogbook?.studentId?._id && submissions.find(s => s.studentId === selectedLogbook.studentId?._id)?.finalConsolidatedLogbookUrl) && (
                                         <button
                                             onClick={() => {
-                                                const url = submissions.find(s => s.studentId === selectedLogbook.studentId?._id)?.finalConsolidatedLogbookUrl;
-                                                if (url) window.open(url, '_blank');
+                                                if (selectedLogbook?.studentId?._id) {
+                                                    window.open(`${apiUrl}/submissions/student/${selectedLogbook.studentId._id}/consolidated-logbook`, '_blank');
+                                                }
                                             }}
                                             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold transition-all shadow-sm flex items-center gap-2 text-sm"
                                         >
