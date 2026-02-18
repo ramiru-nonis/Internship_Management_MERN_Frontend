@@ -69,8 +69,8 @@ export default function StudentProfile() {
                 window.open(proxyUrl, '_blank');
                 return;
             }
-            if (type === 'consolidated') {
-                const proxyUrl = `${process.env.NEXT_PUBLIC_API_URL}/submissions/student/${student.user?._id || student.user}/consolidated-logbook`;
+            if (type === 'consolidated' || url.includes('final-logbooks')) {
+                const proxyUrl = `${process.env.NEXT_PUBLIC_API_URL}/submissions/student/${student.user?._id || student?._id || student.user || student}/consolidated-logbook`;
                 window.open(proxyUrl, '_blank');
                 return;
             }
