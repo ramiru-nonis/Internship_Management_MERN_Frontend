@@ -53,7 +53,7 @@ export default function CoordinatorSubmissionsPage() {
     const [loading, setLoading] = useState(true);
     const [authLoading, setAuthLoading] = useState(true);
     const router = useRouter();
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001/api';
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -291,18 +291,6 @@ export default function CoordinatorSubmissionsPage() {
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             View
                                         </button>
-                                        {sub.finalConsolidatedLogbookUrl && (
-                                            <button
-                                                onClick={() => window.open(`${apiUrl}/submissions/student/${sub.studentId}/consolidated-logbook`, '_blank')}
-                                                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-2"
-                                                title="Download Combined Logbook PDF"
-                                            >
-                                                <div className="flex flex-col items-center">
-                                                    <Download size={18} />
-                                                    <span className="text-[10px] font-bold uppercase">Combined</span>
-                                                </div>
-                                            </button>
-                                        )}
                                         {/* Schedule Button for Presentations */}
                                         {sub.type === 'Exit Presentation' && (
                                             <button
@@ -370,19 +358,6 @@ export default function CoordinatorSubmissionsPage() {
                                     {selectedLogbook ? `Logbook - Month ${selectedLogbook.month}/${selectedLogbook.year}` : 'Logbook Details'}
                                 </h2>
                                 <div className="flex items-center gap-4">
-                                    {(selectedLogbook?.studentId?._id && submissions.find(s => s.studentId === selectedLogbook.studentId?._id)?.finalConsolidatedLogbookUrl) && (
-                                        <button
-                                            onClick={() => {
-                                                if (selectedLogbook?.studentId?._id) {
-                                                    window.open(`${apiUrl}/submissions/student/${selectedLogbook.studentId._id}/consolidated-logbook`, '_blank');
-                                                }
-                                            }}
-                                            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold transition-all shadow-sm flex items-center gap-2 text-sm"
-                                        >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                            Download Combined PDF
-                                        </button>
-                                    )}
                                     {selectedLogbook && selectedLogbook.signedPDFPath && (
                                         <button
                                             onClick={async () => {
