@@ -146,6 +146,31 @@ export default function StudentProfile() {
                                 <span className="flex items-center"><Mail className="w-4 h-4 mr-1.5" /> {student.user?.email}</span>
                                 <span className="flex items-center"><Phone className="w-4 h-4 mr-1.5" /> {student.contact_number}</span>
                             </div>
+
+                            {/* NEW: Download Student Records Button */}
+                            <div className="mt-4 flex justify-center md:justify-start">
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const res = await api.get(`/coordinator/students/${id}/report-pdf`, { responseType: 'blob' });
+                                            const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                                            const link = document.createElement('a');
+                                            link.href = url;
+                                            link.setAttribute('download', `Student_Report_${student.cb_number || 'ST'}.pdf`);
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            link.remove();
+                                        } catch (err) {
+                                            console.error("Error downloading report:", err);
+                                            alert("Failed to download student report.");
+                                        }
+                                    }}
+                                    className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold transition-all shadow-sm gap-2 text-sm"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Download Student Records
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
