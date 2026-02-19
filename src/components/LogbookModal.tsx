@@ -168,6 +168,33 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                                     Download Combined PDF
                                 </button>
                             )}
+
+                            {/* NEW: Download Student Record (Coordinator Only) */}
+                            {userRole === 'coordinator' && (
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            // 1. Fetch Report
+                                            const res = await api.get(`/coordinator/students/${studentId}/report-pdf`, { responseType: 'blob' });
+                                            // 2. Create Blob & Download
+                                            const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+                                            const link = document.createElement('a');
+                                            link.href = url;
+                                            link.setAttribute('download', `Student_Report_${studentName.replace(/\s+/g, '_')}.pdf`);
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            link.remove();
+                                        } catch (err) {
+                                            console.error("Error downloading report:", err);
+                                            alert("Failed to download student record.");
+                                        }
+                                    }}
+                                    className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold transition-all shadow-sm flex items-center gap-2 text-sm"
+                                >
+                                    <Download className="w-4 h-4" />
+                                    Download Student Record
+                                </button>
+                            )}
                             {selectedLogbook && (userRole === 'coordinator' || userRole === 'mentor' ? (
                                 <button
                                     onClick={() => window.open(`${apiUrl}/submissions/student/${studentId}/consolidated-logbook`, '_blank')}
