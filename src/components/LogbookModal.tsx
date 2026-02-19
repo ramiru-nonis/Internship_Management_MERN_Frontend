@@ -168,7 +168,7 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                                     Download Combined PDF
                                 </button>
                             )}
-                            {selectedLogbook && (userRole === 'coordinator' || userRole === 'mentor' ? (
+                            {selectedLogbook && (userRole === 'mentor' ? (
                                 <button
                                     onClick={() => window.open(`${apiUrl}/submissions/student/${studentId}/consolidated-logbook`, '_blank')}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold transition-all shadow-sm flex items-center gap-2 text-sm"
