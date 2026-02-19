@@ -286,17 +286,6 @@ export default function CoordinatorSubmissionsPage() {
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                                             View
                                         </button>
-                                        {/* Download Combined Logbook Button */}
-                                        {sub.finalConsolidatedLogbookUrl && (
-                                            <button
-                                                onClick={() => window.open(`${apiUrl}/submissions/student/${sub.studentId}/consolidated-logbook?download=true`, '_blank')}
-                                                className="px-4 py-2 border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-800 transition-all font-bold shadow-sm hover:shadow-md flex items-center gap-2"
-                                                title="Download Combined Logbook"
-                                            >
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                                Logbook
-                                            </button>
-                                        )}
                                         {/* Schedule Button for Presentations */}
                                         {sub.type === 'Exit Presentation' && (
                                             <button
