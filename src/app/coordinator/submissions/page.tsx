@@ -357,7 +357,7 @@ export default function CoordinatorSubmissionsPage() {
                                         onClick={() => {
                                             const studentId = selectedLogbook?.studentId?._id || filteredSubmissions.find(s => s.logbookId === selectedLogbook?._id)?.studentId;
                                             if (studentId) {
-                                                window.open(`${apiUrl}/submissions/student/${studentId}/consolidated-logbook?download=true`, '_blank');
+                                                window.open(`${apiUrl}/submissions/student/${studentId}/consolidated-logbook`, '_blank');
                                             } else {
                                                 alert("Student ID not found for this logbook.");
                                             }
