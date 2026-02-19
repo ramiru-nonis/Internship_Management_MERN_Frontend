@@ -157,10 +157,13 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                             <p className="text-sm text-gray-500 dark:text-gray-400">{studentName}</p>
                         </div>
                         <div className="flex items-center gap-4">
-                            {(consolidatedUrl || studentStatus === 'Completed') && userRole !== 'coordinator' && userRole !== 'mentor' && (
+
+                            {/* Combined PDF for Industry/Academic Mentors & Coordinators */}
+                            {(consolidatedUrl || studentStatus === 'Completed' || (logbookHistory.some(lb => lb.status === 'Approved'))) && (
                                 <button
                                     onClick={() => {
-                                        window.open(`${apiUrl}/submissions/student/${studentId}/consolidated-logbook`, '_blank');
+                                        // Use the on-demand generation endpoint
+                                        window.open(`${apiUrl}/logbooks/consolidated/${studentId}`, '_blank');
                                     }}
                                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold transition-all shadow-sm flex items-center gap-2 text-sm"
                                 >
@@ -195,15 +198,9 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                                     Download Student Record
                                 </button>
                             )}
-                            {selectedLogbook && (userRole === 'coordinator' || userRole === 'mentor' ? (
-                                <button
-                                    onClick={() => window.open(`${apiUrl}/submissions/student/${studentId}/consolidated-logbook`, '_blank')}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-bold transition-all shadow-sm flex items-center gap-2 text-sm"
-                                >
-                                    <Download className="w-4 h-4" />
-                                    Download Logbook
-                                </button>
-                            ) : selectedLogbook.signedPDFPath && (
+
+                            {/* Individual Logbook Actions */}
+                            {selectedLogbook && selectedLogbook.signedPDFPath && (
                                 <button
                                     onClick={handleDownloadPdf}
                                     className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition-all shadow-sm flex items-center gap-2 text-sm"
@@ -211,7 +208,7 @@ export default function LogbookModal({ isOpen, onClose, initialLogbookId, studen
                                     <Download className="w-4 h-4" />
                                     Download Month PDF
                                 </button>
-                            ))}
+                            )}
                             <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
                                 <X className="w-6 h-6" />
                             </button>
