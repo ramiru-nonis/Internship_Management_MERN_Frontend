@@ -247,6 +247,35 @@ export default function MentorVerifyPage() {
                                 </p>
                             </div>
 
+                            {/* NEW: Download Student Record */}
+                            <div className="mb-4">
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            const response = await api.get(`/logbooks/${logbookId}/student-report`, {
+                                                responseType: 'blob'
+                                            });
+                                            const blob = new Blob([response.data], { type: 'application/pdf' });
+                                            const url = window.URL.createObjectURL(blob);
+                                            const link = document.createElement('a');
+                                            link.href = url;
+                                            link.setAttribute('download', `Student_Record.pdf`);
+                                            document.body.appendChild(link);
+                                            link.click();
+                                            link.remove();
+                                            window.URL.revokeObjectURL(url);
+                                        } catch (err) {
+                                            console.error("Error downloading student record", err);
+                                            alert("Failed to download student record. Please try again.");
+                                        }
+                                    }}
+                                    className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-50 border-2 border-indigo-200 text-indigo-700 font-bold rounded-xl hover:bg-indigo-100 transition-colors mb-4"
+                                    title="Download complete student record including previous logbooks"
+                                >
+                                    <FiDownload /> Download Full Student Record
+                                </button>
+                            </div>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <label className="text-sm font-bold text-gray-700">1. Download Logbook</label>
